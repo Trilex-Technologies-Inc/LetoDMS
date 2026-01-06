@@ -416,7 +416,18 @@ class LetoDMS_Bootstrap_Style extends LetoDMS_View_Common {
 	} /* }}} */
 	
 	private function calendarNavigationBar($d){ /* {{{ */
-		$ds="&day=".$d[0]."&month=".$d[1]."&year=".$d[2];
+		// Handle null or invalid date parameter
+		if ($d == null || !is_array($d) || count($d) < 3) {
+			// Use current date as fallback
+			$day = date('j');
+			$month = date('n');
+			$year = date('Y');
+		} else {
+			$day = $d[0];
+			$month = $d[1];
+			$year = $d[2];
+		}
+		$ds="&day=".$day."&month=".$month."&year=".$year;
 	
 		echo "<ul class=\"nav\">\n";
 		echo "<li><a href=\"../out/out.Calendar.php?mode=w".$ds."\">".getMLText("week_view")."</a></li>\n";

@@ -9,7 +9,7 @@
     -->
     <display
       siteName = "letoDMS"
-      footNote = "letoDMS free document management system - www.letodms.org"
+      footNote = "letoDMS free document management system - www.letodms.com"
       printDisclaimer="true"
       language = "English"
       theme = "clean"

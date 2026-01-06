@@ -1,0 +1,12 @@
+Jan 05 05:19:40  [info] admin (16.171.21.118) op.Login
+Jan 05 05:19:52  [info] admin (16.171.21.118) op.FolderAccess.php?formtoken=dffb406e2d5f42678cd3f3b6543df8f1&folderid=1&action=addaccess&userid=1&groupid=-1&mode=2
+Jan 05 05:27:52  [info] admin (2.183.140.15) op.AddEvent?name=wew&from=1767589200&to=1767675599
+Jan 05 06:33:59  [info] admin (16.171.21.118) op.Login
+Jan 05 06:58:07  [info] admin (2.183.140.15) op.AddEvent?name=dd&from=1767589200&to=1767675599
+Jan 05 07:13:51  [info] admin (2.183.140.15) op.UsrMgr UI::exitError error=Access denied. pagetitle=Admin-Tools
+Jan 05 07:14:30  [info] admin (2.183.140.15) op.UsrMgr.php&action=edituser&userid=2
+Jan 05 07:15:11  [info] admin (2.183.140.15) op.UsrMgr UI::exitError error=Access denied. pagetitle=Admin-Tools
+Jan 05 07:16:10  [info] admin (2.183.140.15) op.EditFolder?folderid=1
+Jan 05 07:18:14  [info] admin (2.183.140.15) op.AddSubFolder?name=marketer&folderid=2
+Jan 05 12:00:30  [info] admin (2.183.140.15) op.Login
+Jan 05 12:25:03  [info] admin (72.143.202.93) op.Login

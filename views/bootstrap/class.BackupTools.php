@@ -76,14 +76,18 @@ class LetoDMS_View_BackupTools extends LetoDMS_Bootstrap_Style {
 
 		$print_header=true;
 
-		$handle = opendir($contentdir);
 		$entries = array();
-		while ($e = readdir($handle)){
-			if (is_dir($contentdir.$e)) continue;
-			if (strpos($e,".tar.gz")==FALSE) continue;
-			$entries[] = $e;
+		if (is_dir($contentdir) && is_readable($contentdir)) {
+			$handle = opendir($contentdir);
+			if ($handle !== false && is_resource($handle)) {
+				while (($e = readdir($handle)) !== false){
+					if (is_dir($contentdir.$e)) continue;
+					if (strpos($e,".tar.gz")==FALSE) continue;
+					$entries[] = $e;
+				}
+				closedir($handle);
+			}
 		}
-		closedir($handle);
 
 		sort($entries);
 		$entries = array_reverse($entries);
@@ -137,14 +141,18 @@ class LetoDMS_View_BackupTools extends LetoDMS_Bootstrap_Style {
 
 		$print_header=true;
 
-		$handle = opendir($contentdir);
 		$entries = array();
-		while ($e = readdir($handle)){
-			if (is_dir($contentdir.$e)) continue;
-			if (strpos($e,".sql.gz")==FALSE) continue;
-			$entries[] = $e;
+		if (is_dir($contentdir) && is_readable($contentdir)) {
+			$handle = opendir($contentdir);
+			if ($handle !== false && is_resource($handle)) {
+				while (($e = readdir($handle)) !== false){
+					if (is_dir($contentdir.$e)) continue;
+					if (strpos($e,".sql.gz")==FALSE) continue;
+					$entries[] = $e;
+				}
+				closedir($handle);
+			}
 		}
-		closedir($handle);
 
 		sort($entries);
 		$entries = array_reverse($entries);

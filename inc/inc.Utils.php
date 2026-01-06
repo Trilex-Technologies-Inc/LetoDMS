@@ -265,9 +265,18 @@ function createVersionigFile($document) { /* {{{ */
 // funcion by shalless at rubix dot net dot au (php.net)
 function dskspace($dir) { /* {{{ */
    $s = stat($dir);
+   if ($s === false || !is_array($s)) {
+       return 0;
+   }
+   if (!isset($s["blocks"])) {
+       return 0;
+   }
    $space = $s["blocks"]*512;
    if (is_dir($dir)) {
      $dh = opendir($dir);
+     if ($dh === false) {
+         return $space;
+     }
      while (($file = readdir($dh)) !== false)
        if ($file != "." and $file != "..")
          $space += dskspace($dir."/".$file);

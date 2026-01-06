@@ -42,7 +42,17 @@ class LetoDMS_View_Help extends LetoDMS_Bootstrap_Style {
 
 		$this->contentContainerStart();
 
-		readfile("../languages/".$user->getLanguage()."/help.htm");
+		$helpFile = "../languages/".$user->getLanguage()."/help.htm";
+		if (!file_exists($helpFile)) {
+			// Fallback to English if help file doesn't exist for user's language
+			$helpFile = "../languages/English/help.htm";
+		}
+		
+		if (file_exists($helpFile)) {
+			readfile($helpFile);
+		} else {
+			echo "<p>Help is not available for this language.</p>";
+		}
 
 		$this->contentContainerEnd();
 		$this->htmlEndPage();
