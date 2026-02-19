@@ -364,7 +364,7 @@ if ($action=="setSettings") {
 						echo '<a href="install.php?disableinstall=1">' . getMLText("settings_disable_install") . '</a>';
 						echo "<br/><br/>";
 
-						echo '<a href="' . $httpRoot . '/out/out.Settings.php">' . getMLText("settings_more_settings") .'</a>';
+						echo '<a href="../out/out.Settings.php">' . getMLText("settings_more_settings") .'</a>';
 					}
 				} else {
 					print "<p>You does not seem to have a valid database. The table tblVersion is missing.</p>";
@@ -376,7 +376,7 @@ if ($action=="setSettings") {
 	// Back link
 	echo '<br/>';
 	echo '<br/>';
-	echo '<a href="' . $httpRoot . '/install/install.php">' . getMLText("back") . '</a>';
+	echo '<a href="/install/install.php">' . getMLText("back") . '</a>';
 
 } else {
 
