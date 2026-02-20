@@ -19,12 +19,12 @@
 /**
  * @uses Zend_Search_Lucene
  */
-require_once('../Zend/Search/Lucene.php');
+require_once(__DIR__ . '/../Zend/Search/Lucene.php');
 
 /**
  * @uses Zend_Search_Lucene_Analysis_TokenFilter_Stopwords
  */
-require_once("../Zend/Search/Lucene/Analysis/TokenFilter/StopWords.php");
+require_once(__DIR__ . "/../Zend/Search/Lucene/Analysis/TokenFilter/StopWords.php");
 
 /**
  * @uses LetoDMS_Lucene_Indexer
