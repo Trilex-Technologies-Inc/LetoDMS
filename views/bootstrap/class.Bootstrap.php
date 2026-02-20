@@ -43,8 +43,8 @@ class LetoDMS_Bootstrap_Style extends LetoDMS_View_Common {
 		echo '<link href="../styles/'.$this->theme.'/application.css" rel="stylesheet">'."\n";
 		if($this->extraheader)
 			echo $this->extraheader;
-		echo '<script type="text/javascript" src="../styles/bootstrap/jquery/jquery.min.js"></script>'."\n";
-		echo '<script type="text/javascript" src="../js/jquery.passwordstrength.js"></script>'."\n";
+			echo '<script type="text/javascript" src="https://code.jquery.com/jquery-1.8.3.min.js"></script>'."\n";
+			echo '<script type="text/javascript" src="../js/jquery.passwordstrength.js"></script>'."\n";
 
 		echo '<link rel="shortcut icon" href="../styles/'.$this->theme.'/favicon.ico" type="image/x-icon"/>'."\n";
 		echo "<title>".(strlen($this->params['sitename'])>0 ? $this->params['sitename'] : "LetoDMS").(strlen($title)>0 ? ": " : "").htmlspecialchars($title)."</title>\n";

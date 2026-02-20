@@ -699,14 +699,18 @@ CREATE TABLE `tblVersion` (
   `subminor` smallint
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
--- --------------------------------------------------------
+INSERT INTO tblCategory (name) VALUES ('');
 
---
--- Initial content for database
---
+INSERT INTO tblUsers (
+    id, login, pwd, fullName, email, language, theme, comment, 
+    role, hidden, pwdExpiration, loginfailures, disabled, quota
+) VALUES 
+(1, 'admin', '21232f297a57a5a743894a0e4a801fc3', 'Administrator', 'address@server.com', '', '', '', 1, 0, '0000-00-00 00:00:00', 0, 0, NULL),
+(2, 'guest', NULL, 'Guest User', NULL, '', '', '', 2, 0, '0000-00-00 00:00:00', 0, 0, NULL);
 
-INSERT INTO tblUsers VALUES (1, 'admin', '21232f297a57a5a743894a0e4a801fc3', 'Administrator', 'address@server.com', '', '', '', 1, 0, '', 0, 0, 0);
-INSERT INTO tblUsers VALUES (2, 'guest', NULL, 'Guest User', NULL, '', '', '', 2, 0, '', 0, 0, 0);
-INSERT INTO tblFolders VALUES (1, 'DMS', 0, '', 'DMS root', UNIX_TIMESTAMP(), 1, 0, 2, 0);
-INSERT INTO tblVersion VALUES (NOW(), 4, 0, 0);
-INSERT INTO tblCategory VALUES (0, '');
+INSERT INTO tblFolders (
+    id, name, parent, folderList, comment, date, owner, 
+    inheritAccess, defaultAccess, sequence
+) VALUES (
+    1, 'DMS', 0, '', 'DMS root', UNIX_TIMESTAMP(), 1, 0, 2, 0
+);

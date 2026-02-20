@@ -45,24 +45,36 @@ class UI_Default {
 	} /* }}} */
 
 	function htmlStartPage($title="", $bodyClass="") { /* {{{ */
-		global $theme, $settings;
+	global $theme, $settings;
 
-		if(file_exists("../themes/".$theme."/HTMLHead.html")) {
-			include("../themes/".$theme."/HTMLHead.html");
-		} else {
-			echo "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01//EN\"\n".
-				"\"http://www.w3.org/TR/html4/strict.dtd\">\n";
-			echo "<html>\n<head>\n";
-			echo "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" />\n";
-			echo "<link rel=\"STYLESHEET\" type=\"text/css\" href=\"../styles/".$theme."/style.css\"/>\n";
-			echo "<link rel=\"STYLESHEET\" type=\"text/css\" href=\"../styles/print.css\" media=\"print\"/>\n";
-			echo "<link rel='shortcut icon' href='../styles/".$theme."/favicon.ico' type='image/x-icon'/>\n";
-			echo "<script type='text/javascript' src='../js/jquery.min.js'></script>\n";
-			echo "<title>".(strlen($settings->_siteName)>0 ? $settings->_siteName : "LetoDMS").(strlen($title)>0 ? ": " : "").htmlspecialchars($title)."</title>\n";
-			echo "</head>\n";
-			echo "<body".(strlen($bodyClass)>0 ? " class=\"".$bodyClass."\"" : "").">\n";
-		}
-	} /* }}} */
+	if(file_exists("../themes/".$theme."/HTMLHead.html")) {
+		include("../themes/".$theme."/HTMLHead.html");
+	} else {
+		echo "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01//EN\"\n".
+			"\"http://www.w3.org/TR/html4/strict.dtd\">\n";
+		echo "<html>\n<head>\n";
+		echo "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" />\n";
+		echo "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n";
+		
+		// Bootstrap 5 CSS
+		echo "<link href=\"https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css\" rel=\"stylesheet\" integrity=\"sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN\" crossorigin=\"anonymous\">\n";
+		
+		// Original theme CSS (loaded after Bootstrap to allow overrides)
+		echo "<link rel=\"STYLESHEET\" type=\"text/css\" href=\"../styles/".$theme."/style.css\"/>\n";
+		echo "<link rel=\"STYLESHEET\" type=\"text/css\" href=\"../styles/print.css\" media=\"print\"/>\n";
+		echo "<link rel='shortcut icon' href='../styles/".$theme."/favicon.ico' type='image/x-icon'/>\n";
+		
+		// jQuery (keeping original)
+		echo "<script type='text/javascript' src='../js/jquery.min.js'></script>\n";
+		
+		// Bootstrap 5 JavaScript Bundle with Popper
+		echo "<script src=\"https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js\" integrity=\"sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL\" crossorigin=\"anonymous\"></script>\n";
+		
+		echo "<title>".(strlen($settings->_siteName)>0 ? $settings->_siteName : "LetoDMS").(strlen($title)>0 ? ": " : "").htmlspecialchars($title)."</title>\n";
+		echo "</head>\n";
+		echo "<body".(strlen($bodyClass)>0 ? " class=\"".$bodyClass."\"" : "").">\n";
+	}
+} /* }}} */
 
 	function htmlEndPage() { /* {{{ */
 		global $theme;
