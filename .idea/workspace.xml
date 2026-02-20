@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="0f2a1760-07ad-4ddc-b99a-8eb75b71bbc1" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/LICENSE" beforeDir="false" afterPath="$PROJECT_DIR$/LICENSE" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/conf/settings.xml.template" beforeDir="false" afterPath="$PROJECT_DIR$/conf/settings.xml.template" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/inc/inc.ClassUI.php" beforeDir="false" afterPath="$PROJECT_DIR$/inc/inc.ClassUI.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/inc/inc.DBInit.php" beforeDir="false" afterPath="$PROJECT_DIR$/inc/inc.DBInit.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/inc/inc.Utils.php" beforeDir="false" afterPath="$PROJECT_DIR$/inc/inc.Utils.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/views/bootstrap/class.BackupTools.php" beforeDir="false" afterPath="$PROJECT_DIR$/views/bootstrap/class.BackupTools.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/views/bootstrap/class.Bootstrap.php" beforeDir="false" afterPath="$PROJECT_DIR$/views/bootstrap/class.Bootstrap.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/views/bootstrap/class.Help.php" beforeDir="false" afterPath="$PROJECT_DIR$/views/bootstrap/class.Help.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/views/bootstrap/class.Login.php" beforeDir="false" afterPath="$PROJECT_DIR$/views/bootstrap/class.Login.php" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ComposerSettings" synchronizationState="SYNCHRONIZE">
+    <pharConfigPath>$PROJECT_DIR$/adodb/composer.json</pharConfigPath>
+    <execution />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="main" />
+      </map>
+    </option>
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;momen573&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/Trilex-Technologies-Inc/LetoDMS.git&quot;,
+    &quot;accountId&quot;: &quot;3be73bd2-183e-43c8-9822-30abcf197a09&quot;
+  }
+}</component>
+  <component name="PhpWorkspaceProjectConfiguration" interpreter_name="/bin/php" />
+  <component name="ProjectColorInfo">{
+  &quot;customColor&quot;: &quot;&quot;,
+  &quot;associatedIndex&quot;: 7
+}</component>
+  <component name="ProjectId" id="366sHTAwP1HKLBFn6xkn2LWTlMf" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "git-widget-placeholder": "2.2",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "vue.rearranger.settings.migration": "true"
+  }
+}]]></component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-js-predefined-d6986cc7102b-1632447f56bf-JavaScript-PS-243.26574.100" />
+        <option value="bundled-php-predefined-a98d8de5180a-1ec7b7818973-com.jetbrains.php.sharedIndexes-PS-243.26574.100" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="0f2a1760-07ad-4ddc-b99a-8eb75b71bbc1" name="Changes" comment="" />
+      <created>1764338273011</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1764338273011</updated>
+      <workItem from="1764338275286" duration="777000" />
+      <workItem from="1764339663123" duration="425000" />
+      <workItem from="1765205064579" duration="674000" />
+      <workItem from="1765288215845" duration="89000" />
+      <workItem from="1767608070425" duration="702000" />
+      <workItem from="1767713921411" duration="641000" />
+      <workItem from="1767714586920" duration="393000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+</project>

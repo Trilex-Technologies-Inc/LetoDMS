@@ -44,9 +44,11 @@ class UI extends UI_Default {
 	 * @param array $params parameter passed to constructor of view class
 	 * @return object an object of a class implementing the view
 	 */
-	function factory($theme, $class, $params=array()) { /* {{{ */
+	function factory($theme="blue", $class, $params=array()) { /* {{{ */
 		global $settings, $session;
+$theme="bootstrap";
 		if(file_exists("../views/".$theme."/class.".$class.".php")) {
+       
 			require("../views/".$theme."/class.".$class.".php");
 			$classname = "LetoDMS_View_".$class;
 			$view = new $classname($params, $theme);
@@ -93,7 +95,8 @@ class UI extends UI_Default {
 	function exitError($pagetitle, $error) {
 		global $theme;
 		$tmp = 'ErrorDlg';
-		$view = UI::factory($theme, $tmp);
+   
+		$view = UI::factory("bootstrap", $tmp);
 		$view->exitError($pagetitle, $error);
 	}
 }

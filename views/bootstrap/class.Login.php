@@ -35,7 +35,11 @@ class LetoDMS_View_Login extends LetoDMS_Bootstrap_Style {
 		$enableguestlogin = $this->params['enableguestlogin'];
 		$enablepasswordforgotten = $this->params['enablepasswordforgotten'];
 		$refer = $this->params['referrer'];
-		$themes = $this->params['themes'];
+		if (empty($this->params['themes'])) {
+    $themes = $this->params['themes'];
+} else {
+    $themes = ['blue', 'bootstrap'];
+}
 
 		$this->htmlStartPage(getMLText("sign_in"), "login");
 		$this->globalBanner();
@@ -59,6 +63,11 @@ function checkForm()
 
 function guestLogin()
 {
+  if (isset($this->params['themes'])) {
+            $themes = $this->params['themes'];
+        } else {
+            $themes = ['blue', 'bootstrap'];
+        }
 	url = "../op/op.Login.php?login=guest" + 
 		"&sesstheme=" + document.form1.sesstheme.options[document.form1.sesstheme.options.selectedIndex].value +
 		"&lang=" + document.form1.lang.options[document.form1.lang.options.selectedIndex].value;
@@ -92,7 +101,7 @@ function guestLogin()
 			print "<select name=\"lang\">";
 			print "<option value=\"\">-";
 			$languages = getLanguages();
-			foreach ($languages as $currLang) {
+			foreach ($languages??[] as $currLang) {
 				print "<option value=\"".$currLang."\">".$currLang;
 			}
 			print "</select>";
@@ -105,7 +114,7 @@ function guestLogin()
 <?php
 			print "<select name=\"sesstheme\">";
 			print "<option value=\"\">-";
-			foreach ($themes as $currTheme) {
+			foreach ($themes??[] as $currTheme) {
 				print "<option value=\"".$currTheme."\">".$currTheme;
 			}
 			print "</select>";
