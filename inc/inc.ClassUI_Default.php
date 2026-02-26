@@ -145,9 +145,8 @@ class UI_Default {
 		echo "<input type=\"hidden\" name=\"searchin[]\" value=\"2\" />";
 		echo "<input type=\"hidden\" name=\"searchin[]\" value=\"3\" />";
 		echo "<input name=\"query\" type=\"text\" size=\"20\" />";
-		if($settings->_enableFullSearch) {
-			echo "<input type=\"checkbox\" name=\"fullsearch\" value=\"1\" title=\"".getMLText('fullsearch_hint')."\"/> ".getMLText('fullsearch_hint')."";
-		}
+		echo "<input type=\"hidden\" name=\"fullsearch\" value=\"0\" /> ";
+		
 		echo "<input type=\"submit\" value=\"".getMLText("search")."\" id=\"searchButton\"/></form>\n";
 		echo "</li>\n</ul>\n";
 		echo "<div id=\"logo\"><img src='../styles/logo.png'></div>\n";

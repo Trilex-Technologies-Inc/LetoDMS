@@ -84,7 +84,7 @@ class Settings { /* {{{ */
 	// Where the stop word file is located
 	var $_stopWordsFile = null;
 	// enable/disable lucene fulltext search
-	var $_enableFullSearch = true;
+	var $_enableFullSearch = false;
 	// contentOffsetDirTo
 	var $_contentOffsetDir = "1048576";
 	// Maximum number of sub-directories per parent directory
@@ -922,7 +922,7 @@ class Settings { /* {{{ */
 		}
 
 		// $this->_luceneDir
-		if (!file_exists($this->_luceneDir)) {
+		if ($this->_enableFullSearch && !file_exists($this->_luceneDir)) {
 			$result["luceneDir"] = array(
 				"status" => "notfound",
 				"type" => "error",
@@ -1109,13 +1109,13 @@ class Settings { /* {{{ */
 		}
 
 		// Check for Zend/Search/Lucene.php
-		if (!Settings::findInIncPath('Zend/Search/Lucene.php')) {
+		/*if (!Settings::findInIncPath('Zend/Search/Lucene.php')) {
 			$result["zendframework"] = array(
 				"status" => "notfound",
 				"type" => "warning",
 				"suggestion" => "install_zendframework"
 			);
-		}
+		}*/
 		return $result;
 	} /* }}} */
 

@@ -27,7 +27,7 @@ if (!$user->isAdmin()) {
 }
 
 $tmp = explode('.', basename($_SERVER['SCRIPT_FILENAME']));
-$view = UI::factory($theme, $tmp[1], array('dms'=>$dms, 'user'=>$user, 'enablefullsearch'=>$settings->_enableFullSearch, 'logfileenable'=>$settings->_logFileEnable));
+$view = UI::factory($theme, $tmp[1], array('dms'=>$dms, 'user'=>$user, false, 'logfileenable'=>$settings->_logFileEnable));
 if($view) {
 	$view->show();
 	exit;
