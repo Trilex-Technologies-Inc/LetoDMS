@@ -162,7 +162,6 @@ if(!$settings->_rootDir)
 //$settings->_luceneClassDir = $settings->_rootDir;
 if(!$settings->_contentDir) {
 	$settings->_contentDir = $settings->_rootDir . 'data/';
-	$settings->_luceneDir = $settings->_rootDir . 'data/lucene/';
 	$settings->_stagingDir = $settings->_rootDir . 'data/staging/';
 }
 $settings->_httpRoot = $httpRoot;
@@ -256,7 +255,6 @@ if ($action=="setSettings") {
 	$settings->_rootDir = $_POST["rootDir"];
 	$settings->_httpRoot = $_POST["httpRoot"];
 	$settings->_contentDir = $_POST["contentDir"];
-	$settings->_luceneDir = $_POST["luceneDir"];
 	$settings->_stagingDir = $_POST["stagingDir"];
 	$settings->_extraPath = $_POST["extraPath"];
 	$settings->_dbDriver = $_POST["dbDriver"];
@@ -265,7 +263,9 @@ if ($action=="setSettings") {
 	$settings->_dbUser = $_POST["dbUser"];
 	$settings->_dbPass = $_POST["dbPass"];
 	$settings->_coreDir = $_POST["coreDir"];
-	$settings->_luceneClassDir = $_POST["luceneClassDir"];
+	$settings->_enableFullSearch = false;
+	$settings->_luceneDir = "";
+	$settings->_luceneClassDir = "";
 
 	/**
 	 * Check Parameters, require version 3.3.x
@@ -410,11 +410,6 @@ foreach($queries as $query) {
 				<small class="text-info">Important directory - needs write permissions</small>
 			</div>
 			
-			<div class="mb-3" title="<?php printMLText("settings_luceneDir_desc");?>">
-				<label class="form-label fw-bold"><?php printMLText("settings_luceneDir");?>:</label>
-				<input type="text" class="form-control border-info bg-light" name="luceneDir" value="<?php echo $settings->_luceneDir ?>" />
-				<small class="text-info">Search index directory</small>
-			</div>
 			
 			<div class="mb-3" title="<?php printMLText("settings_stagingDir_desc");?>">
 				<label class="form-label fw-bold"><?php printMLText("settings_stagingDir");?>:</label>
@@ -427,10 +422,7 @@ foreach($queries as $query) {
 				<input type="text" class="form-control" name="coreDir" value="<?php echo $settings->_coreDir ?>" />
 			</div>
 			
-			<div class="mb-3" title="<?php printMLText("settings_luceneClassDir_desc");?>">
-				<label class="form-label fw-bold"><?php printMLText("settings_luceneClassDir");?>:</label>
-				<input type="text" class="form-control" name="luceneClassDir" value="<?php echo $settings->_luceneClassDir ?>" />
-			</div>
+			
 			
 			<div class="mb-3" title="<?php printMLText("settings_extraPath_desc");?>">
 				<label class="form-label fw-bold"><?php printMLText("settings_extraPath");?>:</label>

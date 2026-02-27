@@ -25,49 +25,46 @@ include("../inc/inc.Language.php");
 include("../inc/inc.ClassUI.php");
 include("../inc/inc.Authentication.php");
 
-/**
- * Include class to preview documents
- */
-require_once("LetoDMS/Preview.php");
 
-if (!isset($_GET["documentid"]) || !is_numeric($_GET["documentid"]) || intval($_GET["documentid"])<1) {
-	UI::exitError(getMLText("document_title", array("documentname" => getMLText("invalid_doc_id"))),getMLText("invalid_doc_id"));
+require_once("/../LetoDMS_Preview/Preview.php");
+
+
+if (!isset($_GET["documentid"]) || !is_numeric($_GET["documentid"]) || intval($_GET["documentid"]) < 1) {
+	UI::exitError(getMLText("document_title", array("documentname" => getMLText("invalid_doc_id"))), getMLText("invalid_doc_id"));
 }
 
 $document = $dms->getDocument($_GET["documentid"]);
 
 if (!is_object($document)) {
-	UI::exitError(getMLText("document_title", array("documentname" => getMLText("invalid_doc_id"))),getMLText("invalid_doc_id"));
+	UI::exitError(getMLText("document_title", array("documentname" => getMLText("invalid_doc_id"))), getMLText("invalid_doc_id"));
 }
 
 if ($document->getAccessMode($user) < M_READ) {
-	UI::exitError(getMLText("document_title", array("documentname" => htmlspecialchars($document->getName()))),getMLText("access_denied"));
+	UI::exitError(getMLText("document_title", array("documentname" => htmlspecialchars($document->getName()))), getMLText("access_denied"));
 }
 
-if (!isset($_GET["version"]) || !is_numeric($_GET["version"]) || intval($_GET["version"])<1) {
-	UI::exitError(getMLText("document_title", array("documentname" => htmlspecialchars($document->getName()))),getMLText("invalid_version"));
+if (!isset($_GET["version"]) || !is_numeric($_GET["version"]) || intval($_GET["version"]) < 1) {
+	UI::exitError(getMLText("document_title", array("documentname" => htmlspecialchars($document->getName()))), getMLText("invalid_version"));
 }
 
 $version = $_GET["version"];
 $version = $document->getContentByVersion($version);
 
 if (!is_object($version)) {
-	UI::exitError(getMLText("document_title", array("documentname" => htmlspecialchars($document->getName()))),getMLText("invalid_version"));
+	UI::exitError(getMLText("document_title", array("documentname" => htmlspecialchars($document->getName()))), getMLText("invalid_version"));
 }
 
 // if version is last got out.ViewDocument
 $latestContent = $document->getLatestContent();
-if ($latestContent->getVersion()==$version->getVersion()) {
-	header("Location:../out/out.ViewDocument.php?documentid=".$document->getID());
+if ($latestContent->getVersion() == $version->getVersion()) {
+	header("Location:../out/out.ViewDocument.php?documentid=" . $document->getID());
 }
 
 $folder = $document->getFolder();
 
 $tmp = explode('.', basename($_SERVER['SCRIPT_FILENAME']));
-$view = UI::factory($theme, $tmp[1], array('dms'=>$dms, 'user'=>$user, 'folder'=>$folder, 'document'=>$document, 'version'=>$version, 'viewonlinefiletypes'=>$settings->_viewOnlineFileTypes, 'enableversionmodification'=>$settings->_enableVersionModification, 'cachedir'=>$settings->_cacheDir));
-if($view) {
+$view = UI::factory($theme, $tmp[1], array('dms' => $dms, 'user' => $user, 'folder' => $folder, 'document' => $document, 'version' => $version, 'viewonlinefiletypes' => $settings->_viewOnlineFileTypes, 'enableversionmodification' => $settings->_enableVersionModification, 'cachedir' => $settings->_cacheDir));
+if ($view) {
 	$view->show();
 	exit;
 }
-
-?>

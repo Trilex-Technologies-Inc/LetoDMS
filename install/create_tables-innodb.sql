@@ -60,7 +60,7 @@ CREATE TABLE `tblUsers` (
   `comment` text NOT NULL,
   `role` smallint(1) NOT NULL default '0',
   `hidden` smallint(1) NOT NULL default '0',
-  `pwdExpiration` datetime NOT NULL default '0000-00-00 00:00:00',
+  `pwdExpiration` datetime  default NULL ,
   `loginfailures` tinyint(4) NOT NULL default '0',
   `disabled` smallint(1) NOT NULL default '0',
   `quota` bigint,

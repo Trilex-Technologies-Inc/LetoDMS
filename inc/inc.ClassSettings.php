@@ -75,7 +75,7 @@ class Settings { /* {{{ */
 	var $_contentDir = null;
 	// Where the preview files are saved
 	var $_cacheDir = null;
-	// Where the partitions of an uploaded file by the jumploader is saved
+	// Where the partitions of an uploaded file by the dropzone is saved
 	var $_stagingDir = null;
 	// Where the lucene fulltext index is saved
 	var $_luceneDir = null;
@@ -84,7 +84,7 @@ class Settings { /* {{{ */
 	// Where the stop word file is located
 	var $_stopWordsFile = null;
 	// enable/disable lucene fulltext search
-	var $_enableFullSearch = true;
+	var $_enableFullSearch = false;
 	// contentOffsetDirTo
 	var $_contentOffsetDir = "1048576";
 	// Maximum number of sub-directories per parent directory
@@ -125,9 +125,9 @@ class Settings { /* {{{ */
 	var $_logFileEnable = true;
 	// the log file rotation
 	var $_logFileRotation = "d";
-	// Enable file upload by jumploader
+	// Enable file upload by dropzone
 	var $_enableLargeFileUpload = false;
-	// size of partitions for file upload by jumploader
+	// size of partitions for file upload by dropzone
 	var $_partitionSize = 2000000;
 	// enable/disable users images
 	var $_enableUserImage = false;
@@ -922,7 +922,7 @@ class Settings { /* {{{ */
 		}
 
 		// $this->_luceneDir
-		if (!file_exists($this->_luceneDir)) {
+		if ($this->_enableFullSearch && !file_exists($this->_luceneDir)) {
 			$result["luceneDir"] = array(
 				"status" => "notfound",
 				"type" => "error",
@@ -1109,13 +1109,13 @@ class Settings { /* {{{ */
 		}
 
 		// Check for Zend/Search/Lucene.php
-		if (!Settings::findInIncPath('Zend/Search/Lucene.php')) {
+		/*if (!Settings::findInIncPath('Zend/Search/Lucene.php')) {
 			$result["zendframework"] = array(
 				"status" => "notfound",
 				"type" => "warning",
 				"suggestion" => "install_zendframework"
 			);
-		}
+		}*/
 		return $result;
 	} /* }}} */
 

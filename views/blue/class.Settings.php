@@ -154,11 +154,12 @@ if(!is_writeable($settings->_configFilePath)) {
       </tr>
       <tr title="<?php printMLText("settings_enableUsersView_desc");?>">
         <td><?php printMLText("settings_enableUsersView");?>:</td>
-        <td><input name="enableUsersView" type="checkbox" <?php if ($settings->_enableUsersView) echo "checked" ?> /></td>
+        <td>  <input name="enableFullSearch" type="hidden" value="false" /><input name="enableUsersView" type="checkbox" <?php if ($settings->_enableUsersView) echo "checked" ?> /></td>
       </tr>
-      <tr title="<?php printMLText("settings_enableFullSearch_desc");?>">
-        <td><?php printMLText("settings_enableFullSearch");?>:</td>
-        <td><input name="enableFullSearch" type="checkbox" <?php if ($settings->_enableFullSearch) echo "checked" ?> /></td>
+      
+       
+        
+        
       </tr>
       <tr title="<?php printMLText("settings_stopWordsFile_desc");?>">
         <td><?php printMLText("settings_stopWordsFile");?>:</td>

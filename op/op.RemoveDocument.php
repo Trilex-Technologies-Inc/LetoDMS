@@ -53,19 +53,7 @@ if (!$document->remove()) {
 } else {
 
 	/* Remove the document from the fulltext index */
-	if($settings->_enableFullSearch) {
-		if(!empty($settings->_luceneClassDir))
-			require_once($settings->_luceneClassDir.'/Lucene.php');
-		else
-			require_once('LetoDMS/Lucene.php');
-
-		$index = LetoDMS_Lucene_Indexer::open($settings->_luceneDir);
-		if($index && $hits = $index->find('document_id:'.$documentid)) {
-			$hit = $hits[0];
-			$index->delete($hit->id);
-			$index->commit();
-		}
-	}
+	
 
 	if ($notifier){
 		$path = "";
