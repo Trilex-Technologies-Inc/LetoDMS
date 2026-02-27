@@ -75,7 +75,7 @@ class Settings { /* {{{ */
 	var $_contentDir = null;
 	// Where the preview files are saved
 	var $_cacheDir = null;
-	// Where the partitions of an uploaded file by the jumploader is saved
+	// Where the partitions of an uploaded file by the dropzone is saved
 	var $_stagingDir = null;
 	// Where the lucene fulltext index is saved
 	var $_luceneDir = null;
@@ -125,9 +125,9 @@ class Settings { /* {{{ */
 	var $_logFileEnable = true;
 	// the log file rotation
 	var $_logFileRotation = "d";
-	// Enable file upload by jumploader
+	// Enable file upload by dropzone
 	var $_enableLargeFileUpload = false;
-	// size of partitions for file upload by jumploader
+	// size of partitions for file upload by dropzone
 	var $_partitionSize = 2000000;
 	// enable/disable users images
 	var $_enableUserImage = false;

@@ -28,6 +28,11 @@ include("../inc/inc.Language.php");
 include("../inc/inc.Authentication.php");
 
 $file_param_name = 'file';
+if(!isset($_POST['partitionIndex']) || !isset($_POST['partitionCount']) || !isset($_POST['fileId'])) {
+	$_POST['partitionIndex'] = 0;
+	$_POST['partitionCount'] = 1;
+	$_POST['fileId'] = uniqid('dropzone_', false);
+}
 $file_name = $_FILES[ $file_param_name ][ 'name' ];
 $source_file_path = $_FILES[ $file_param_name ][ 'tmp_name' ];
 $target_file_path =$settings->_stagingDir.$_POST['fileId']."-".$_POST['partitionIndex'];

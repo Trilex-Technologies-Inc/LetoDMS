@@ -26,7 +26,7 @@
                      Changes in version 3.4.2
 --------------------------------------------------------------------------------
 - fixed database update script (second trial)
-- fixed jumploader upload
+- fixed dropzone upload
 - updated dutch language file
 - fixed list on MyDocuments page
 
@@ -152,7 +152,7 @@
 --------------------------------------------------------------------------------
                      Changes in version 3.2.1
 --------------------------------------------------------------------------------
-- large file upload with jumploader can be turned off
+- large file upload with dropzone can be turned off
 
 --------------------------------------------------------------------------------
                      Changes in version 3.2.0
