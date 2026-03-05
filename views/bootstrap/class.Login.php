@@ -35,11 +35,7 @@ class LetoDMS_View_Login extends LetoDMS_Bootstrap_Style {
 		$enableguestlogin = $this->params['enableguestlogin'];
 		$enablepasswordforgotten = $this->params['enablepasswordforgotten'];
 		$refer = $this->params['referrer'];
-		if (empty($this->params['themes'])) {
-    $themes = $this->params['themes'];
-} else {
-    $themes = ['blue', 'bootstrap'];
-}
+		$themes = !empty($this->params['themes']) ? $this->params['themes'] : array('blue', 'bootstrap');
 
 		$this->htmlStartPage(getMLText("sign_in"), "login");
 		$this->globalBanner();
@@ -63,11 +59,6 @@ function checkForm()
 
 function guestLogin()
 {
-  if (isset($this->params['themes'])) {
-            $themes = $this->params['themes'];
-        } else {
-            $themes = ['blue', 'bootstrap'];
-        }
 	url = "../op/op.Login.php?login=guest" + 
 		"&sesstheme=" + document.form1.sesstheme.options[document.form1.sesstheme.options.selectedIndex].value +
 		"&lang=" + document.form1.lang.options[document.form1.lang.options.selectedIndex].value;
@@ -79,53 +70,52 @@ function guestLogin()
 
 </script>
 <?php $this->contentContainerStart(); ?>
-<form action="../op/op.Login.php" method="post" name="form1" onsubmit="return checkForm();">
+<form action="../op/op.Login.php" method="post" name="form1" onsubmit="return checkForm();" class="mx-auto" style="max-width: 520px;">
 <?php
 		if ($refer) {
 			echo "<input type='hidden' name='referuri' value='".sanitizeString($refer)."'/>";
 		}
 ?>
-	<table border="0">
-		<tr>
-			<td><?php printMLText("user_login");?>:</td>
-			<td><input type="text" name="login" id="login"></td>
-		</tr>
-		<tr>
-			<td><?php printMLText("password");?>:</td>
-			<td><input name="pwd" type="Password"></td>
-		</tr>
-		<tr>
-			<td><?php printMLText("language");?>:</td>
-			<td>
+	<div class="card shadow-sm">
+		<div class="card-body">
+			<div class="mb-3">
+				<label class="form-label" for="login"><?php printMLText("user_login");?>:</label>
+				<input class="form-control" type="text" name="login" id="login">
+			</div>
+			<div class="mb-3">
+				<label class="form-label" for="pwd"><?php printMLText("password");?>:</label>
+				<input class="form-control" name="pwd" id="pwd" type="password">
+			</div>
+			<div class="mb-3">
+				<label class="form-label" for="lang"><?php printMLText("language");?>:</label>
 <?php
-			print "<select name=\"lang\">";
+			print "<select class=\"form-select\" name=\"lang\" id=\"lang\">";
 			print "<option value=\"\">-";
 			$languages = getLanguages();
 			foreach ($languages??[] as $currLang) {
-				print "<option value=\"".$currLang."\">".$currLang;
+				$selected = ($currLang === "English") ? " selected" : "";
+				print "<option value=\"".$currLang."\"".$selected.">".$currLang;
 			}
 			print "</select>";
 ?>
-			</td>
-		</tr>
-		<tr>
-			<td><?php printMLText("theme");?>:</td>
-		<td>
+			</div>
+			<div class="mb-4">
+				<label class="form-label" for="sesstheme"><?php printMLText("theme");?>:</label>
 <?php
-			print "<select name=\"sesstheme\">";
+			print "<select class=\"form-select\" name=\"sesstheme\" id=\"sesstheme\">";
 			print "<option value=\"\">-";
 			foreach ($themes??[] as $currTheme) {
-				print "<option value=\"".$currTheme."\">".$currTheme;
+				$selected = ($currTheme === "bootstrap") ? " selected" : "";
+				print "<option value=\"".$currTheme."\"".$selected.">".$currTheme;
 			}
 			print "</select>";
 ?>
-		</td>
-		</tr>
-		<tr>
-			<td></td>
-			<td><input class="btn" type="submit" value="<?php printMLText("submit_login") ?>"></td>
-		</tr>
-	</table>
+			</div>
+			<div class="d-grid">
+				<input class="btn btn-primary" type="submit" value="<?php printMLText("submit_login") ?>">
+			</div>
+		</div>
+	</div>
 </form>
 <?php
 		$this->contentContainerEnd();

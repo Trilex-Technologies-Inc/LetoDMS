@@ -1060,14 +1060,16 @@ class LetoDMS_Core_DMS {
 	 * @param integer $isDisabled disable user and prevent login
 	 * @return object of {@link LetoDMS_Core_User}
 	 */
-	function addUser($login, $pwd, $fullName, $email, $language, $theme, $comment, $role='0', $isHidden=0, $isDisabled=0, $pwdexpiration='') { /* {{{ */
-		$db = $this->db;
-		if (is_object($this->getUserByLogin($login))) {
-			return false;
-		}
-		if($role == '')
-			$role = '0';
-		$queryStr = "INSERT INTO tblUsers (login, pwd, fullName, email, language, theme, comment, role, hidden, disabled, pwdExpiration) VALUES (".$db->qstr($login).", ".$db->qstr($pwd).", ".$db->qstr($fullName).", ".$db->qstr($email).", '".$language."', '".$theme."', ".$db->qstr($comment).", '".intval($role)."', '".intval($isHidden)."', '".intval($isDisabled)."', ".$db->qstr($pwdexpiration).")";
+		function addUser($login, $pwd, $fullName, $email, $language, $theme, $comment, $role='0', $isHidden=0, $isDisabled=0, $pwdexpiration='') { /* {{{ */
+			$db = $this->db;
+			if (is_object($this->getUserByLogin($login))) {
+				return false;
+			}
+			if($role == '')
+				$role = '0';
+			$pwdexpiration = trim((string) $pwdexpiration);
+			$pwdExpirationSQL = ($pwdexpiration === '') ? "NULL" : $db->qstr($pwdexpiration);
+			$queryStr = "INSERT INTO tblUsers (login, pwd, fullName, email, language, theme, comment, role, hidden, disabled, pwdExpiration) VALUES (".$db->qstr($login).", ".$db->qstr($pwd).", ".$db->qstr($fullName).", ".$db->qstr($email).", '".$language."', '".$theme."', ".$db->qstr($comment).", '".intval($role)."', '".intval($isHidden)."', '".intval($isDisabled)."', ".$pwdExpirationSQL.")";
 		$res = $this->db->getResult($queryStr);
 		if (!$res)
 			return false;

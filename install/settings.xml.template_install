@@ -35,7 +35,7 @@
       enableConverting = "true"
       enableEmail = "true"	
       enableUsersView = "true"
-      enableFullSearch = "true"
+      enableFullSearch = "false"
       enableFolderTree = "true"
       expandFolderTree = "1"
       enableLanguageSelector = "true"

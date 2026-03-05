@@ -27,7 +27,7 @@ include("../inc/inc.Authentication.php");
 /**
  * Include class to preview documents
  */
-require_once("LetoDMS/Preview.php");
+require_once("../LetoDMS_Preview/Preview.php");
 
 if ($user->isGuest()) {
 	UI::exitError(getMLText("my_documents"),getMLText("access_denied"));

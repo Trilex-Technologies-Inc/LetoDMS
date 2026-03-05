@@ -43,8 +43,8 @@ class LetoDMS_Bootstrap_Style extends LetoDMS_View_Common {
 		echo '<link href="../styles/'.$this->theme.'/application.css" rel="stylesheet">'."\n";
 		if($this->extraheader)
 			echo $this->extraheader;
-		echo '<script type="text/javascript" src="../styles/bootstrap/jquery/jquery.min.js"></script>'."\n";
-		echo '<script type="text/javascript" src="../js/jquery.passwordstrength.js"></script>'."\n";
+			echo '<script type="text/javascript" src="https://code.jquery.com/jquery-1.8.3.min.js"></script>'."\n";
+			echo '<script type="text/javascript" src="../js/jquery.passwordstrength.js"></script>'."\n";
 
 		echo '<link rel="shortcut icon" href="../styles/'.$this->theme.'/favicon.ico" type="image/x-icon"/>'."\n";
 		echo "<title>".(strlen($this->params['sitename'])>0 ? $this->params['sitename'] : "LetoDMS").(strlen($title)>0 ? ": " : "").htmlspecialchars($title)."</title>\n";
@@ -94,11 +94,12 @@ class LetoDMS_Bootstrap_Style extends LetoDMS_View_Common {
 	} /* }}} */
 
 	function globalBanner() { /* {{{ */
+		$siteName = (strlen($this->params['sitename'])>0 ? $this->params['sitename'] : "LetoDMS");
 		echo "<div style=\"padding-top: 60px;\"></div>\n";
 		echo "<div class=\"navbar navbar-inverse navbar-fixed-top\">\n";
 		echo " <div class=\"navbar-inner\">\n";
 		echo "  <div class=\"container\">\n";
-		echo "   <a class=\"brand\" href=\"../out/out.ViewFolder.php?folderid=".$this->params['rootfolderid']."\">".(strlen($this->params['sitename'])>0 ? $this->params['sitename'] : "LetoDMS")."</a>\n";
+		echo "   <a class=\"brand\" href=\"../out/out.ViewFolder.php?folderid=".$this->params['rootfolderid']."\"><img src=\"../styles/logo.png\" alt=\"".$siteName."\" style=\"height: 30px; margin-right: 8px; vertical-align: middle;\">".$siteName."</a>\n";
 		echo "  </div>\n";
 		echo " </div>\n";
 		echo "</div>\n";
@@ -116,11 +117,12 @@ class LetoDMS_Bootstrap_Style extends LetoDMS_View_Common {
 	} /* }}} */
 
 	function globalNavigation($folder=null) { /* {{{ */
+		$siteName = (strlen($this->params['sitename'])>0 ? $this->params['sitename'] : "LetoDMS");
 		echo "<div style=\"padding-top: 60px;\"></div>\n";
 		echo "<div class=\"navbar navbar-inverse navbar-fixed-top\">\n";
 		echo " <div class=\"navbar-inner\">\n";
 		echo "  <div class=\"container\">\n";
-		echo "   <a class=\"brand\" href=\"../out/out.ViewFolder.php?folderid=".$this->params['rootfolderid']."\">".(strlen($this->params['sitename'])>0 ? $this->params['sitename'] : "LetoDMS")."</a>\n";
+		echo "   <a class=\"brand\" href=\"../out/out.ViewFolder.php?folderid=".$this->params['rootfolderid']."\"><img src=\"../styles/logo.png\" alt=\"".$siteName."\" style=\"height: 30px; margin-right: 8px; vertical-align: middle;\">".$siteName."</a>\n";
 		if(isset($this->params['user']) && $this->params['user']) {
 		echo "   <div class=\"nav-collapse collapse\">\n";
 		echo "   <ul class=\"nav pull-right\">\n";
@@ -170,9 +172,7 @@ class LetoDMS_Bootstrap_Style extends LetoDMS_View_Common {
 		echo "      <input type=\"hidden\" name=\"searchin[]\" value=\"2\" />";
 		echo "      <input type=\"hidden\" name=\"searchin[]\" value=\"3\" />";
 		echo "      <input name=\"query\" class=\"search-query\" id=\"searchfield\" data-provide=\"typeahead\" type=\"text\" style=\"width: 150px;\" placeholder=\"".getMLText("search")."\"/>";
-		if($this->params['enablefullsearch']) {
-			echo "      <label class=\"checkbox\" style=\"color: #999999;\"><input type=\"checkbox\" name=\"fullsearch\" value=\"1\" title=\"".getMLText('fullsearch_hint')."\"/> ".getMLText('fullsearch')."</label>";
-		}
+		
 //		echo "      <input type=\"submit\" value=\"".getMLText("search")."\" id=\"searchButton\" class=\"btn\"/>";
 		echo "</form>\n";
 		echo "    </div>\n";
@@ -260,8 +260,7 @@ class LetoDMS_Bootstrap_Style extends LetoDMS_View_Common {
 		else if ($accessMode >= M_READWRITE) {
 			echo "<li id=\"first\"><a href=\"../out/out.AddSubFolder.php?folderid=". $folderID ."&showtree=".showtree()."\">".getMLText("add_subfolder")."</a></li>\n";
 			echo "<li><a href=\"../out/out.AddDocument.php?folderid=". $folderID ."&showtree=".showtree()."\">".getMLText("add_document")."</a></li>\n";
-			if($this->params['enablelargefileupload'])
-				echo "<li><a href=\"../out/out.AddMultiDocument.php?folderid=". $folderID ."&showtree=".showtree()."\">".getMLText("add_multiple_documents")."</a></li>\n";
+			echo "<li><a href=\"../out/out.AddMultiDocument.php?folderid=". $folderID ."&showtree=".showtree()."\">".getMLText("add_multiple_documents")."</a></li>\n";
 			echo "<li><a href=\"../out/out.EditFolder.php?folderid=". $folderID ."&showtree=".showtree()."\">".getMLText("edit_folder_props")."</a></li>\n";
 			if ($folderID != $this->params['rootfolderid'] && $folder->getParent())
 				echo "<li><a href=\"../out/out.MoveFolder.php?folderid=". $folderID ."&showtree=".showtree()."\">".getMLText("move_folder")."</a></li>\n";
@@ -1024,6 +1023,129 @@ class LetoDMS_Bootstrap_Style extends LetoDMS_View_Common {
 
 	} /* }}} */
 
+	/**
+	 * Output HTML code for dropzone uploader
+	 *
+	 * @param string  $uploadurl URL where post data is sent
+	 * @param array   $attributes list of post fields sent with each upload
+	 * @param integer $maxfiles maximum number of files allowed to upload
+	 * @param array   $fields list of metadata fields
+	 */
+	function printUploadApplet($uploadurl, $attributes, $maxfiles=0, $fields=array()){ /* {{{ */
+?>
+<link rel="stylesheet" href="https://unpkg.com/dropzone@5/dist/min/dropzone.min.css" />
+<script src="https://unpkg.com/dropzone@5/dist/min/dropzone.min.js"></script>
+<style type="text/css">
+	.dropzone-meta-table td { padding: 4px; }
+	.dropzone-message { margin-top: 12px; }
+</style>
+<form id="dropzoneMetaForm" name="dropzoneMetaForm">
+<table class="dropzone-meta-table">
+<?php if(!$fields || (isset($fields['name']) && $fields['name'])) { ?>
+	<tr>
+		<td><?php echo getMLText('name') ?></td>
+		<td><input type="text" id="dz_name" name="name" /></td>
+	</tr>
+<?php } ?>
+<?php if(!$fields || (isset($fields['comment']) && $fields['comment'])) { ?>
+	<tr>
+		<td><?php echo getMLText('comment') ?></td>
+		<td><textarea id="dz_comment" name="comment" cols="40" rows="2"></textarea></td>
+	</tr>
+<?php } ?>
+<?php if(!$fields || (isset($fields['reqversion']) && $fields['reqversion'])) { ?>
+	<tr>
+		<td><?php echo getMLText('version') ?></td>
+		<td><input type="text" id="dz_reqversion" name="reqversion" value="1" /></td>
+	</tr>
+<?php } ?>
+<?php if(!$fields || (isset($fields['version_comment']) && $fields['version_comment'])) { ?>
+	<tr>
+		<td><?php echo getMLText('comment_for_current_version') ?></td>
+		<td><textarea id="dz_version_comment" name="version_comment" cols="40" rows="2"></textarea></td>
+	</tr>
+<?php } ?>
+<?php if(!$fields || (isset($fields['keywords']) && $fields['keywords'])) { ?>
+	<tr>
+		<td><?php echo getMLText('keywords') ?></td>
+		<td>
+			<textarea id="dz_keywords" name="keywords" cols="40" rows="2"></textarea>
+			<br /><a href="javascript:chooseKeywords('dropzoneMetaForm.keywords');"><?php echo getMLText("use_default_keywords");?></a>
+		</td>
+	</tr>
+<?php } ?>
+<?php if(!$fields || (isset($fields['categories']) && $fields['categories'])) { ?>
+	<tr>
+		<td><?php echo getMLText('categories') ?></td>
+		<td>
+			<input type="hidden" id="dz_categoryids" name="categoryids" value="" />
+			<input type="text" disabled id="dz_categorynames" name="categorynames" value="" />
+			<br /><a href="javascript:chooseCategory('dropzoneMetaForm', '');"><?php echo getMLText("use_default_categories");?></a>
+		</td>
+	</tr>
+<?php } ?>
+</table>
+</form>
+<form action="<?php echo $uploadurl ?>" class="dropzone" id="dmsDropzone">
+	<div class="dz-message"><?php echo getMLText('add_document') ?></div>
+</form>
+<p class="dropzone-message" id="dropzoneStatus"></p>
+<script type="text/javascript">
+(function() {
+	Dropzone.autoDiscover = false;
+	var baseAttributes = <?php echo json_encode($attributes); ?>;
+	var maxFiles = <?php echo ($maxfiles ? intval($maxfiles) : "null"); ?>;
+	var dz = new Dropzone("#dmsDropzone", {
+		url: "<?php echo $uploadurl ?>",
+		paramName: "file",
+		uploadMultiple: false,
+		parallelUploads: 2,
+		maxFiles: maxFiles,
+		createImageThumbnails: false,
+		addRemoveLinks: true
+	});
+
+	function appendField(formData, id, name) {
+		var input = document.getElementById(id);
+		if (input) {
+			formData.append(name, input.value);
+		}
+	}
+
+	dz.on("sending", function(file, xhr, formData) {
+		Object.keys(baseAttributes).forEach(function(key) {
+			formData.append(key, baseAttributes[key]);
+		});
+		appendField(formData, "dz_name", "name");
+		appendField(formData, "dz_comment", "comment");
+		appendField(formData, "dz_reqversion", "reqversion");
+		appendField(formData, "dz_version_comment", "version_comment");
+		appendField(formData, "dz_keywords", "keywords");
+		appendField(formData, "dz_categoryids", "categoryids");
+		appendField(formData, "dz_categorynames", "categorynames");
+		formData.append("fileId", (file.upload && file.upload.uuid) ? file.upload.uuid.replace(/-/g, "") : ("dropzone" + Date.now()));
+		formData.append("partitionIndex", "0");
+		formData.append("partitionCount", "1");
+	});
+
+	dz.on("success", function(file) {
+		var status = document.getElementById("dropzoneStatus");
+		if (status) {
+			status.innerHTML = "Uploaded: " + file.name;
+		}
+	});
+
+	dz.on("error", function(file, errorMessage) {
+		var status = document.getElementById("dropzoneStatus");
+		if (status) {
+			status.innerHTML = "Upload failed: " + file.name + " (" + errorMessage + ")";
+		}
+	});
+})();
+</script>
+<?php
+	} /* }}} */
+
 	function printClipboard($clipboard){ /* {{{ */
 		$dms = $this->params['dms'];
 		$this->contentHeading("Clipboard", true);
@@ -1098,307 +1220,5 @@ class LetoDMS_Bootstrap_Style extends LetoDMS_View_Common {
 		echo "</div>\n";
 	} /* }}} */
 
-	/**
-	 * Output HTML Code for jumploader
-	 *
-	 * @param string $uploadurl URL where post data is send
-	 * @param integer $folderid id of folder where document is saved
-	 * @param integer $maxfiles maximum number of files allowed to upload
-	 * @param array $fields list of post fields
-	 */
-	function printUploadApplet($uploadurl, $attributes, $maxfiles=0, $fields=array()){ /* {{{ */
-?>
-<applet id="jumpLoaderApplet" name="jumpLoaderApplet"
-code="jmaster.jumploader.app.JumpLoaderApplet.class"
-archive="jl_core_z.jar"
-width="715"
-height="400"
-mayscript>
-  <param name="uc_uploadUrl" value="<?php echo $uploadurl ?>"/>
-  <param name="ac_fireAppletInitialized" value="true"/>
-  <param name="ac_fireUploaderSelectionChanged" value="true"/>
-  <param name="ac_fireUploaderFileStatusChanged" value="true"/>
-  <param name="ac_fireUploaderFileAdded" value="true"/>
-  <param name="uc_partitionLength" value="<?php echo $this->params['partitionsize'] ?>"/>
-<?php
-	if($maxfiles) {
-?>
-  <param name="uc_maxFiles" value="<?php echo $maxfiles ?>"/>
-<?php
-	}
-?>
-</applet>
-<div id="fileLinks">
-</div>
-
-<!-- callback methods -->
-<script language="javascript">
-    /**
-     * applet initialized notification
-     */
-    function uploaderInitialized(  ) {
-        var uploader = document.jumpLoaderApplet.getUploader();
-        var attrSet = uploader.getAttributeSet();
-        var attr;
-<?php
-	foreach($attributes as $name=>$value) {
-?>
-        attr = attrSet.createStringAttribute( '<?php echo $name ?>', '<?php echo $value ?>' );
-        attr.setSendToServer(true);
-<?php
-	}
-?>
-    }
-    /**
-     * uploader selection changed notification
-     */
-    function uploaderSelectionChanged( uploader ) {
-        dumpAllFileAttributes();
-    }
-    /**
-     * uploader file added notification
-     */
-    function uploaderFileAdded( uploader ) {
-        dumpAllFileAttributes();
-    }
-    /**
-     * file status changed notification
-     */
-    function uploaderFileStatusChanged( uploader, file ) {
-        traceEvent( "uploaderFileStatusChanged, index=" + file.getIndex() + ", status=" + file.getStatus() + ", content=" + file.getResponseContent() );
-        if( file.isFinished() ) { 
-            var serverFileName = file.getId() + "." + file.getName(); 
-            var linkHtml = "<a href='/uploaded/" + serverFileName + "'>" + serverFileName + "</a> " + file.getLength() + " bytes"; 
-            var container = document.getElementById( "fileLinks"); 
-            container.innerHTML += linkHtml + "<br />"; 
-        } 
-    }
-    /**
-     * trace event to events textarea
-     */
-    function traceEvent( message ) {
-        document.debugForm.txtEvents.value += message + "\r\n";
-    }
-</script>
-
-<!-- debug auxiliary methods -->
-<script language="javascript">
-    /**
-     * list attributes of file into html
-     */
-    function listFileAttributes( file, edit, index ) {
-        var attrSet = file.getAttributeSet();
-        var content = "";
-        var attr;
-				var value;
-				if(edit)
-					content += "<form name='form" + index + "' id='form" + index + "' action='#' >";
-        content += "<table>";
-				content += "<tr class='dataRow' colspan='2'><td class='dataText'><b>" + file.getName() + "</b></td></tr>";
-
-<?php
-	if(!$fields || (isset($fields['name']) && $fields['name'])) {
-?>
-        content += "<tr class='dataRow'>";
-        content += "<td class='dataField'><?php echo getMLText('name') ?></td>";
-				if(attr = attrSet.getAttributeByName('name'))
-					value = attr.getStringValue();
-				else
-					value = '';
-				if(edit)
-					value = "<input id='name" + index + "' name='name' type='input' value='" + value + "' />";
-        content += "<td class='dataText'>" + value + "</td>";
-        content += "</tr>";
-<?php
-	}
-?>
-
-<?php
-	if(!$fields || (isset($fields['comment']) && $fields['comment'])) {
-?>
-        content += "<tr class='dataRow'>";
-        content += "<td class='dataField'><?php echo getMLText('comment') ?></td>";
-				if(attr = attrSet.getAttributeByName('comment'))
-					value = attr.getStringValue();
-				else
-					value = '';
-				if(edit)
-					value = "<textarea id='comment" + index + "' name='comment' cols='40' rows='2'>" + value + "</textarea>";
-        content += "<td class='dataText'>" + value + "</td>";
-        content += "</tr>";
-<?php
-	}
-?>
-
-<?php
-	if(!$fields || (isset($fields['reqversion']) && $fields['reqversion'])) {
-?>
-        content += "<tr class='dataRow'>";
-        content += "<td class='dataField'><?php echo getMLText('version') ?></td>";
-				if(attr = attrSet.getAttributeByName('reqversion'))
-					value = attr.getStringValue();
-				else
-					value = '';
-				if(edit)
-					value = "<input id='reqversion" + index + "' name='reqversion' type='input' value='" + value + "' />";
-        content += "<td class='dataText'>" + value + "</td>";
-        content += "</tr>";
-<?php
-	}
-?>
-
-<?php
-	if(!$fields || (isset($fields['version_comment']) && $fields['version_comment'])) {
-?>
-        content += "<tr class='dataRow'>";
-        content += "<td class='dataField'><?php echo getMLText('comment_for_current_version') ?></td>";
-				if(attr = attrSet.getAttributeByName('version_comment'))
-					value = attr.getStringValue();
-				else
-					value = '';
-				if(edit)
-					value = "<textarea id='version_comment" + index + "' name='version_comment' cols='40' rows='2'>" + value + "</textarea>";
-        content += "<td class='dataText'>" + value + "</td>";
-        content += "</tr>";
-<?php
-	}
-?>
-
-<?php
-	if(!$fields || (isset($fields['keywords']) && $fields['keywords'])) {
-?>
-        content += "<tr class='dataRow'>";
-        content += "<td class='dataField'><?php echo getMLText('keywords') ?></td>";
-				if(attr = attrSet.getAttributeByName('keywords'))
-					value = attr.getStringValue();
-				else
-					value = '';
-				if(edit) {
-					value = "<textarea id='keywords" + index + "' name='keywords' cols='40' rows='2'>" + value + "</textarea>";
-					value += "<br /><a href='javascript:chooseKeywords(\"form" + index + ".keywords" + index +"\");'><?php echo getMLText("use_default_keywords");?></a>";
-				}
-        content += "<td class='dataText'>" + value + "</td>";
-        content += "</tr>";
-<?php
-	}
-?>
-
-<?php
-	if(!$fields || (isset($fields['categories']) && $fields['categories'])) {
-?>
-				content += "<tr class='dataRow'>";
-				content += "<td class='dataField'><?php echo getMLText('categories') ?></td>";
-				if(attr = attrSet.getAttributeByName('categoryids'))
-					value = attr.getStringValue();
-				else
-					value = '';
-				if(attr = attrSet.getAttributeByName('categorynames'))
-					value2 = attr.getStringValue();
-				else
-					value2 = '';
-				if(edit) {
-					value = "<input type='hidden' id='categoryidform" + index + "' name='categoryids' value='" + value + "' />";
-					value += "<input disabled id='categorynameform" + index + "' name='categorynames' value='" + value2 + "' />";
-					value += "<br /><a href='javascript:chooseCategory(\"form" + index + "\", \"\");'><?php echo getMLText("use_default_categories");?></a>";
-				} else {
-					value = value2;
-				}
-        content += "<td class='dataText'>" + value + "</td>";
-				content += "</tr>";
-<?php
-	}
-?>
-
-				if(edit) {
-					content += "<tr class='dataRow'>";
-					content += "<td class='dataField'></td>";
-					content += "<td class='dataText'><input type='button' value='Set' onClick='updateFileAttributes("+index+")'/></td>";
-					content += "</tr>";
-        	content += "</table>";
-        	content += "</form>";
-				} else {
-        	content += "</table>";
-				}
-        return content;
-    }
-    /**
-     * return selected file if and only if single file selected
-     */
-    function getSelectedFile() {
-        var file = null;
-        var uploader = document.jumpLoaderApplet.getUploader();
-        var selection = uploader.getSelection();
-        var numSelected = selection.getSelectedItemCount();
-        if( numSelected == 1 ) {
-            var selectedIndex = selection.getSelectedItemIndexAt( 0 );
-            file = uploader.getFile( selectedIndex );
-        }
-        return file;
-    }
-    /**
-     * dump attributes of all files into html
-     */
-     function dumpAllFileAttributes() {
-         var content = "";
-         var uploader = document.jumpLoaderApplet.getUploader();
-         var files = uploader.getAllFiles();
-         var file = getSelectedFile();
-				 if(file) {
-					 for (var i = 0; i < uploader.getFileCount() ; i++) { 
-						 if(uploader.getFile(i).getIndex() == file.getIndex())
-							 content += listFileAttributes( uploader.getFile(i), 1, i );
-						 else
-							 content += listFileAttributes( uploader.getFile(i), 0, i );
-					 }
-					 document.getElementById( "fileList" ).innerHTML = content;
-				 }
-    }
-     /**
-      * update attributes for the selected file
-      */
-      function updateFileAttributes(index) {
-        var uploader = document.jumpLoaderApplet.getUploader();
-        var file = uploader.getFile( index );
-        if( file != null ) {
-				  var attr;
-					var value;
-          var attrSet = file.getAttributeSet();
-					value = document.getElementById("name"+index);
-          attr = attrSet.createStringAttribute( 'name', (value.value) ? value.value : "" );
-          attr.setSendToServer( true );
-					value = document.getElementById("comment"+index);
-          attr = attrSet.createStringAttribute( 'comment', (value.value) ? value.value : ""  );
-          attr.setSendToServer( true );
-					value = document.getElementById("reqversion"+index);
-          attr = attrSet.createStringAttribute( 'reqversion', (value.value) ? value.value : ""  );
-          attr.setSendToServer( true );
-					value = document.getElementById("version_comment"+index);
-          attr = attrSet.createStringAttribute( 'version_comment', (value.value) ? value.value : ""  );
-          attr.setSendToServer( true );
-					value = document.getElementById("keywords"+index);
-          attr = attrSet.createStringAttribute( 'keywords', (value.value) ? value.value : ""  );
-          attr.setSendToServer( true );
-
-					value = document.getElementById("categoryidform"+index);
-          attr = attrSet.createStringAttribute( 'categoryids', (value.value) ? value.value : ""  );
-          attr.setSendToServer( true );
-
-					value = document.getElementById("categorynameform"+index);
-          attr = attrSet.createStringAttribute( 'categorynames', (value.value) ? value.value : ""  );
-          attr.setSendToServer( true );
-
-					dumpAllFileAttributes();
-        } else {
-            alert( "Single file should be selected" );
-        }
-     }
-</script>
-<form name="debugForm">
-<textarea name="txtEvents" style="visibility: hidden;width:715px; font:10px monospace" rows="1" wrap="off" id="txtEvents"></textarea></p>
-</form>
-<p></p>
-<p id="fileList"></p>
-<?php
-	} /* }}} */
 }
 ?>
