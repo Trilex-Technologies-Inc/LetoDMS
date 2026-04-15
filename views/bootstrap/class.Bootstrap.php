@@ -20,90 +20,99 @@
 //    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 
-class LetoDMS_Bootstrap_Style extends LetoDMS_View_Common {
+class LetoDMS_Bootstrap_Style extends LetoDMS_View_Common
+{
 	var $imgpath;
 	var $extraheader;
 
-	function __construct($params, $theme='bootstrap') {
+	function __construct($params, $theme = 'bootstrap')
+	{
 		$this->theme = $theme;
 		$this->params = $params;
-		$this->imgpath = '../views/'.$theme.'/images/';
+		$this->imgpath = '../views/' . $theme . '/images/';
 		$this->extraheader = '';
 	}
 
-	function htmlStartPage($title="", $bodyClass="") { /* {{{ */
+	function htmlStartPage($title = "", $bodyClass = "")
+	{ /* {{{ */
 		echo "<!DOCTYPE html>\n";
 		echo "<html lang=\"en\">\n<head>\n";
 		echo "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" />\n";
-		echo '<meta name="viewport" content="width=device-width, initial-scale=1.0">'."\n";
-		echo '<link href="../styles/'.$this->theme.'/bootstrap/css/bootstrap.css" rel="stylesheet">'."\n";
-		echo '<link href="../styles/'.$this->theme.'/bootstrap/css/bootstrap-responsive.css" rel="stylesheet">'."\n";
-		echo '<link href="../styles/'.$this->theme.'/datepicker/css/datepicker.css" rel="stylesheet">'."\n";
-		echo '<link href="../styles/'.$this->theme.'/chosen/css/chosen.css" rel="stylesheet">'."\n";
-		echo '<link href="../styles/'.$this->theme.'/application.css" rel="stylesheet">'."\n";
-		if($this->extraheader)
+		echo '<meta name="viewport" content="width=device-width, initial-scale=1.0">' . "\n";
+		echo '<link href="../styles/' . $this->theme . '/bootstrap/css/bootstrap.css" rel="stylesheet">' . "\n";
+		echo '<link href="../styles/' . $this->theme . '/bootstrap/css/bootstrap-responsive.css" rel="stylesheet">' . "\n";
+		echo '<link href="../styles/' . $this->theme . '/datepicker/css/datepicker.css" rel="stylesheet">' . "\n";
+		echo '<link href="../styles/' . $this->theme . '/chosen/css/chosen.css" rel="stylesheet">' . "\n";
+		echo '<link href="../styles/' . $this->theme . '/application.css" rel="stylesheet">' . "\n";
+		if ($this->extraheader)
 			echo $this->extraheader;
-			echo '<script type="text/javascript" src="https://code.jquery.com/jquery-1.8.3.min.js"></script>'."\n";
-			echo '<script type="text/javascript" src="../js/jquery.passwordstrength.js"></script>'."\n";
+		echo '<script type="text/javascript" src="https://code.jquery.com/jquery-1.8.3.min.js"></script>' . "\n";
+		echo '<script type="text/javascript" src="../js/jquery.passwordstrength.js"></script>' . "\n";
 
-		echo '<link rel="shortcut icon" href="../styles/'.$this->theme.'/favicon.ico" type="image/x-icon"/>'."\n";
-		echo "<title>".(strlen($this->params['sitename'])>0 ? $this->params['sitename'] : "LetoDMS").(strlen($title)>0 ? ": " : "").htmlspecialchars($title)."</title>\n";
+		echo '<link rel="shortcut icon" href="../styles/' . $this->theme . '/favicon.ico" type="image/x-icon"/>' . "\n";
+		echo "<title>" . (strlen($this->params['sitename']) > 0 ? $this->params['sitename'] : "LetoDMS") . (strlen($title) > 0 ? ": " : "") . htmlspecialchars($title) . "</title>\n";
 		echo "</head>\n";
-		echo "<body".(strlen($bodyClass)>0 ? " class=\"".$bodyClass."\"" : "").">\n";
+		echo "<body" . (strlen($bodyClass) > 0 ? " class=\"" . $bodyClass . "\"" : "") . ">\n";
 	} /* }}} */
 
-	function htmlAddHeader($head) { /* {{{ */
+	function htmlAddHeader($head)
+	{ /* {{{ */
 		$this->extraheader .= $head;
 	} /* }}} */
 
-	function htmlEndPage() { /* {{{ */
+	function htmlEndPage()
+	{ /* {{{ */
 		$this->footNote();
-		echo '<script src="../styles/'.$this->theme.'/bootstrap/js/bootstrap.min.js"></script>'."\n";
-		echo '<script src="../styles/'.$this->theme.'/datepicker/js/bootstrap-datepicker.js"></script>'."\n";
-		echo '<script src="../styles/'.$this->theme.'/chosen/js/chosen.jquery.min.js"></script>'."\n";
-		echo '<script src="../styles/'.$this->theme.'/application.js"></script>'."\n";
+		echo '<script src="../styles/' . $this->theme . '/bootstrap/js/bootstrap.min.js"></script>' . "\n";
+		echo '<script src="../styles/' . $this->theme . '/datepicker/js/bootstrap-datepicker.js"></script>' . "\n";
+		echo '<script src="../styles/' . $this->theme . '/chosen/js/chosen.jquery.min.js"></script>' . "\n";
+		echo '<script src="../styles/' . $this->theme . '/application.js"></script>' . "\n";
 		echo "</body>\n</html>\n";
 	} /* }}} */
 
-	function footNote() { /* {{{ */
-		echo '<div class="row-fluid" style="padding-top: 20px;">'."\n";
-		echo '<div class="span12">'."\n";
-		echo '<div class="alert alert-info">'."\n";
-		if ($this->params['printdisclaimer']){
-			echo "<div class=\"disclaimer\">".getMLText("disclaimer")."</div>";
+	function footNote()
+	{ /* {{{ */
+		echo '<div class="row-fluid" style="padding-top: 20px;">' . "\n";
+		echo '<div class="span12">' . "\n";
+		echo '<div class="alert alert-info">' . "\n";
+		if ($this->params['printdisclaimer']) {
+			echo "<div class=\"disclaimer\">" . getMLText("disclaimer") . "</div>";
 		}
 
-		if (isset($this->params['footnote']) && strlen((string)$this->params['footnote'])>0) {
-			echo "<div class=\"footNote\">".(string)$this->params['footnote']."</div>";
+		if (isset($this->params['footnote']) && strlen((string)$this->params['footnote']) > 0) {
+			echo "<div class=\"footNote\">" . (string)$this->params['footnote'] . "</div>";
 		}
 		echo "</div>\n";
 		echo "</div>\n";
 		echo "</div>\n";
-	
+
 		return;
 	} /* }}} */
 
-	function contentStart() { /* {{{ */
+	function contentStart()
+	{ /* {{{ */
 		echo "<div class=\"container-fluid\">\n";
 		echo " <div class=\"row-fluid\">\n";
 	} /* }}} */
 
-	function contentEnd() { /* {{{ */
+	function contentEnd()
+	{ /* {{{ */
 		echo " </div>\n";
 		echo "</div>\n";
 	} /* }}} */
 
-	function globalBanner() { /* {{{ */
-		$siteName = (strlen($this->params['sitename'])>0 ? $this->params['sitename'] : "LetoDMS");
+	function globalBanner()
+	{ /* {{{ */
+		$siteName = (strlen($this->params['sitename']) > 0 ? $this->params['sitename'] : "LetoDMS");
 		echo "<div style=\"padding-top: 60px;\"></div>\n";
 		echo "<div class=\"navbar navbar-inverse navbar-fixed-top\">\n";
 		echo " <div class=\"navbar-inner\">\n";
 		echo "  <div class=\"container\">\n";
-		echo "   <a class=\"brand\" href=\"../out/out.ViewFolder.php?folderid=".$this->params['rootfolderid']."\"><img src=\"../styles/logo.png\" alt=\"".$siteName."\" style=\"height: 30px; margin-right: 8px; vertical-align: middle;\">".$siteName."</a>\n";
+		echo "   <a class=\"brand\" href=\"../out/out.ViewFolder.php?folderid=" . $this->params['rootfolderid'] . "\"><img src=\"../styles/logo.png\" alt=\"" . $siteName . "\" style=\"height: 30px; margin-right: 8px; vertical-align: middle;\">" . $siteName . "</a>\n";
 		echo "  </div>\n";
 		echo " </div>\n";
 		echo "</div>\n";
-/*
+		/*
 		echo "<div class=\"globalBox\" id=\"noNav\">\n";
 		echo "<div class=\"globalTR\"></div>\n";
 		echo "<div id=\"logo\"><img src='../styles/logo.png'></div>\n";
@@ -116,66 +125,67 @@ class LetoDMS_Bootstrap_Style extends LetoDMS_View_Common {
 */
 	} /* }}} */
 
-	function globalNavigation($folder=null) { /* {{{ */
-		$siteName = (strlen($this->params['sitename'])>0 ? $this->params['sitename'] : "LetoDMS");
+	function globalNavigation($folder = null)
+	{ /* {{{ */
+		$siteName = (strlen($this->params['sitename']) > 0 ? $this->params['sitename'] : "LetoDMS");
 		echo "<div style=\"padding-top: 60px;\"></div>\n";
 		echo "<div class=\"navbar navbar-inverse navbar-fixed-top\">\n";
 		echo " <div class=\"navbar-inner\">\n";
 		echo "  <div class=\"container\">\n";
-		echo "   <a class=\"brand\" href=\"../out/out.ViewFolder.php?folderid=".$this->params['rootfolderid']."\"><img src=\"../styles/logo.png\" alt=\"".$siteName."\" style=\"height: 30px; margin-right: 8px; vertical-align: middle;\">".$siteName."</a>\n";
-		if(isset($this->params['user']) && $this->params['user']) {
-		echo "   <div class=\"nav-collapse collapse\">\n";
-		echo "   <ul class=\"nav pull-right\">\n";
-		echo "    <li class=\"dropdown\">\n";
-		echo "     <a href=\"#\" class=\"dropdown-toggle\" data-toggle=\"dropdown\">".getMLText("signed_in_as")." ".htmlspecialchars($this->params['user']->getFullName())."<b class=\"caret\"></b></a>\n";
-		echo "     <ul class=\"dropdown-menu\" role=\"menu\">\n";
-		if (!$this->params['user']->isGuest()) {
-			echo "    <li><a href=\"../out/out.MyDocuments.php?inProcess=1\">".getMLText("my_documents")."</a></li>\n";
-			echo "    <li><a href=\"../out/out.MyAccount.php\">".getMLText("my_account")."</a></li>\n";
-			echo "    <li class=\"divider\"></li>\n";
-		}
-		if($this->params['enablelanguageselector']) {
-			echo "    <li class=\"dropdown-submenu\">\n";
-			echo "     <a href=\"#\" class=\"dropdown-toggle\" data-toggle=\"dropdown\">".getMLText("language")."</a>\n";
+		echo "   <a class=\"brand\" href=\"../out/out.ViewFolder.php?folderid=" . $this->params['rootfolderid'] . "\"><img src=\"../styles/logo.png\" alt=\"" . $siteName . "\" style=\"height: 30px; margin-right: 8px; vertical-align: middle;\">" . $siteName . "</a>\n";
+		if (isset($this->params['user']) && $this->params['user']) {
+			echo "   <div class=\"nav-collapse collapse\">\n";
+			echo "   <ul class=\"nav pull-right\">\n";
+			echo "    <li class=\"dropdown\">\n";
+			echo "     <a href=\"#\" class=\"dropdown-toggle\" data-toggle=\"dropdown\">" . getMLText("signed_in_as") . " " . htmlspecialchars($this->params['user']->getFullName()) . "<b class=\"caret\"></b></a>\n";
 			echo "     <ul class=\"dropdown-menu\" role=\"menu\">\n";
-			$languages = getLanguages();
-			foreach ($languages as $currLang) {
-				if($this->params['session']->getLanguage() == $currLang)
-					echo "<li class=\"active\">";
-				else
-					echo "<li>";
-				echo "<a href=\"../op/op.SetLanguage.php?lang=".$currLang."&referer=".$_SERVER["REQUEST_URI"]."\">";
-				echo $currLang."</a></li>\n";
+			if (!$this->params['user']->isGuest()) {
+				echo "    <li><a href=\"../out/out.MyDocuments.php?inProcess=1\">" . getMLText("my_documents") . "</a></li>\n";
+				echo "    <li><a href=\"../out/out.MyAccount.php\">" . getMLText("my_account") . "</a></li>\n";
+				echo "    <li class=\"divider\"></li>\n";
 			}
+			if ($this->params['enablelanguageselector']) {
+				echo "    <li class=\"dropdown-submenu\">\n";
+				echo "     <a href=\"#\" class=\"dropdown-toggle\" data-toggle=\"dropdown\">" . getMLText("language") . "</a>\n";
+				echo "     <ul class=\"dropdown-menu\" role=\"menu\">\n";
+				$languages = getLanguages();
+				foreach ($languages as $currLang) {
+					if ($this->params['session']->getLanguage() == $currLang)
+						echo "<li class=\"active\">";
+					else
+						echo "<li>";
+					echo "<a href=\"../op/op.SetLanguage.php?lang=" . $currLang . "&referer=" . $_SERVER["REQUEST_URI"] . "\">";
+					echo $currLang . "</a></li>\n";
+				}
+				echo "     </ul>\n";
+				echo "    </li>\n";
+				echo "    <li class=\"divider\"></li>\n";
+			}
+			echo "    <li><a href=\"../op/op.Logout.php\">" . getMLText("sign_out") . "</a></li>\n";
 			echo "     </ul>\n";
 			echo "    </li>\n";
-			echo "    <li class=\"divider\"></li>\n";
-		}
-		echo "    <li><a href=\"../op/op.Logout.php\">".getMLText("sign_out")."</a></li>\n";
-		echo "     </ul>\n";
-		echo "    </li>\n";
-		echo "   </ul>\n";
+			echo "   </ul>\n";
 
-		echo "   <ul class=\"nav\">\n";
-//		echo "    <li id=\"first\"><a href=\"../out/out.ViewFolder.php?folderid=".$this->params['rootfolderid']."\">".getMLText("content")."</a></li>\n";
-//		echo "    <li><a href=\"../out/out.SearchForm.php?folderid=".$this->params['rootfolderid']."\">".getMLText("search")."</a></li>\n";
-		if ($this->params['enablecalendar']) echo "    <li><a href=\"../out/out.Calendar.php?mode=".$this->params['calendardefaultview']."\">".getMLText("calendar")."</a></li>\n";
-		if ($this->params['user']->isAdmin()) echo "    <li><a href=\"../out/out.AdminTools.php\">".getMLText("admin_tools")."</a></li>\n";
-		echo "    <li><a href=\"../out/out.Help.php\">".getMLText("help")."</a></li>\n";
-		echo "   </ul>\n";
-		echo "     <form action=\"../op/op.Search.php\" class=\"form-inline navbar-search pull-left\" autocomplete=\"off\">";
-		if ($folder!=null && is_object($folder) && !strcasecmp(get_class($folder), "LetoDMS_Core_Folder")) {
-			echo "      <input type=\"hidden\" name=\"folderid\" value=\"".$folder->getID()."\" />";
-		}
-		echo "      <input type=\"hidden\" name=\"navBar\" value=\"1\" />";
-		echo "      <input type=\"hidden\" name=\"searchin[]\" value=\"1\" />";
-		echo "      <input type=\"hidden\" name=\"searchin[]\" value=\"2\" />";
-		echo "      <input type=\"hidden\" name=\"searchin[]\" value=\"3\" />";
-		echo "      <input name=\"query\" class=\"search-query\" id=\"searchfield\" data-provide=\"typeahead\" type=\"text\" style=\"width: 150px;\" placeholder=\"".getMLText("search")."\"/>";
-		
-//		echo "      <input type=\"submit\" value=\"".getMLText("search")."\" id=\"searchButton\" class=\"btn\"/>";
-		echo "</form>\n";
-		echo "    </div>\n";
+			echo "   <ul class=\"nav\">\n";
+			//		echo "    <li id=\"first\"><a href=\"../out/out.ViewFolder.php?folderid=".$this->params['rootfolderid']."\">".getMLText("content")."</a></li>\n";
+			//		echo "    <li><a href=\"../out/out.SearchForm.php?folderid=".$this->params['rootfolderid']."\">".getMLText("search")."</a></li>\n";
+			if ($this->params['enablecalendar']) echo "    <li><a href=\"../out/out.Calendar.php?mode=" . $this->params['calendardefaultview'] . "\">" . getMLText("calendar") . "</a></li>\n";
+			if ($this->params['user']->isAdmin()) echo "    <li><a href=\"../out/out.AdminTools.php\">" . getMLText("admin_tools") . "</a></li>\n";
+			echo "    <li><a href=\"../out/out.Help.php\">" . getMLText("help") . "</a></li>\n";
+			echo "   </ul>\n";
+			echo "     <form action=\"../op/op.Search.php\" class=\"form-inline navbar-search pull-left\" autocomplete=\"off\">";
+			if ($folder != null && is_object($folder) && !strcasecmp(get_class($folder), "LetoDMS_Core_Folder")) {
+				echo "      <input type=\"hidden\" name=\"folderid\" value=\"" . $folder->getID() . "\" />";
+			}
+			echo "      <input type=\"hidden\" name=\"navBar\" value=\"1\" />";
+			echo "      <input type=\"hidden\" name=\"searchin[]\" value=\"1\" />";
+			echo "      <input type=\"hidden\" name=\"searchin[]\" value=\"2\" />";
+			echo "      <input type=\"hidden\" name=\"searchin[]\" value=\"3\" />";
+			echo "      <input name=\"query\" class=\"search-query\" id=\"searchfield\" data-provide=\"typeahead\" type=\"text\" style=\"width: 150px;\" placeholder=\"" . getMLText("search") . "\"/>";
+
+			//		echo "      <input type=\"submit\" value=\"".getMLText("search")."\" id=\"searchButton\" class=\"btn\"/>";
+			echo "</form>\n";
+			echo "    </div>\n";
 		}
 		echo "  </div>\n";
 		echo " </div>\n";
@@ -183,32 +193,33 @@ class LetoDMS_Bootstrap_Style extends LetoDMS_View_Common {
 		return;
 	} /* }}} */
 
-	function getFolderPathHTML($folder, $tagAll=false, $document=null) { /* {{{ */
+	function getFolderPathHTML($folder, $tagAll = false, $document = null)
+	{ /* {{{ */
 		$path = $folder->getPath();
 		$txtpath = "";
 		for ($i = 0; $i < count($path); $i++) {
 			$txtpath .= "<li>";
-			if ($i +1 < count($path)) {
-				$txtpath .= "<a href=\"../out/out.ViewFolder.php?folderid=".$path[$i]->getID()."&showtree=".showtree()."\" rel=\"folder_".$path[$i]->getID()."\" ondragover=\"allowDrop(event)\" ondrop=\"onDrop(event)\">".
-					htmlspecialchars($path[$i]->getName())."</a>";
-			}
-			else {
-				$txtpath .= ($tagAll ? "<a href=\"../out/out.ViewFolder.php?folderid=".$path[$i]->getID()."&showtree=".showtree()."\">".
-										 htmlspecialchars($path[$i]->getName())."</a>" : htmlspecialchars($path[$i]->getName()));
+			if ($i + 1 < count($path)) {
+				$txtpath .= "<a href=\"../out/out.ViewFolder.php?folderid=" . $path[$i]->getID() . "&showtree=" . showtree() . "\" rel=\"folder_" . $path[$i]->getID() . "\" ondragover=\"allowDrop(event)\" ondrop=\"onDrop(event)\">" .
+					htmlspecialchars($path[$i]->getName()) . "</a>";
+			} else {
+				$txtpath .= ($tagAll ? "<a href=\"../out/out.ViewFolder.php?folderid=" . $path[$i]->getID() . "&showtree=" . showtree() . "\">" .
+					htmlspecialchars($path[$i]->getName()) . "</a>" : htmlspecialchars($path[$i]->getName()));
 			}
 			$txtpath .= " <span class=\"divider\">/</span></li>";
 		}
-		if($document)
-			$txtpath .= "<li><a href=\"../out/out.ViewDocument.php?documentid=".$document->getId()."\">".htmlspecialchars($document->getName())."</a></li>";
+		if ($document)
+			$txtpath .= "<li><a href=\"../out/out.ViewDocument.php?documentid=" . $document->getId() . "\">" . htmlspecialchars($document->getName()) . "</a></li>";
 
-		return '<ul class="breadcrumb">'.$txtpath.'</ul>';
+		return '<ul class="breadcrumb">' . $txtpath . '</ul>';
 	} /* }}} */
-	
-	function pageNavigation($pageTitle, $pageType=null, $extra=null) { /* {{{ */
 
-		if ($pageType!=null && strcasecmp($pageType, "noNav")) {
-			if($pageType == "view_folder" || $pageType == "view_document")
-				echo $pageTitle."\n";
+	function pageNavigation($pageTitle, $pageType = null, $extra = null)
+	{ /* {{{ */
+
+		if ($pageType != null && strcasecmp($pageType, "noNav")) {
+			if ($pageType == "view_folder" || $pageType == "view_document")
+				echo $pageTitle . "\n";
 			echo "<div class=\"navbar\">\n";
 			echo " <div class=\"navbar-inner\">\n";
 			switch ($pageType) {
@@ -219,32 +230,33 @@ class LetoDMS_Bootstrap_Style extends LetoDMS_View_Common {
 					$this->documentNavigationBar();
 					break;
 				case "my_documents":
-					echo "<a class=\"brand\" href=\"#\">".$pageTitle."</a>"; //echo $pageTitle."\n";
+					echo "<a class=\"brand\" href=\"#\">" . $pageTitle . "</a>"; //echo $pageTitle."\n";
 					$this->myDocumentsNavigationBar();
 					break;
 				case "my_account":
-					echo "<a class=\"brand\" href=\"#\">".$pageTitle."</a>"; //echo $pageTitle."\n";
+					echo "<a class=\"brand\" href=\"#\">" . $pageTitle . "</a>"; //echo $pageTitle."\n";
 					$this->accountNavigationBar();
 					break;
 				case "admin_tools":
-					echo "<a class=\"brand\" href=\"../out/out.AdminTools.php\">".$pageTitle."</a>"; //echo $pageTitle."\n";
+					echo "<a class=\"brand\" href=\"../out/out.AdminTools.php\">" . $pageTitle . "</a>"; //echo $pageTitle."\n";
 					$this->adminToolsNavigationBar();
 					break;
 				case "calendar";
-					echo "<a class=\"brand\" href=\"#\">".$pageTitle."</a>"; //echo $pageTitle."\n";
+					echo "<a class=\"brand\" href=\"#\">" . $pageTitle . "</a>"; //echo $pageTitle."\n";
 					$this->calendarNavigationBar($extra);
 					break;
 			}
 			echo " </div>\n";
 			echo "</div>\n";
 		} else {
-			echo "<legend>".$pageTitle."</legend>\n";
+			echo "<legend>" . $pageTitle . "</legend>\n";
 		}
 
 		return;
 	} /* }}} */
 
-	private function folderNavigationBar($folder) { /* {{{ */
+	private function folderNavigationBar($folder)
+	{ /* {{{ */
 		if (!is_object($folder) || strcasecmp(get_class($folder), "LetoDMS_Core_Folder")) {
 			echo "<ul class=\"nav\">\n";
 			echo "</ul>\n";
@@ -253,135 +265,137 @@ class LetoDMS_Bootstrap_Style extends LetoDMS_View_Common {
 		$accessMode = $folder->getAccessMode($this->params['user']);
 		$folderID = $folder->getID();
 		echo "<ul class=\"nav\">\n";
-		echo "<li id=\"first\"><a href=\"../out/out.ViewFolder.php?folderid=". $folderID ."&showtree=".showtree()."\" class=\"brand\">".getMLText("folder")."</a></li>\n";
+		echo "<li id=\"first\"><a href=\"../out/out.ViewFolder.php?folderid=" . $folderID . "&showtree=" . showtree() . "\" class=\"brand\">" . getMLText("folder") . "</a></li>\n";
 		if ($accessMode == M_READ && !$this->params['user']->isGuest()) {
-			echo "<li id=\"first\"><a href=\"../out/out.FolderNotify.php?folderid=". $folderID ."&showtree=".showtree()."\">".getMLText("edit_folder_notify")."</a></li>\n";
-		}
-		else if ($accessMode >= M_READWRITE) {
-			echo "<li id=\"first\"><a href=\"../out/out.AddSubFolder.php?folderid=". $folderID ."&showtree=".showtree()."\">".getMLText("add_subfolder")."</a></li>\n";
-			echo "<li><a href=\"../out/out.AddDocument.php?folderid=". $folderID ."&showtree=".showtree()."\">".getMLText("add_document")."</a></li>\n";
-			echo "<li><a href=\"../out/out.AddMultiDocument.php?folderid=". $folderID ."&showtree=".showtree()."\">".getMLText("add_multiple_documents")."</a></li>\n";
-			echo "<li><a href=\"../out/out.EditFolder.php?folderid=". $folderID ."&showtree=".showtree()."\">".getMLText("edit_folder_props")."</a></li>\n";
+			echo "<li id=\"first\"><a href=\"../out/out.FolderNotify.php?folderid=" . $folderID . "&showtree=" . showtree() . "\">" . getMLText("edit_folder_notify") . "</a></li>\n";
+		} else if ($accessMode >= M_READWRITE) {
+			echo "<li id=\"first\"><a href=\"../out/out.AddSubFolder.php?folderid=" . $folderID . "&showtree=" . showtree() . "\">" . getMLText("add_subfolder") . "</a></li>\n";
+			echo "<li><a href=\"../out/out.AddDocument.php?folderid=" . $folderID . "&showtree=" . showtree() . "\">" . getMLText("add_document") . "</a></li>\n";
+			echo "<li><a href=\"../out/out.AddMultiDocument.php?folderid=" . $folderID . "&showtree=" . showtree() . "\">" . getMLText("add_multiple_documents") . "</a></li>\n";
+			echo "<li><a href=\"../out/out.EditFolder.php?folderid=" . $folderID . "&showtree=" . showtree() . "\">" . getMLText("edit_folder_props") . "</a></li>\n";
 			if ($folderID != $this->params['rootfolderid'] && $folder->getParent())
-				echo "<li><a href=\"../out/out.MoveFolder.php?folderid=". $folderID ."&showtree=".showtree()."\">".getMLText("move_folder")."</a></li>\n";
+				echo "<li><a href=\"../out/out.MoveFolder.php?folderid=" . $folderID . "&showtree=" . showtree() . "\">" . getMLText("move_folder") . "</a></li>\n";
 
 			if ($accessMode == M_ALL) {
 				if ($folderID != $this->params['rootfolderid'] && $folder->getParent())
-					echo "<li><a href=\"../out/out.RemoveFolder.php?folderid=". $folderID ."&showtree=".showtree()."\">".getMLText("rm_folder")."</a></li>\n";
+					echo "<li><a href=\"../out/out.RemoveFolder.php?folderid=" . $folderID . "&showtree=" . showtree() . "\">" . getMLText("rm_folder") . "</a></li>\n";
 			}
 			if ($accessMode == M_ALL) {
-				echo "<li><a href=\"../out/out.FolderAccess.php?folderid=". $folderID ."&showtree=".showtree()."\">".getMLText("edit_folder_access")."</a></li>\n";
+				echo "<li><a href=\"../out/out.FolderAccess.php?folderid=" . $folderID . "&showtree=" . showtree() . "\">" . getMLText("edit_folder_access") . "</a></li>\n";
 			}
-			echo "<li><a href=\"../out/out.FolderNotify.php?folderid=". $folderID ."&showtree=".showtree()."\">".getMLText("edit_existing_notify")."</a></li>\n";
+			echo "<li><a href=\"../out/out.FolderNotify.php?folderid=" . $folderID . "&showtree=" . showtree() . "\">" . getMLText("edit_existing_notify") . "</a></li>\n";
 		}
 		echo "</ul>\n";
 		return;
 	} /* }}} */
 
-	private function documentNavigationBar()	{ /* {{{ */
+	private function documentNavigationBar()
+	{ /* {{{ */
 		global $document;
 
 		$accessMode = $document->getAccessMode($this->params['user']);
-		$docid=".php?documentid=" . $document->getID();
+		$docid = ".php?documentid=" . $document->getID();
 
 		echo "<ul class=\"nav\">\n";
-		echo "<li id=\"first\"><a href=\"../out/out.ViewDocument". $docid ."\" class=\"brand\">".getMLText("document")."</a></li>\n";
+		echo "<li id=\"first\"><a href=\"../out/out.ViewDocument" . $docid . "\" class=\"brand\">" . getMLText("document") . "</a></li>\n";
 		if ($accessMode >= M_READWRITE) {
 			if (!$document->isLocked()) {
-				echo "<li id=\"first\"><a href=\"../out/out.UpdateDocument". $docid ."\">".getMLText("update_document")."</a></li>";
-				echo "<li><a href=\"../op/op.LockDocument". $docid ."\">".getMLText("lock_document")."</a></li>";
-				echo "<li><a href=\"../out/out.EditDocument". $docid ."\">".getMLText("edit_document_props")."</a></li>";
-				echo "<li><a href=\"../out/out.MoveDocument". $docid ."\">".getMLText("move_document")."</a></li>";
-			}
-			else {
+				echo "<li id=\"first\"><a href=\"../out/out.UpdateDocument" . $docid . "\">" . getMLText("update_document") . "</a></li>";
+				echo "<li><a href=\"../op/op.LockDocument" . $docid . "\">" . getMLText("lock_document") . "</a></li>";
+				echo "<li><a href=\"../out/out.EditDocument" . $docid . "\">" . getMLText("edit_document_props") . "</a></li>";
+				echo "<li><a href=\"../out/out.MoveDocument" . $docid . "\">" . getMLText("move_document") . "</a></li>";
+			} else {
 				$lockingUser = $document->getLockingUser();
 				if (($lockingUser->getID() == $this->params['user']->getID()) || ($document->getAccessMode($this->params['user']) == M_ALL)) {
-					echo "<li id=\"first\"><a href=\"../out/out.UpdateDocument". $docid ."\">".getMLText("update_document")."</a></li>";
-					echo "<li><a href=\"../op/op.UnlockDocument". $docid ."\">".getMLText("unlock_document")."</a></li>";
-					echo "<li><a href=\"../out/out.EditDocument". $docid ."\">".getMLText("edit_document_props")."</a></li>";
-					echo "<li><a href=\"../out/out.MoveDocument". $docid ."\">".getMLText("move_document")."</a></li>";
-					echo "<li><a href=\"../out/out.SetExpires". $docid ."\">".getMLText("expires")."</a></li>";
+					echo "<li id=\"first\"><a href=\"../out/out.UpdateDocument" . $docid . "\">" . getMLText("update_document") . "</a></li>";
+					echo "<li><a href=\"../op/op.UnlockDocument" . $docid . "\">" . getMLText("unlock_document") . "</a></li>";
+					echo "<li><a href=\"../out/out.EditDocument" . $docid . "\">" . getMLText("edit_document_props") . "</a></li>";
+					echo "<li><a href=\"../out/out.MoveDocument" . $docid . "\">" . getMLText("move_document") . "</a></li>";
+					echo "<li><a href=\"../out/out.SetExpires" . $docid . "\">" . getMLText("expires") . "</a></li>";
 				}
 			}
 		}
 		if ($accessMode == M_ALL) {
-			echo "<li><a href=\"../out/out.RemoveDocument". $docid ."\">".getMLText("rm_document")."</a></li>";
-			echo "<li><a href=\"../out/out.DocumentAccess". $docid ."\">".getMLText("edit_document_access")."</a></li>";
+			echo "<li><a href=\"../out/out.RemoveDocument" . $docid . "\">" . getMLText("rm_document") . "</a></li>";
+			echo "<li><a href=\"../out/out.DocumentAccess" . $docid . "\">" . getMLText("edit_document_access") . "</a></li>";
 		}
 		if ($accessMode >= M_READ && !$this->params['user']->isGuest()) {
-			echo "<li><a href=\"../out/out.DocumentNotify". $docid ."\">".getMLText("edit_existing_notify")."</a></li>";
+			echo "<li><a href=\"../out/out.DocumentNotify" . $docid . "\">" . getMLText("edit_existing_notify") . "</a></li>";
 		}
 		echo "</ul>\n";
 		return;
 	} /* }}} */
 
-	private function accountNavigationBar() { /* {{{ */
+	private function accountNavigationBar()
+	{ /* {{{ */
 		echo "<ul class=\"nav\">\n";
-		if (!$this->params['disableselfedit']) echo "<li id=\"first\"><a href=\"../out/out.EditUserData.php\">".getMLText("edit_user_details")."</a></li>\n";
-		
-		if (!$this->params['user']->isAdmin()) 
-			echo "<li><a href=\"../out/out.UserDefaultKeywords.php\">".getMLText("edit_default_keywords")."</a></li>\n";
+		if (!$this->params['disableselfedit']) echo "<li id=\"first\"><a href=\"../out/out.EditUserData.php\">" . getMLText("edit_user_details") . "</a></li>\n";
 
-		echo "<li><a href=\"../out/out.ManageNotify.php\">".getMLText("edit_existing_notify")."</a></li>\n";
+		if (!$this->params['user']->isAdmin())
+			echo "<li><a href=\"../out/out.UserDefaultKeywords.php\">" . getMLText("edit_default_keywords") . "</a></li>\n";
 
-		if ($this->params['enableusersview']){
-			echo "<li><a href=\"../out/out.UsrView.php\">".getMLText("users")."</a></li>\n";
-			echo "<li><a href=\"../out/out.GroupView.php\">".getMLText("groups")."</a></li>\n";
-		}		
+		echo "<li><a href=\"../out/out.ManageNotify.php\">" . getMLText("edit_existing_notify") . "</a></li>\n";
+
+		if ($this->params['enableusersview']) {
+			echo "<li><a href=\"../out/out.UsrView.php\">" . getMLText("users") . "</a></li>\n";
+			echo "<li><a href=\"../out/out.GroupView.php\">" . getMLText("groups") . "</a></li>\n";
+		}
 		echo "</ul>\n";
 		return;
 	} /* }}} */
 
-	private function myDocumentsNavigationBar() { /* {{{ */
+	private function myDocumentsNavigationBar()
+	{ /* {{{ */
 
 		echo "<ul class=\"nav\">\n";
-		echo "<li id=\"first\"><a href=\"../out/out.MyDocuments.php?inProcess=1\">".getMLText("documents_in_process")."</a></li>\n";
-		echo "<li><a href=\"../out/out.MyDocuments.php\">".getMLText("all_documents")."</a></li>\n";
-		if($this->params['workflowmode'] == 'traditional') {
-			echo "<li><a href=\"../out/out.ReviewSummary.php\">".getMLText("review_summary")."</a></li>\n";
-			echo "<li><a href=\"../out/out.ApprovalSummary.php\">".getMLText("approval_summary")."</a></li>\n";
+		echo "<li id=\"first\"><a href=\"../out/out.MyDocuments.php?inProcess=1\">" . getMLText("documents_in_process") . "</a></li>\n";
+		echo "<li><a href=\"../out/out.MyDocuments.php\">" . getMLText("all_documents") . "</a></li>\n";
+		if ($this->params['workflowmode'] == 'traditional') {
+			echo "<li><a href=\"../out/out.ReviewSummary.php\">" . getMLText("review_summary") . "</a></li>\n";
+			echo "<li><a href=\"../out/out.ApprovalSummary.php\">" . getMLText("approval_summary") . "</a></li>\n";
 		} else {
-			echo "<li><a href=\"../out/out.WorkflowSummary.php\">".getMLText("workflow_summary")."</a></li>\n";
+			echo "<li><a href=\"../out/out.WorkflowSummary.php\">" . getMLText("workflow_summary") . "</a></li>\n";
 		}
 		echo "</ul>\n";
 		return;
 	} /* }}} */
 
-	private function adminToolsNavigationBar() { /* {{{ */
+	private function adminToolsNavigationBar()
+	{ /* {{{ */
 		echo "   <ul class=\"nav\">\n";
 		echo "    <li class=\"dropdown\">\n";
-		echo "     <a href=\"#\" class=\"dropdown-toggle\" data-toggle=\"dropdown\">".getMLText("user_group_management")."<b class=\"caret\"></b></a>\n";
+		echo "     <a href=\"#\" class=\"dropdown-toggle\" data-toggle=\"dropdown\">" . getMLText("user_group_management") . "<b class=\"caret\"></b></a>\n";
 		echo "     <ul class=\"dropdown-menu\" role=\"menu\">\n";
-		echo "      <li><a href=\"../out/out.UsrMgr.php\">".getMLText("user_management")."</a></li>\n";
-		echo "      <li><a href=\"../out/out.GroupMgr.php\">".getMLText("group_management")."</a></li>\n";
+		echo "      <li><a href=\"../out/out.UsrMgr.php\">" . getMLText("user_management") . "</a></li>\n";
+		echo "      <li><a href=\"../out/out.GroupMgr.php\">" . getMLText("group_management") . "</a></li>\n";
 		echo "     </ul>\n";
 		echo "    </li>\n";
 		echo "   </ul>\n";
 
 		echo "   <ul class=\"nav\">\n";
 		echo "    <li class=\"dropdown\">\n";
-		echo "     <a href=\"#\" class=\"dropdown-toggle\" data-toggle=\"dropdown\">".getMLText("definitions")."<b class=\"caret\"></b></a>\n";
+		echo "     <a href=\"#\" class=\"dropdown-toggle\" data-toggle=\"dropdown\">" . getMLText("definitions") . "<b class=\"caret\"></b></a>\n";
 		echo "     <ul class=\"dropdown-menu\" role=\"menu\">\n";
-		echo "      <li><a href=\"../out/out.DefaultKeywords.php\">".getMLText("global_default_keywords")."</a></li>\n";
-		echo "     <li><a href=\"../out/out.Categories.php\">".getMLText("global_document_categories")."</a></li>\n";
-		echo "     <li><a href=\"../out/out.AttributeMgr.php\">".getMLText("global_attributedefinitions")."</a></li>\n";
-		if($this->params['workflowmode'] != 'traditional') {
-			echo "     <li><a href=\"../out/out.WorkflowMgr.php\">".getMLText("global_workflows")."</a></li>\n";
-			echo "     <li><a href=\"../out/out.WorkflowStatesMgr.php\">".getMLText("global_workflow_states")."</a></li>\n";
-			echo "     <li><a href=\"../out/out.WorkflowActionsMgr.php\">".getMLText("global_workflow_actions")."</a></li>\n";
+		echo "      <li><a href=\"../out/out.DefaultKeywords.php\">" . getMLText("global_default_keywords") . "</a></li>\n";
+		echo "     <li><a href=\"../out/out.Categories.php\">" . getMLText("global_document_categories") . "</a></li>\n";
+		echo "     <li><a href=\"../out/out.AttributeMgr.php\">" . getMLText("global_attributedefinitions") . "</a></li>\n";
+		if ($this->params['workflowmode'] != 'traditional') {
+			echo "     <li><a href=\"../out/out.WorkflowMgr.php\">" . getMLText("global_workflows") . "</a></li>\n";
+			echo "     <li><a href=\"../out/out.WorkflowStatesMgr.php\">" . getMLText("global_workflow_states") . "</a></li>\n";
+			echo "     <li><a href=\"../out/out.WorkflowActionsMgr.php\">" . getMLText("global_workflow_actions") . "</a></li>\n";
 		}
 		echo "     </ul>\n";
 		echo "    </li>\n";
 		echo "   </ul>\n";
 
-		if($this->params['enablefullsearch']) {
+		if ($this->params['enablefullsearch']) {
 			echo "   <ul class=\"nav\">\n";
 			echo "    <li class=\"dropdown\">\n";
-			echo "     <a href=\"#\" class=\"dropdown-toggle\" data-toggle=\"dropdown\">".getMLText("fullsearch")."<b class=\"caret\"></b></a>\n";
+			echo "     <a href=\"#\" class=\"dropdown-toggle\" data-toggle=\"dropdown\">" . getMLText("fullsearch") . "<b class=\"caret\"></b></a>\n";
 			echo "     <ul class=\"dropdown-menu\" role=\"menu\">\n";
-			echo "      <li><a href=\"../out/out.Indexer.php\">".getMLText("update_fulltext_index")."</a></li>\n";
-			echo "      <li><a href=\"../out/out.CreateIndex.php\">".getMLText("create_fulltext_index")."</a></li>\n";
-			echo "      <li><a href=\"../out/out.IndexInfo.php\">".getMLText("fulltext_info")."</a></li>\n";
+			echo "      <li><a href=\"../out/out.Indexer.php\">" . getMLText("update_fulltext_index") . "</a></li>\n";
+			echo "      <li><a href=\"../out/out.CreateIndex.php\">" . getMLText("create_fulltext_index") . "</a></li>\n";
+			echo "      <li><a href=\"../out/out.IndexInfo.php\">" . getMLText("fulltext_info") . "</a></li>\n";
 			echo "     </ul>\n";
 			echo "    </li>\n";
 			echo "   </ul>\n";
@@ -389,22 +403,22 @@ class LetoDMS_Bootstrap_Style extends LetoDMS_View_Common {
 
 		echo "   <ul class=\"nav\">\n";
 		echo "    <li class=\"dropdown\">\n";
-		echo "     <a href=\"#\" class=\"dropdown-toggle\" data-toggle=\"dropdown\">".getMLText("backup_log_management")."<b class=\"caret\"></b></a>\n";
+		echo "     <a href=\"#\" class=\"dropdown-toggle\" data-toggle=\"dropdown\">" . getMLText("backup_log_management") . "<b class=\"caret\"></b></a>\n";
 		echo "     <ul class=\"dropdown-menu\" role=\"menu\">\n";
-		echo "      <li><a href=\"../out/out.BackupTools.php\">".getMLText("backup_tools")."</a></li>\n";
+		echo "      <li><a href=\"../out/out.BackupTools.php\">" . getMLText("backup_tools") . "</a></li>\n";
 		if ($this->params['logfileenable'])
-			echo "      <li><a href=\"../out/out.LogManagement.php\">".getMLText("log_management")."</a></li>\n";
+			echo "      <li><a href=\"../out/out.LogManagement.php\">" . getMLText("log_management") . "</a></li>\n";
 		echo "     </ul>\n";
 		echo "    </li>\n";
 		echo "   </ul>\n";
 
 		echo "   <ul class=\"nav\">\n";
 		echo "    <li class=\"dropdown\">\n";
-		echo "     <a href=\"#\" class=\"dropdown-toggle\" data-toggle=\"dropdown\">".getMLText("misc")."<b class=\"caret\"></b></a>\n";
+		echo "     <a href=\"#\" class=\"dropdown-toggle\" data-toggle=\"dropdown\">" . getMLText("misc") . "<b class=\"caret\"></b></a>\n";
 		echo "     <ul class=\"dropdown-menu\" role=\"menu\">\n";
-		echo "      <li id=\"first\"><a href=\"../out/out.Statistic.php\">".getMLText("folders_and_documents_statistic")."</a></li>\n";
-		echo "      <li><a href=\"../out/out.ObjectCheck.php\">".getMLText("objectcheck")."</a></li>\n";
-		echo "      <li><a href=\"../out/out.Info.php\">".getMLText("version_info")."</a></li>\n";
+		echo "      <li id=\"first\"><a href=\"../out/out.Statistic.php\">" . getMLText("folders_and_documents_statistic") . "</a></li>\n";
+		echo "      <li><a href=\"../out/out.ObjectCheck.php\">" . getMLText("objectcheck") . "</a></li>\n";
+		echo "      <li><a href=\"../out/out.Info.php\">" . getMLText("version_info") . "</a></li>\n";
 		echo "     </ul>\n";
 		echo "    </li>\n";
 		echo "   </ul>\n";
@@ -413,8 +427,9 @@ class LetoDMS_Bootstrap_Style extends LetoDMS_View_Common {
 		echo "</ul>\n";
 		return;
 	} /* }}} */
-	
-	private function calendarNavigationBar($d){ /* {{{ */
+
+	private function calendarNavigationBar($d)
+	{ /* {{{ */
 		// Handle null or invalid date parameter
 		if ($d == null || !is_array($d) || count($d) < 3) {
 			// Use current date as fallback
@@ -426,21 +441,21 @@ class LetoDMS_Bootstrap_Style extends LetoDMS_View_Common {
 			$month = $d[1];
 			$year = $d[2];
 		}
-		$ds="&day=".$day."&month=".$month."&year=".$year;
-	
+		$ds = "&day=" . $day . "&month=" . $month . "&year=" . $year;
+
 		echo "<ul class=\"nav\">\n";
-		echo "<li><a href=\"../out/out.Calendar.php?mode=w".$ds."\">".getMLText("week_view")."</a></li>\n";
-		echo "<li><a href=\"../out/out.Calendar.php?mode=m".$ds."\">".getMLText("month_view")."</a></li>\n";
-		echo "<li><a href=\"../out/out.Calendar.php?mode=y".$ds."\">".getMLText("year_view")."</a></li>\n";
-		if (!$this->params['user']->isGuest()) echo "<li><a href=\"../out/out.AddEvent.php\">".getMLText("add_event")."</a></li>\n";
+		echo "<li><a href=\"../out/out.Calendar.php?mode=w" . $ds . "\">" . getMLText("week_view") . "</a></li>\n";
+		echo "<li><a href=\"../out/out.Calendar.php?mode=m" . $ds . "\">" . getMLText("month_view") . "</a></li>\n";
+		echo "<li><a href=\"../out/out.Calendar.php?mode=y" . $ds . "\">" . getMLText("year_view") . "</a></li>\n";
+		if (!$this->params['user']->isGuest()) echo "<li><a href=\"../out/out.AddEvent.php\">" . getMLText("add_event") . "</a></li>\n";
 		echo "</ul>\n";
 		return;
-	
 	} /* }}} */
 
-	function pageList($pageNumber, $totalPages, $baseURI, $params) { /* {{{ */
+	function pageList($pageNumber, $totalPages, $baseURI, $params)
+	{ /* {{{ */
 
-		if (!is_numeric($pageNumber) || !is_numeric($totalPages) || $totalPages<2) {
+		if (!is_numeric($pageNumber) || !is_numeric($totalPages) || $totalPages < 2) {
 			return;
 		}
 
@@ -448,8 +463,8 @@ class LetoDMS_Bootstrap_Style extends LetoDMS_View_Common {
 		// regular expression to strip out the pg (page number) variable to
 		// achieve the same effect. This seems to be less haphazard though...
 		$resultsURI = $baseURI;
-		$first=true;
-		foreach ($params as $key=>$value) {
+		$first = true;
+		foreach ($params as $key => $value) {
 			// Don't include the page number in the basic URI. This is added in
 			// during the list display loop.
 			if (!strcasecmp($key, "pg")) {
@@ -457,12 +472,11 @@ class LetoDMS_Bootstrap_Style extends LetoDMS_View_Common {
 			}
 			if (is_array($value)) {
 				foreach ($value as $subvalue) {
-					$resultsURI .= ($first ? "?" : "&").$key."%5B%5D=".$subvalue;
+					$resultsURI .= ($first ? "?" : "&") . $key . "%5B%5D=" . $subvalue;
 					$first = false;
 				}
-			}
-			else {
-					$resultsURI .= ($first ? "?" : "&").$key."=".$value;
+			} else {
+				$resultsURI .= ($first ? "?" : "&") . $key . "=" . $value;
 			}
 			$first = false;
 		}
@@ -470,11 +484,11 @@ class LetoDMS_Bootstrap_Style extends LetoDMS_View_Common {
 		echo "<div class=\"pagination pagination-small\">";
 		echo "<ul>";
 		for ($i = 1; $i  <= $totalPages; $i++) {
-			if ($i == $pageNumber)  echo "<li class=\"active\"><a href=\"".$resultsURI.($first ? "?" : "&")."pg=".$i."\">".$i."</a></li> ";
-			else echo "<li><a href=\"".$resultsURI.($first ? "?" : "&")."pg=".$i."\">".$i."</a></li>";
+			if ($i == $pageNumber)  echo "<li class=\"active\"><a href=\"" . $resultsURI . ($first ? "?" : "&") . "pg=" . $i . "\">" . $i . "</a></li> ";
+			else echo "<li><a href=\"" . $resultsURI . ($first ? "?" : "&") . "pg=" . $i . "\">" . $i . "</a></li>";
 		}
-		if ($totalPages>1) {
-			echo "<li><a href=\"".$resultsURI.($first ? "?" : "&")."pg=all\">".getMLText("all_pages")."</a></li>";
+		if ($totalPages > 1) {
+			echo "<li><a href=\"" . $resultsURI . ($first ? "?" : "&") . "pg=all\">" . getMLText("all_pages") . "</a></li>";
 		}
 		echo "</ul>";
 		echo "</div>";
@@ -482,43 +496,49 @@ class LetoDMS_Bootstrap_Style extends LetoDMS_View_Common {
 		return;
 	} /* }}} */
 
-	function contentContainer($content) { /* {{{ */
+	function contentContainer($content)
+	{ /* {{{ */
 		echo "<div class=\"well\">\n";
 		echo $content;
 		echo "</div>\n";
 		return;
 	} /* }}} */
 
-	function contentContainerStart($type='info') { /* {{{ */
+	function contentContainerStart($type = 'info')
+	{ /* {{{ */
 
 		//echo "<div class=\"alert alert-".$type."\">\n";
 		echo "<div class=\"well\">\n";
 		return;
 	} /* }}} */
 
-	function contentContainerEnd() { /* {{{ */
+	function contentContainerEnd()
+	{ /* {{{ */
 
 		echo "</div>\n";
 		return;
 	} /* }}} */
 
-	function contentHeading($heading, $noescape=false) { /* {{{ */
+	function contentHeading($heading, $noescape = false)
+	{ /* {{{ */
 
-		if($noescape)
-			echo "<legend>".$heading."</legend>\n";
+		if ($noescape)
+			echo "<legend>" . $heading . "</legend>\n";
 		else
-			echo "<legend>".htmlspecialchars($heading)."</legend>\n";
+			echo "<legend>" . htmlspecialchars($heading) . "</legend>\n";
 		return;
 	} /* }}} */
 
-	function contentSubHeading($heading, $first=false) { /* {{{ */
+	function contentSubHeading($heading, $first = false)
+	{ /* {{{ */
 
-//		echo "<div class=\"contentSubHeading\"".($first ? " id=\"first\"" : "").">".htmlspecialchars($heading)."</div>\n";
-		echo "<h5>".$heading."</h5>";
+		//		echo "<div class=\"contentSubHeading\"".($first ? " id=\"first\"" : "").">".htmlspecialchars($heading)."</div>\n";
+		echo "<h5>" . $heading . "</h5>";
 		return;
 	} /* }}} */
 
-	function getMimeIcon($fileType) { /* {{{ */
+	function getMimeIcon($fileType)
+	{ /* {{{ */
 		// for extension use LOWER CASE only
 		$icons = array();
 		$icons["txt"]  = "txt.png";
@@ -591,15 +611,15 @@ class LetoDMS_Bootstrap_Style extends LetoDMS_View_Common {
 
 		$ext = strtolower(substr($fileType, 1));
 		if (isset($icons[$ext])) {
-			return $this->imgpath.$icons[$ext];
-		}
-		else {
-			return $this->imgpath.$icons["default"];
+			return $this->imgpath . $icons[$ext];
+		} else {
+			return $this->imgpath . $icons["default"];
 		}
 	} /* }}} */
 
-	function printDateChooser($defDate = -1, $varName) { /* {{{ */
-	
+	function printDateChooser($defDate = -1, $varName)
+	{ /* {{{ */
+
 		if ($defDate == -1)
 			$defDate = mktime();
 		$day   = date("d", $defDate);
@@ -607,8 +627,7 @@ class LetoDMS_Bootstrap_Style extends LetoDMS_View_Common {
 		$year  = date("Y", $defDate);
 
 		print "<select name=\"" . $varName . "day\">\n";
-		for ($i = 1; $i <= 31; $i++)
-		{
+		for ($i = 1; $i <= 31; $i++) {
 			print "<option value=\"" . $i . "\"";
 			if (intval($day) == $i)
 				print " selected";
@@ -616,17 +635,15 @@ class LetoDMS_Bootstrap_Style extends LetoDMS_View_Common {
 		}
 		print "</select> \n";
 		print "<select name=\"" . $varName . "month\">\n";
-		for ($i = 1; $i <= 12; $i++)
-		{
+		for ($i = 1; $i <= 12; $i++) {
 			print "<option value=\"" . $i . "\"";
 			if (intval($month) == $i)
 				print " selected";
 			print ">" . $i . "</option>\n";
 		}
 		print "</select> \n";
-		print "<select name=\"" . $varName . "year\">\n";	
-		for ($i = $year-5 ; $i <= $year+5 ; $i++)
-		{
+		print "<select name=\"" . $varName . "year\">\n";
+		for ($i = $year - 5; $i <= $year + 5; $i++) {
 			print "<option value=\"" . $i . "\"";
 			if (intval($year) == $i)
 				print " selected";
@@ -635,252 +652,268 @@ class LetoDMS_Bootstrap_Style extends LetoDMS_View_Common {
 		print "</select>";
 	} /* }}} */
 
-	function printSequenceChooser($objArr, $keepID = -1) { /* {{{ */
+	function printSequenceChooser($objArr, $keepID = -1)
+	{ /* {{{ */
 		if (count($objArr) > 0) {
-			$max = $objArr[count($objArr)-1]->getSequence() + 1;
+			$max = $objArr[count($objArr) - 1]->getSequence() + 1;
 			$min = $objArr[0]->getSequence() - 1;
-		}
-		else {
+		} else {
 			$max = 1.0;
 		}
 		print "<select name=\"sequence\">\n";
 		if ($keepID != -1) {
 			print "  <option value=\"keep\">" . getMLText("seq_keep");
 		}
-		print "  <option value=\"".$max."\">" . getMLText("seq_end");
+		print "  <option value=\"" . $max . "\">" . getMLText("seq_end");
 		if (count($objArr) > 0) {
-			print "  <option value=\"".$min."\">" . getMLText("seq_start");
+			print "  <option value=\"" . $min . "\">" . getMLText("seq_start");
 		}
 		for ($i = 0; $i < count($objArr) - 1; $i++) {
-			if (($objArr[$i]->getID() == $keepID) || (($i + 1 < count($objArr)) && ($objArr[$i+1]->getID() == $keepID))) {
+			if (($objArr[$i]->getID() == $keepID) || (($i + 1 < count($objArr)) && ($objArr[$i + 1]->getID() == $keepID))) {
 				continue;
 			}
-			$index = ($objArr[$i]->getSequence() + $objArr[$i+1]->getSequence()) / 2;
-			print "  <option value=\"".$index."\">" . getMLText("seq_after", array("prevname" => htmlspecialchars($objArr[$i]->getName())));
+			$index = ($objArr[$i]->getSequence() + $objArr[$i + 1]->getSequence()) / 2;
+			print "  <option value=\"" . $index . "\">" . getMLText("seq_after", array("prevname" => htmlspecialchars($objArr[$i]->getName())));
 		}
 		print "</select>";
 	} /* }}} */
-	
-	function printDocumentChooser($formName) { /* {{{ */
+
+	function printDocumentChooser($formName)
+	{ /* {{{ */
 ?>
 		<script language="JavaScript">
-		var openDlg;
-		function chooseDoc<?php print $formName ?>() {
-			openDlg = open("../out/out.DocumentChooser.php?folderid=<?php echo $this->params['rootfolderid']?>&form=<?php echo urlencode($formName)?>", "openDlg", "width=480,height=480,scrollbars=yes,resizable=yes,status=yes");
-		}
+			var openDlg;
+
+			function chooseDoc<?php print $formName ?>() {
+				openDlg = open("../out/out.DocumentChooser.php?folderid=<?php echo $this->params['rootfolderid'] ?>&form=<?php echo urlencode($formName) ?>", "openDlg", "width=480,height=480,scrollbars=yes,resizable=yes,status=yes");
+			}
 		</script>
 		<?php
-		print "<input type=\"hidden\" id=\"docid".$formName."\" name=\"docid".$formName."\">";
+		print "<input type=\"hidden\" id=\"docid" . $formName . "\" name=\"docid" . $formName . "\">";
 		print "<div class=\"input-append\">\n";
-		print "<input type=\"text\" id=\"choosedocsearch\" data-provide=\"typeahead\" name=\"docname".$formName."\" placeholder=\"".getMLText('type_to_search')."\" autocomplete=\"off\" />";
-//		print "<button type=\"button\"  onclick=\"chooseDoc".$formName."();\">".getMLText("document")."...</button>";
-		print "<a data-target=\"#docChooser\" href=\"out.DocumentChooser.php?form=".$formName."&folderid=".$this->params['rootfolderid']."\" role=\"button\" class=\"btn\" data-toggle=\"modal\">".getMLText("document")."…</a>\n";
+		print "<input type=\"text\" id=\"choosedocsearch\" data-provide=\"typeahead\" name=\"docname" . $formName . "\" placeholder=\"" . getMLText('type_to_search') . "\" autocomplete=\"off\" />";
+		//		print "<button type=\"button\"  onclick=\"chooseDoc".$formName."();\">".getMLText("document")."...</button>";
+		print "<a data-target=\"#docChooser\" href=\"out.DocumentChooser.php?form=" . $formName . "&folderid=" . $this->params['rootfolderid'] . "\" role=\"button\" class=\"btn\" data-toggle=\"modal\">" . getMLText("document") . "…</a>\n";
 		print "</div>\n";
-?>
-<div class="modal hide" id="docChooser" tabindex="-1" role="dialog" aria-labelledby="docChooserLabel" aria-hidden="true">
-  <div class="modal-header">
-    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-    <h3 id="docChooserLabel"><?php printMLText("choose_target_document") ?></h3>
-  </div>
-  <div class="modal-body">
-    <p>Please wait, until document tree is loaded …</p>
-  </div>
-  <div class="modal-footer">
-    <button class="btn btn-primary" data-dismiss="modal" aria-hidden="true">Close</button>
-  </div>
-</div>
-<?php
-	} /* }}} */
-
-	function printFolderChooser($formName, $accessMode, $exclude = -1, $default = false) { /* {{{ */
 		?>
-		<script language="JavaScript">
-		var openDlg;
-		function chooseFolder<?php print $formName ?>() {
-			openDlg = open("out.FolderChooser.php?form=<?php echo $formName?>&mode=<?php echo $accessMode?>&exclude=<?php echo $exclude?>", "openDlg", "width=480,height=480,scrollbars=yes,resizable=yes,status=yes");
-		}
-		</script>
-		<?php
-		print "<input type=\"hidden\" id=\"targetid".$formName."\" name=\"targetid".$formName."\" value=\"". (($default) ? $default->getID() : "") ."\">";
-		print "<div class=\"input-append\">\n";
-		print "<input type=\"text\" id=\"choosefoldersearch\" data-provide=\"typeahead\"  name=\"targetname".$formName."\" value=\"". (($default) ? htmlspecialchars($default->getName()) : "") ."\" placeholder=\"".getMLText('type_to_search')."\" autocomplete=\"off\" />";
-//		print "<button type=\"button\" class=\"btn\" onclick=\"chooseFolder".$formName."(); return false;\">".getMLText("folder")."...</button>";
-		print "<a data-target=\"#folderChooser\" href=\"out.FolderChooser.php?form=".$formName."&mode=".$accessMode."&exclude=".$exclude."\" role=\"button\" class=\"btn\" data-toggle=\"modal\">".getMLText("folder")."…</a>\n";
-		print "</div>\n";
-?>
-<div class="modal hide" id="folderChooser" tabindex="-1" role="dialog" aria-labelledby="folderChooserLabel" aria-hidden="true">
-  <div class="modal-header">
-    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-    <h3 id="folderChooserLabel"><?php printMLText("choose_target_folder") ?></h3>
-  </div>
-  <div class="modal-body">
-    <p>Please wait, until document tree is loaded …</p>
-  </div>
-  <div class="modal-footer">
-    <button class="btn btn-primary" data-dismiss="modal" aria-hidden="true">Close</button>
-  </div>
-</div>
-<?php
+		<div class="modal hide" id="docChooser" tabindex="-1" role="dialog" aria-labelledby="docChooserLabel" aria-hidden="true">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+				<h3 id="docChooserLabel"><?php printMLText("choose_target_document") ?></h3>
+			</div>
+			<div class="modal-body">
+				<p>Please wait, until document tree is loaded …</p>
+			</div>
+			<div class="modal-footer">
+				<button class="btn btn-primary" data-dismiss="modal" aria-hidden="true">Close</button>
+			</div>
+		</div>
+	<?php
 	} /* }}} */
 
-	function printCategoryChooser($formName, $categories=array()) { /* {{{ */
-?>
-<script language="JavaScript">
-	function clearCategory<?php print $formName ?>() {
-		document.<?php echo $formName ?>.categoryid<?php echo $formName ?>.value = '';
-		document.<?php echo $formName ?>.categoryname<?php echo $formName ?>.value = '';
-	}
+	function printFolderChooser($formName, $accessMode, $exclude = -1, $default = false)
+	{ /* {{{ */
+	?>
+		<script language="JavaScript">
+			var openDlg;
 
-	function acceptCategories() {
-		var targetName = document.<?php echo $formName?>.categoryname<?php print $formName ?>;
-		var targetID = document.<?php echo $formName?>.categoryid<?php print $formName ?>;
-		var value = '';
-		$('#keywordta option:selected').each(function(){
-			value += ' ' + $(this).text();
-		});
-		targetName.value = value;
-		targetID.value = $('#keywordta').val();
-		return true;
-	}
-</script>
-<?php
+			function chooseFolder<?php print $formName ?>() {
+				openDlg = open("out.FolderChooser.php?form=<?php echo $formName ?>&mode=<?php echo $accessMode ?>&exclude=<?php echo $exclude ?>", "openDlg", "width=480,height=480,scrollbars=yes,resizable=yes,status=yes");
+			}
+		</script>
+		<?php
+		print "<input type=\"hidden\" id=\"targetid" . $formName . "\" name=\"targetid" . $formName . "\" value=\"" . (($default) ? $default->getID() : "") . "\">";
+		print "<div class=\"input-append\">\n";
+		print "<input type=\"text\" id=\"choosefoldersearch\" data-provide=\"typeahead\"  name=\"targetname" . $formName . "\" value=\"" . (($default) ? htmlspecialchars($default->getName()) : "") . "\" placeholder=\"" . getMLText('type_to_search') . "\" autocomplete=\"off\" />";
+		//		print "<button type=\"button\" class=\"btn\" onclick=\"chooseFolder".$formName."(); return false;\">".getMLText("folder")."...</button>";
+		print "<a data-target=\"#folderChooser\" href=\"out.FolderChooser.php?form=" . $formName . "&mode=" . $accessMode . "&exclude=" . $exclude . "\" role=\"button\" class=\"btn\" data-toggle=\"modal\">" . getMLText("folder") . "…</a>\n";
+		print "</div>\n";
+		?>
+		<div class="modal hide" id="folderChooser" tabindex="-1" role="dialog" aria-labelledby="folderChooserLabel" aria-hidden="true">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+				<h3 id="folderChooserLabel"><?php printMLText("choose_target_folder") ?></h3>
+			</div>
+			<div class="modal-body">
+				<p>Please wait, until document tree is loaded …</p>
+			</div>
+			<div class="modal-footer">
+				<button class="btn btn-primary" data-dismiss="modal" aria-hidden="true">Close</button>
+			</div>
+		</div>
+	<?php
+	} /* }}} */
+
+	function printCategoryChooser($formName, $categories = array())
+	{ /* {{{ */
+	?>
+		<script language="JavaScript">
+			function clearCategory<?php print $formName ?>() {
+				document.<?php echo $formName ?>.categoryid<?php echo $formName ?>.value = '';
+				document.<?php echo $formName ?>.categoryname<?php echo $formName ?>.value = '';
+			}
+
+			function acceptCategories() {
+				var targetName = document.<?php echo $formName ?>.categoryname<?php print $formName ?>;
+				var targetID = document.<?php echo $formName ?>.categoryid<?php print $formName ?>;
+				var value = '';
+				$('#keywordta option:selected').each(function() {
+					value += ' ' + $(this).text();
+				});
+				targetName.value = value;
+				targetID.value = $('#keywordta').val();
+				return true;
+			}
+		</script>
+		<?php
 		$ids = $names = array();
-		if($categories) {
-			foreach($categories as $cat) {
+		if ($categories) {
+			foreach ($categories as $cat) {
 				$ids[] = $cat->getId();
 				$names[] = htmlspecialchars($cat->getName());
 			}
 		}
-		print "<input type=\"hidden\" name=\"categoryid".$formName."\" value=\"".implode(',', $ids)."\">";
+		print "<input type=\"hidden\" name=\"categoryid" . $formName . "\" value=\"" . implode(',', $ids) . "\">";
 		print "<div class=\"input-append\">\n";
-		print "<input type=\"text\" disabled name=\"categoryname".$formName."\" value=\"".implode(' ', $names)."\">";
-		print "<button type=\"button\" class=\"btn\" onclick=\"javascript:clearCategory".$formName."();\"><i class=\"icon-remove\"></i></button>";
-		print "<a data-target=\"#categoryChooser\" href=\"out.CategoryChooser.php?form=form1&cats=".implode(',', $ids)."\" role=\"button\" class=\"btn\" data-toggle=\"modal\">".getMLText("category")."…</a>\n";
+		print "<input type=\"text\" disabled name=\"categoryname" . $formName . "\" value=\"" . implode(' ', $names) . "\">";
+		print "<button type=\"button\" class=\"btn\" onclick=\"javascript:clearCategory" . $formName . "();\"><i class=\"icon-remove\"></i></button>";
+		print "<a data-target=\"#categoryChooser\" href=\"out.CategoryChooser.php?form=form1&cats=" . implode(',', $ids) . "\" role=\"button\" class=\"btn\" data-toggle=\"modal\">" . getMLText("category") . "…</a>\n";
 		print "</div>\n";
-?>
-<div class="modal hide" id="categoryChooser" tabindex="-1" role="dialog" aria-labelledby="categoryChooserLabel" aria-hidden="true">
-  <div class="modal-header">
-    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-    <h3 id="categoryChooserLabel"><?php printMLText("choose_target_category") ?></h3>
-  </div>
-  <div class="modal-body">
-    <p>Please wait, until category list is loaded …</p>
-  </div>
-  <div class="modal-footer">
-    <button class="btn btn-primary" data-dismiss="modal" aria-hidden="true">Close</button>
-    <button class="btn" data-dismiss="modal" aria-hidden="true" onClick="acceptCategories();">Save</button>
-  </div>
-</div>
-<?php
+		?>
+		<div class="modal hide" id="categoryChooser" tabindex="-1" role="dialog" aria-labelledby="categoryChooserLabel" aria-hidden="true">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+				<h3 id="categoryChooserLabel"><?php printMLText("choose_target_category") ?></h3>
+			</div>
+			<div class="modal-body">
+				<p>Please wait, until category list is loaded …</p>
+			</div>
+			<div class="modal-footer">
+				<button class="btn btn-primary" data-dismiss="modal" aria-hidden="true">Close</button>
+				<button class="btn" data-dismiss="modal" aria-hidden="true" onClick="acceptCategories();">Save</button>
+			</div>
+		</div>
+	<?php
 	} /* }}} */
 
-	function printKeywordChooser($formName, $keywords='', $fieldname='keywords') { /* {{{ */
-?>
-		    <div class="input-append">
-				<input type="text" name="<?php echo $fieldname; ?>" value="<?php print htmlspecialchars($keywords);?>" />
-				<a data-target="#keywordChooser" role="button" class="btn" data-toggle="modal" href="out.KeywordChooser.php?target=<?php echo $formName; ?>"><?php printMLText("keywords");?>…</a>
-		    </div>
-<div class="modal hide" id="keywordChooser" tabindex="-1" role="dialog" aria-labelledby="keywordChooserLabel" aria-hidden="true">
-  <div class="modal-header">
-    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-    <h3 id="keywordChooserLabel"><?php printMLText("use_default_keywords") ?></h3>
-  </div>
-  <div class="modal-body">
-    <p>Please wait, until keyword list is loaded …</p>
-  </div>
-  <div class="modal-footer">
-    <button class="btn btn-primary" data-dismiss="modal" aria-hidden="true">Close</button>
-    <button class="btn" data-dismiss="modal" aria-hidden="true" onClick="acceptKeywords();">Save</button>
-  </div>
-</div>
-<?php
+	function printKeywordChooser($formName, $keywords = '', $fieldname = 'keywords')
+	{ /* {{{ */
+	?>
+		<div class="input-append">
+			<input type="text" id="<?php echo $fieldname; ?>" name="<?php echo $fieldname; ?>" value="<?php print htmlspecialchars($keywords); ?>" />
+			<a data-target="#keywordChooser" role="button" class="btn" data-toggle="modal" href="out.KeywordChooser.php?target=<?php echo $formName; ?>"><?php printMLText("keywords"); ?>…</a>
+		</div>
+		<div class="modal hide" id="keywordChooser" tabindex="-1" role="dialog" aria-labelledby="keywordChooserLabel" aria-hidden="true">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+				<h3 id="keywordChooserLabel"><?php printMLText("use_default_keywords") ?></h3>
+			</div>
+			<div class="modal-body">
+				<p>Please wait, until keyword list is loaded …</p>
+			</div>
+			<div class="modal-footer">
+				<button class="btn btn-primary" data-dismiss="modal" aria-hidden="true">Close</button>
+				<button class="btn" data-dismiss="modal" aria-hidden="true" onClick="acceptKeywords();">Save</button>
+			</div>
+		</div>
+	<?php
 	} /* }}} */
 
-	function printAttributeEditField($attrdef, $objvalue, $fieldname='attributes') { /* {{{ */
-		if($valueset = $attrdef->getValueSetAsArray()) {
-			echo "<select name=\"".$fieldname."[".$attrdef->getId()."]\">";
-			if($attrdef->getMinValues() < 1) {
+	function printAttributeEditField($attrdef, $objvalue, $fieldname = 'attributes')
+	{ /* {{{ */
+		if ($valueset = $attrdef->getValueSetAsArray()) {
+			echo "<select name=\"" . $fieldname . "[" . $attrdef->getId() . "]\">";
+			if ($attrdef->getMinValues() < 1) {
 				echo "<option value=\"\"></option>";
 			}
-			foreach($valueset as $value) {
-				echo "<option value=\"".htmlspecialchars($value)."\"";
-				if($value == $objvalue)
+			foreach ($valueset as $value) {
+				echo "<option value=\"" . htmlspecialchars($value) . "\"";
+				if ($value == $objvalue)
 					echo " selected";
-				echo ">".htmlspecialchars($value)."</option>";
+				echo ">" . htmlspecialchars($value) . "</option>";
 			}
 			echo "</select>";
 		} else {
-			echo "<input type=\"text\" name=\"".$fieldname."[".$attrdef->getId()."]\" value=\"".htmlspecialchars($objvalue)."\" />";
+			echo "<input type=\"text\" name=\"" . $fieldname . "[" . $attrdef->getId() . "]\" value=\"" . htmlspecialchars($objvalue) . "\" />";
 		}
 	} /* }}} */
 
-	function printDropFolderChooser($formName, $dropfolderfile="") { /* {{{ */
-?>
+	function printDropFolderChooser($formName, $dropfolderfile = "")
+	{ /* {{{ */
+	?>
 		<script language="JavaScript">
-		var openDlg;
-		function chooseDropFolderFile<?php print $formName ?>() {
-			var current = document.<?php echo $formName ?>.dropfolderfile<?php echo $formName ?>;
-			openDlg = open("out.DropFolderChooser.php?form=<?php echo $formName?>&dropfolderfile="+current.value, "openDlg", "width=480,height=480,scrollbars=yes,resizable=yes,status=yes");
-		}
-		function clearFilename<?php print $formName ?>() {
-			document.<?php echo $formName ?>.dropfolderfile<?php echo $formName ?>.value = '';
-		}
+			var openDlg;
+
+			function chooseDropFolderFile<?php print $formName ?>() {
+				var current = document.<?php echo $formName ?>.dropfolderfile<?php echo $formName ?>;
+				openDlg = open("out.DropFolderChooser.php?form=<?php echo $formName ?>&dropfolderfile=" + current.value, "openDlg", "width=480,height=480,scrollbars=yes,resizable=yes,status=yes");
+			}
+
+			function clearFilename<?php print $formName ?>() {
+				document.<?php echo $formName ?>.dropfolderfile<?php echo $formName ?>.value = '';
+			}
 		</script>
-<?php
+		<?php
 		print "<div class=\"input-append\">\n";
-		print "<input readonly type=\"text\" name=\"dropfolderfile".$formName."\" value=\"".$dropfolderfile."\">";
-		print "<button type=\"button\" class=\"btn\" onclick=\"javascript:clearFilename".$formName."();\"><i class=\"icon-remove\"></i></button>";
-		print "<a data-target=\"#dropfolderChooser\" href=\"out.DropFolderChooser.php?form=form1&dropfolderfile=".$dropfolderfile."\" role=\"button\" class=\"btn\" data-toggle=\"modal\">".getMLText("choose_target_file")."…</a>\n";
+		print "<input readonly type=\"text\" name=\"dropfolderfile" . $formName . "\" value=\"" . $dropfolderfile . "\">";
+		print "<button type=\"button\" class=\"btn\" onclick=\"javascript:clearFilename" . $formName . "();\"><i class=\"icon-remove\"></i></button>";
+		print "<a data-target=\"#dropfolderChooser\" href=\"out.DropFolderChooser.php?form=form1&dropfolderfile=" . $dropfolderfile . "\" role=\"button\" class=\"btn\" data-toggle=\"modal\">" . getMLText("choose_target_file") . "…</a>\n";
 		print "</div>\n";
-?>
-<div class="modal hide" id="dropfolderChooser" tabindex="-1" role="dialog" aria-labelledby="dropfolderChooserLabel" aria-hidden="true">
-  <div class="modal-header">
-    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-    <h3 id="dropfolderChooserLabel"><?php printMLText("choose_target_file") ?></h3>
-  </div>
-  <div class="modal-body">
-    <p>Please wait, until file list is loaded …</p>
-  </div>
-  <div class="modal-footer">
-    <button class="btn btn-primary" data-dismiss="modal" aria-hidden="true">Close</button>
-    <button class="btn" data-dismiss="modal" aria-hidden="true" onClick="acceptCategories();">Save</button>
-  </div>
-</div>
-<?php
+		?>
+		<div class="modal hide" id="dropfolderChooser" tabindex="-1" role="dialog" aria-labelledby="dropfolderChooserLabel" aria-hidden="true">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+				<h3 id="dropfolderChooserLabel"><?php printMLText("choose_target_file") ?></h3>
+			</div>
+			<div class="modal-body">
+				<p>Please wait, until file list is loaded …</p>
+			</div>
+			<div class="modal-footer">
+				<button class="btn btn-primary" data-dismiss="modal" aria-hidden="true">Close</button>
+				<button class="btn" data-dismiss="modal" aria-hidden="true" onClick="acceptCategories();">Save</button>
+			</div>
+		</div>
+	<?php
 	} /* }}} */
 
-	function getImgPath($img) { /* {{{ */
+	function getImgPath($img)
+	{ /* {{{ */
 
-		if ( is_file($this->imgpath.$img) ) {
-			return $this->imgpath.$img;
+		if (is_file($this->imgpath . $img)) {
+			return $this->imgpath . $img;
 		}
 		return "../out/images/$img";
 	} /* }}} */
 
-	function printImgPath($img) { /* {{{ */
+	function printImgPath($img)
+	{ /* {{{ */
 		print $this->getImgPath($img);
 	} /* }}} */
 
-	function infoMsg($msg) { /* {{{ */
+	function infoMsg($msg)
+	{ /* {{{ */
 		echo "<div class=\"alert alert-info\">\n";
 		echo $msg;
 		echo "</div>\n";
 	} /* }}} */
 
-	function warningMsg($msg) { /* {{{ */
+	function warningMsg($msg)
+	{ /* {{{ */
 		echo "<div class=\"alert alert-warning\">\n";
 		echo $msg;
 		echo "</div>\n";
 	} /* }}} */
 
-	function errorMsg($msg) { /* {{{ */
+	function errorMsg($msg)
+	{ /* {{{ */
 		echo "<div class=\"alert alert-error\">\n";
 		echo $msg;
 		echo "</div>\n";
 	} /* }}} */
 
-	function exitError($pagetitle,$error) { /* {{{ */
-	
+	function exitError($pagetitle, $error)
+	{ /* {{{ */
+
 		$this->htmlStartPage($pagetitle);
 		$this->globalNavigation();
 		$this->contentStart();
@@ -889,138 +922,132 @@ class LetoDMS_Bootstrap_Style extends LetoDMS_View_Common {
 		print "<h4>Error!</h4>";
 		print htmlspecialchars($error);
 		print "</div>";
-		
+
 		$this->htmlEndPage();
-		
-		add_log_line(" UI::exitError error=".$error." pagetitle=".$pagetitle);
-		
-		exit;	
+
+		add_log_line(" UI::exitError error=" . $error . " pagetitle=" . $pagetitle);
+
+		exit;
 	} /* }}} */
 
 	// navigation flag is used for items links (navigation or selection)
-	function printFoldersTree($accessMode, $exclude, $folderID, $currentFolderID=-1, $navigation=false) {	/* {{{ */
-		if ($this->params['expandfoldertree']==2){
-		
+	function printFoldersTree($accessMode, $exclude, $folderID, $currentFolderID = -1, $navigation = false)
+	{	/* {{{ */
+		if ($this->params['expandfoldertree'] == 2) {
+
 			// folder completely open
-			$is_open=true;
-			
-		}else if ($this->params['expandfoldertree']==1 && $folderID==$this->params['rootfolderid'] ){
-		
-			$is_open=true;
-			
-		}else{
+			$is_open = true;
+		} else if ($this->params['expandfoldertree'] == 1 && $folderID == $this->params['rootfolderid']) {
+
+			$is_open = true;
+		} else {
 			// open the tree until the current folder
-			$is_open=false;
-			
-			if ($currentFolderID!=-1){
-				
-				$currentFolder=$this->params['dms']->getFolder($currentFolderID);
-				
-				if (is_object($currentFolder)){
-				
-					$parent=$currentFolder->getParent();
-					
-					while (is_object($parent)){
-						if ($parent->getID()==$folderID){
-							$is_open=true;
+			$is_open = false;
+
+			if ($currentFolderID != -1) {
+
+				$currentFolder = $this->params['dms']->getFolder($currentFolderID);
+
+				if (is_object($currentFolder)) {
+
+					$parent = $currentFolder->getParent();
+
+					while (is_object($parent)) {
+						if ($parent->getID() == $folderID) {
+							$is_open = true;
 							break;
 						}
-						$parent=$parent->getParent();
+						$parent = $parent->getParent();
 					}
 				}
 			}
 		}
-		
+
 		$folder = $this->params['dms']->getFolder($folderID);
 		if (!is_object($folder)) return;
-		
+
 		$subFolders = $folder->getSubFolders();
 		$subFolders = LetoDMS_Core_DMS::filterAccess($subFolders, $this->params['user'], M_READ);
-		
+
 		if ($folderID == $this->params['rootfolderid']) print "<ul style='list-style-type: none;' class='tree'>\n";
 
 		print "<li>\n";
 
-		if (count($subFolders) > 0){
-			print "<a href=\"javascript:toggleTree(".$folderID.")\"><img class='treeicon' name=\"treedot".$folderID."\" src=\"";	
+		if (count($subFolders) > 0) {
+			print "<a href=\"javascript:toggleTree(" . $folderID . ")\"><img class='treeicon' name=\"treedot" . $folderID . "\" src=\"";
 			if ($is_open) $this->printImgPath("minus.png");
 			else $this->printImgPath("plus.png");
 			print "\" border=0></a>\n";
-		}
-		else{
-			print "<img class='treeicon' src=\"";	
+		} else {
+			print "<img class='treeicon' src=\"";
 			$this->printImgPath("blank.png");
 			print "\" border=0>\n";
 		}
 
 		if ($folder->getAccessMode($this->params['user']) >= $accessMode) {
 
-			if ($folderID != $currentFolderID){
-			
+			if ($folderID != $currentFolderID) {
+
 				if ($navigation) print "<a href=\"../out/out.ViewFolder.php?folderid=" . $folderID . "&showtree=1\"";
 				else print "<a class=\"foldertree_selectable\" href=\"javascript:folderSelected(" . $folderID . ", '" . str_replace("'", "\\'", htmlspecialchars($folder->getName())) . "')\"";
-				print " rel=\"folder_".$folder->getID()."\" ondragover=\"allowDrop(event)\" ondrop=\"onDrop(event)\"";
+				print " rel=\"folder_" . $folder->getID() . "\" ondragover=\"allowDrop(event)\" ondrop=\"onDrop(event)\"";
 				print ">";
+			} else print "<span class=\"selectedfoldertree\">";
 
-			}else print "<span class=\"selectedfoldertree\">";
-			
-			if ($is_open) print "<img src=\"".$this->getImgPath("folder_opened.gif")."\" border=0 name=\"treeimg".$folderID."\">".htmlspecialchars($folder->getName());
-			else print "<img src=\"".$this->getImgPath("folder_closed.gif")."\" border=0 name=\"treeimg".$folderID."\">".htmlspecialchars($folder->getName());
+			if ($is_open) print "<img src=\"" . $this->getImgPath("folder_opened.gif") . "\" border=0 name=\"treeimg" . $folderID . "\">" . htmlspecialchars($folder->getName());
+			else print "<img src=\"" . $this->getImgPath("folder_closed.gif") . "\" border=0 name=\"treeimg" . $folderID . "\">" . htmlspecialchars($folder->getName());
 
 			if ($folderID != $currentFolderID) print "</a>\n";
 			else print "</span>";
+		} else print "<img src=\"" . $this->getImgPath("folder_closed.gif") . "\" width=18 height=18 border=0>" . htmlspecialchars($folder->getName()) . "\n";
 
-		}
-		else print "<img src=\"".$this->getImgPath("folder_closed.gif")."\" width=18 height=18 border=0>".htmlspecialchars($folder->getName())."\n";
+		if ($is_open) print "<ul style='list-style-type: none;' id=\"tree" . $folderID . "\" >\n";
+		else print "<ul style='list-style-type: none; display: none;' id=\"tree" . $folderID . "\" >\n";
 
-		if ($is_open) print "<ul style='list-style-type: none;' id=\"tree".$folderID."\" >\n";
-		else print "<ul style='list-style-type: none; display: none;' id=\"tree".$folderID."\" >\n";
-		
 		for ($i = 0; $i < count($subFolders); $i++) {
-		
+
 			if ($subFolders[$i]->getID() == $exclude) continue;
-			
-			$this->printFoldersTree( $accessMode, $exclude, $subFolders[$i]->getID(),$currentFolderID,$navigation);
+
+			$this->printFoldersTree($accessMode, $exclude, $subFolders[$i]->getID(), $currentFolderID, $navigation);
 		}
 
 		print "</ul>\n";
-		
+
 		if ($folderID == $this->params['rootfolderid']) print "</ul>\n";
 	} /* }}} */
 
-	function printTreeNavigation($folderid, $showtree){ /* {{{ */
-?>
+	function printTreeNavigation($folderid, $showtree)
+	{ /* {{{ */
+	?>
 		<script language="JavaScript">
-		function toggleTree(id){
-			
-			obj = document.getElementById("tree" + id);
-			
-			if ( obj.style.display == "none" ){
-				obj.style.display = "";
-				document["treeimg" + id].src = "<?php $this->printImgPath("folder_opened.gif"); ?>";
-				document["treedot" + id].src = "<?php $this->printImgPath("minus.png"); ?>";
-			}else{
-				obj.style.display = "none";
-				document["treeimg" + id].src = "<?php $this->printImgPath("folder_closed.gif"); ?>";
-				document["treedot" + id].src = "<?php $this->printImgPath("plus.png"); ?>";
+			function toggleTree(id) {
+
+				obj = document.getElementById("tree" + id);
+
+				if (obj.style.display == "none") {
+					obj.style.display = "";
+					document["treeimg" + id].src = "<?php $this->printImgPath("folder_opened.gif"); ?>";
+					document["treedot" + id].src = "<?php $this->printImgPath("minus.png"); ?>";
+				} else {
+					obj.style.display = "none";
+					document["treeimg" + id].src = "<?php $this->printImgPath("folder_closed.gif"); ?>";
+					document["treedot" + id].src = "<?php $this->printImgPath("plus.png"); ?>";
+				}
+
 			}
-
-		}
 		</script>
-<?php
-	
-		if ($showtree==1){
+		<?php
 
-			$this->contentHeading("<a href=\"../out/out.ViewFolder.php?folderid=". $folderid."&showtree=0\"><i class=\"icon-minus-sign\"></i></a>", true);
+		if ($showtree == 1) {
+
+			$this->contentHeading("<a href=\"../out/out.ViewFolder.php?folderid=" . $folderid . "&showtree=0\"><i class=\"icon-minus-sign\"></i></a>", true);
 			$this->contentContainerStart();
 			$this->printFoldersTree(M_READ, -1, $this->params['rootfolderid'], $folderid, true);
 			$this->contentContainerEnd();
+		} else {
 
-		}else{
-		
-			$this->contentHeading("<a href=\"../out/out.ViewFolder.php?folderid=". $folderid."&showtree=1\"><i class=\"icon-plus-sign\"></i></a>", true);
+			$this->contentHeading("<a href=\"../out/out.ViewFolder.php?folderid=" . $folderid . "&showtree=1\"><i class=\"icon-plus-sign\"></i></a>", true);
 		}
-
 	} /* }}} */
 
 	/**
@@ -1031,184 +1058,191 @@ class LetoDMS_Bootstrap_Style extends LetoDMS_View_Common {
 	 * @param integer $maxfiles maximum number of files allowed to upload
 	 * @param array   $fields list of metadata fields
 	 */
-	function printUploadApplet($uploadurl, $attributes, $maxfiles=0, $fields=array()){ /* {{{ */
-?>
-<link rel="stylesheet" href="https://unpkg.com/dropzone@5/dist/min/dropzone.min.css" />
-<script src="https://unpkg.com/dropzone@5/dist/min/dropzone.min.js"></script>
-<style type="text/css">
-	.dropzone-meta-table td { padding: 4px; }
-	.dropzone-message { margin-top: 12px; }
-</style>
-<form id="dropzoneMetaForm" name="dropzoneMetaForm">
-<table class="dropzone-meta-table">
-<?php if(!$fields || (isset($fields['name']) && $fields['name'])) { ?>
-	<tr>
-		<td><?php echo getMLText('name') ?></td>
-		<td><input type="text" id="dz_name" name="name" /></td>
-	</tr>
-<?php } ?>
-<?php if(!$fields || (isset($fields['comment']) && $fields['comment'])) { ?>
-	<tr>
-		<td><?php echo getMLText('comment') ?></td>
-		<td><textarea id="dz_comment" name="comment" cols="40" rows="2"></textarea></td>
-	</tr>
-<?php } ?>
-<?php if(!$fields || (isset($fields['reqversion']) && $fields['reqversion'])) { ?>
-	<tr>
-		<td><?php echo getMLText('version') ?></td>
-		<td><input type="text" id="dz_reqversion" name="reqversion" value="1" /></td>
-	</tr>
-<?php } ?>
-<?php if(!$fields || (isset($fields['version_comment']) && $fields['version_comment'])) { ?>
-	<tr>
-		<td><?php echo getMLText('comment_for_current_version') ?></td>
-		<td><textarea id="dz_version_comment" name="version_comment" cols="40" rows="2"></textarea></td>
-	</tr>
-<?php } ?>
-<?php if(!$fields || (isset($fields['keywords']) && $fields['keywords'])) { ?>
-	<tr>
-		<td><?php echo getMLText('keywords') ?></td>
-		<td>
-			<textarea id="dz_keywords" name="keywords" cols="40" rows="2"></textarea>
-			<br /><a href="javascript:chooseKeywords('dropzoneMetaForm.keywords');"><?php echo getMLText("use_default_keywords");?></a>
-		</td>
-	</tr>
-<?php } ?>
-<?php if(!$fields || (isset($fields['categories']) && $fields['categories'])) { ?>
-	<tr>
-		<td><?php echo getMLText('categories') ?></td>
-		<td>
-			<input type="hidden" id="dz_categoryids" name="categoryids" value="" />
-			<input type="text" disabled id="dz_categorynames" name="categorynames" value="" />
-			<br /><a href="javascript:chooseCategory('dropzoneMetaForm', '');"><?php echo getMLText("use_default_categories");?></a>
-		</td>
-	</tr>
-<?php } ?>
-</table>
-</form>
-<form action="<?php echo $uploadurl ?>" class="dropzone" id="dmsDropzone">
-	<div class="dz-message"><?php echo getMLText('add_document') ?></div>
-</form>
-<p class="dropzone-message" id="dropzoneStatus"></p>
-<script type="text/javascript">
-(function() {
-	Dropzone.autoDiscover = false;
-	var baseAttributes = <?php echo json_encode($attributes); ?>;
-	var maxFiles = <?php echo ($maxfiles ? intval($maxfiles) : "null"); ?>;
-	var dz = new Dropzone("#dmsDropzone", {
-		url: "<?php echo $uploadurl ?>",
-		paramName: "file",
-		uploadMultiple: false,
-		parallelUploads: 2,
-		maxFiles: maxFiles,
-		createImageThumbnails: false,
-		addRemoveLinks: true
-	});
+	function printUploadApplet($uploadurl, $attributes, $maxfiles = 0, $fields = array())
+	{ /* {{{ */
+		?>
+		<link rel="stylesheet" href="https://unpkg.com/dropzone@5/dist/min/dropzone.min.css" />
+		<script src="https://unpkg.com/dropzone@5/dist/min/dropzone.min.js"></script>
+		<style type="text/css">
+			.dropzone-meta-table td {
+				padding: 4px;
+			}
 
-	function appendField(formData, id, name) {
-		var input = document.getElementById(id);
-		if (input) {
-			formData.append(name, input.value);
-		}
-	}
+			.dropzone-message {
+				margin-top: 12px;
+			}
+		</style>
+		<form id="dropzoneMetaForm" name="dropzoneMetaForm">
+			<table class="dropzone-meta-table">
+				<?php if (!$fields || (isset($fields['name']) && $fields['name'])) { ?>
+					<tr>
+						<td><?php echo getMLText('name') ?></td>
+						<td><input type="text" id="dz_name" name="name" /></td>
+					</tr>
+				<?php } ?>
+				<?php if (!$fields || (isset($fields['comment']) && $fields['comment'])) { ?>
+					<tr>
+						<td><?php echo getMLText('comment') ?></td>
+						<td><textarea id="dz_comment" name="comment" cols="40" rows="2"></textarea></td>
+					</tr>
+				<?php } ?>
+				<?php if (!$fields || (isset($fields['reqversion']) && $fields['reqversion'])) { ?>
+					<tr>
+						<td><?php echo getMLText('version') ?></td>
+						<td><input type="text" id="dz_reqversion" name="reqversion" value="1" /></td>
+					</tr>
+				<?php } ?>
+				<?php if (!$fields || (isset($fields['version_comment']) && $fields['version_comment'])) { ?>
+					<tr>
+						<td><?php echo getMLText('comment_for_current_version') ?></td>
+						<td><textarea id="dz_version_comment" name="version_comment" cols="40" rows="2"></textarea></td>
+					</tr>
+				<?php } ?>
+				<?php if (!$fields || (isset($fields['keywords']) && $fields['keywords'])) { ?>
+					<tr>
+						<td><?php echo getMLText('keywords') ?></td>
+						<td>
+							<textarea id="dz_keywords" name="keywords" cols="40" rows="2"></textarea>
+							<br /><a href="javascript:chooseKeywords('dropzoneMetaForm.keywords');"><?php echo getMLText("use_default_keywords"); ?></a>
+						</td>
+					</tr>
+				<?php } ?>
+				<?php if (!$fields || (isset($fields['categories']) && $fields['categories'])) { ?>
+					<tr>
+						<td><?php echo getMLText('categories') ?></td>
+						<td>
+							<input type="hidden" id="dz_categoryids" name="categoryids" value="" />
+							<input type="text" disabled id="dz_categorynames" name="categorynames" value="" />
+							<br /><a href="javascript:chooseCategory('dropzoneMetaForm', '');"><?php echo getMLText("use_default_categories"); ?></a>
+						</td>
+					</tr>
+				<?php } ?>
+			</table>
+		</form>
+		<form action="<?php echo $uploadurl ?>" class="dropzone" id="dmsDropzone">
+			<div class="dz-message"><?php echo getMLText('add_document') ?></div>
+		</form>
+		<p class="dropzone-message" id="dropzoneStatus"></p>
+		<script type="text/javascript">
+			(function() {
+				Dropzone.autoDiscover = false;
+				var baseAttributes = <?php echo json_encode($attributes); ?>;
+				var maxFiles = <?php echo ($maxfiles ? intval($maxfiles) : "null"); ?>;
+				var dz = new Dropzone("#dmsDropzone", {
+					url: "<?php echo $uploadurl ?>",
+					paramName: "file",
+					uploadMultiple: false,
+					parallelUploads: 2,
+					maxFiles: maxFiles,
+					createImageThumbnails: false,
+					addRemoveLinks: true
+				});
 
-	dz.on("sending", function(file, xhr, formData) {
-		Object.keys(baseAttributes).forEach(function(key) {
-			formData.append(key, baseAttributes[key]);
-		});
-		appendField(formData, "dz_name", "name");
-		appendField(formData, "dz_comment", "comment");
-		appendField(formData, "dz_reqversion", "reqversion");
-		appendField(formData, "dz_version_comment", "version_comment");
-		appendField(formData, "dz_keywords", "keywords");
-		appendField(formData, "dz_categoryids", "categoryids");
-		appendField(formData, "dz_categorynames", "categorynames");
-		formData.append("fileId", (file.upload && file.upload.uuid) ? file.upload.uuid.replace(/-/g, "") : ("dropzone" + Date.now()));
-		formData.append("partitionIndex", "0");
-		formData.append("partitionCount", "1");
-	});
+				function appendField(formData, id, name) {
+					var input = document.getElementById(id);
+					if (input) {
+						formData.append(name, input.value);
+					}
+				}
 
-	dz.on("success", function(file) {
-		var status = document.getElementById("dropzoneStatus");
-		if (status) {
-			status.innerHTML = "Uploaded: " + file.name;
-		}
-	});
+				dz.on("sending", function(file, xhr, formData) {
+					Object.keys(baseAttributes).forEach(function(key) {
+						formData.append(key, baseAttributes[key]);
+					});
+					appendField(formData, "dz_name", "name");
+					appendField(formData, "dz_comment", "comment");
+					appendField(formData, "dz_reqversion", "reqversion");
+					appendField(formData, "dz_version_comment", "version_comment");
+					appendField(formData, "dz_keywords", "keywords");
+					appendField(formData, "dz_categoryids", "categoryids");
+					appendField(formData, "dz_categorynames", "categorynames");
+					formData.append("fileId", (file.upload && file.upload.uuid) ? file.upload.uuid.replace(/-/g, "") : ("dropzone" + Date.now()));
+					formData.append("partitionIndex", "0");
+					formData.append("partitionCount", "1");
+				});
 
-	dz.on("error", function(file, errorMessage) {
-		var status = document.getElementById("dropzoneStatus");
-		if (status) {
-			status.innerHTML = "Upload failed: " + file.name + " (" + errorMessage + ")";
-		}
-	});
-})();
-</script>
+				dz.on("success", function(file) {
+					var status = document.getElementById("dropzoneStatus");
+					if (status) {
+						status.innerHTML = "Uploaded: " + file.name;
+					}
+				});
+
+				dz.on("error", function(file, errorMessage) {
+					var status = document.getElementById("dropzoneStatus");
+					if (status) {
+						status.innerHTML = "Upload failed: " + file.name + " (" + errorMessage + ")";
+					}
+				});
+			})();
+		</script>
 <?php
 	} /* }}} */
 
-	function printClipboard($clipboard){ /* {{{ */
+	function printClipboard($clipboard)
+	{ /* {{{ */
 		$dms = $this->params['dms'];
 		$this->contentHeading("Clipboard", true);
 		echo "<div class=\"well\" ondragover=\"allowDrop(event)\" ondrop=\"onAddClipboard(event)\">\n";
 		$clipboard = $this->params['session']->getClipboard();
-//		print_r($clipboard);
-		if(!$clipboard['docs'] && !$clipboard['folders']) {
+		//		print_r($clipboard);
+		if (!$clipboard['docs'] && !$clipboard['folders']) {
 			print "<div class=\"alert\">Drag icon of folder or document here!</div>";
 		} else {
 			print "<table class=\"table\">";
-			if($clipboard['folders']) {
+			if ($clipboard['folders']) {
 				//echo "<tr><th colspan=\"3\">Folders</th></tr>\n";
-				foreach($clipboard['folders'] as $folderid) {
-					if($folder = $dms->getFolder($folderid)) {
+				foreach ($clipboard['folders'] as $folderid) {
+					if ($folder = $dms->getFolder($folderid)) {
 						$comment = $folder->getComment();
 						if (strlen($comment) > 150) $comment = substr($comment, 0, 147) . "...";
-						print "<tr rel=\"folder_".$folder->getID()."\" class=\"folder\" ondragover=\"allowDrop(event)\" ondrop=\"onDrop(event)\">";
-					//	print "<td><img src=\"images/folder_closed.gif\" width=18 height=18 border=0></td>";
-						print "<td><a rel=\"folder_".$folder->getID()."\" draggable=\"true\" ondragstart=\"onDragStartFolder(event);\" href=\"out.ViewFolder.php?folderid=".$folder->getID()."&showtree=".showtree()."\"><img src=\"".$this->imgpath."folder.png\" width=\"24\" height=\"24\" border=0></a></td>\n";
-						print "<td><a href=\"out.ViewFolder.php?folderid=".$folder->getID()."&showtree=".showtree()."\">" . htmlspecialchars($folder->getName()) . "</a>";
-						if($comment) {
-							print "<br /><span style=\"font-size: 85%;\">".htmlspecialchars($comment)."</span>";
+						print "<tr rel=\"folder_" . $folder->getID() . "\" class=\"folder\" ondragover=\"allowDrop(event)\" ondrop=\"onDrop(event)\">";
+						//	print "<td><img src=\"images/folder_closed.gif\" width=18 height=18 border=0></td>";
+						print "<td><a rel=\"folder_" . $folder->getID() . "\" draggable=\"true\" ondragstart=\"onDragStartFolder(event);\" href=\"out.ViewFolder.php?folderid=" . $folder->getID() . "&showtree=" . showtree() . "\"><img src=\"" . $this->imgpath . "folder.png\" width=\"24\" height=\"24\" border=0></a></td>\n";
+						print "<td><a href=\"out.ViewFolder.php?folderid=" . $folder->getID() . "&showtree=" . showtree() . "\">" . htmlspecialchars($folder->getName()) . "</a>";
+						if ($comment) {
+							print "<br /><span style=\"font-size: 85%;\">" . htmlspecialchars($comment) . "</span>";
 						}
 						print "</td>\n";
 						print "<td>\n";
-						print "<a href=\"../op/op.RemoveFromClipboard.php?folderid=".$this->params['folder']->getID()."&id=".$folderid."&type=folder\" title=\"".getMLText('rm_from_clipboard')."\"><i class=\"icon-remove\"></i></a>";
+						print "<a href=\"../op/op.RemoveFromClipboard.php?folderid=" . $this->params['folder']->getID() . "&id=" . $folderid . "&type=folder\" title=\"" . getMLText('rm_from_clipboard') . "\"><i class=\"icon-remove\"></i></a>";
 						print "</td>\n";
 						print "</tr>\n";
 					}
 				}
 			}
 			$previewer = new LetoDMS_Preview_Previewer($this->params['cachedir'], 40);
-			if($clipboard['docs']) {
+			if ($clipboard['docs']) {
 				//echo "<tr><th colspan=\"3\">Documents</th></tr>\n";
-				foreach($clipboard['docs'] as $docid) {
-					if($document = $dms->getDocument($docid)) {
+				foreach ($clipboard['docs'] as $docid) {
+					if ($document = $dms->getDocument($docid)) {
 						$comment = $document->getComment();
 						if (strlen($comment) > 150) $comment = substr($comment, 0, 147) . "...";
-						if($latestContent = $document->getLatestContent()) {
+						if ($latestContent = $document->getLatestContent()) {
 							$previewer->createPreview($latestContent);
 							$version = $latestContent->getVersion();
 							$status = $latestContent->getStatus();
-							
+
 							print "<tr>";
 
 							if (file_exists($dms->contentDir . $latestContent->getPath())) {
-								print "<td><a rel=\"document_".$docid."\" draggable=\"true\" ondragstart=\"onDragStartDocument(event);\" href=\"../op/op.Download.php?documentid=".$docid."&version=".$version."\">";
-								if($previewer->hasPreview($latestContent)) {
-									print "<img class=\"mimeicon\" width=\"40\"src=\"../op/op.Preview.php?documentid=".$document->getID()."&version=".$latestContent->getVersion()."&width=40\" title=\"".htmlspecialchars($latestContent->getMimeType())."\">";
+								print "<td><a rel=\"document_" . $docid . "\" draggable=\"true\" ondragstart=\"onDragStartDocument(event);\" href=\"../op/op.Download.php?documentid=" . $docid . "&version=" . $version . "\">";
+								if ($previewer->hasPreview($latestContent)) {
+									print "<img class=\"mimeicon\" width=\"40\"src=\"../op/op.Preview.php?documentid=" . $document->getID() . "&version=" . $latestContent->getVersion() . "&width=40\" title=\"" . htmlspecialchars($latestContent->getMimeType()) . "\">";
 								} else {
-									print "<img class=\"mimeicon\" src=\"".$this->getMimeIcon($latestContent->getFileType())."\" title=\"".htmlspecialchars($latestContent->getMimeType())."\">";
+									print "<img class=\"mimeicon\" src=\"" . $this->getMimeIcon($latestContent->getFileType()) . "\" title=\"" . htmlspecialchars($latestContent->getMimeType()) . "\">";
 								}
 								print "</a></td>";
 							} else
-								print "<td><img class=\"mimeicon\" src=\"".$this->getMimeIcon($latestContent->getFileType())."\" title=\"".htmlspecialchars($latestContent->getMimeType())."\"></td>";
-							
-							print "<td><a href=\"out.ViewDocument.php?documentid=".$docid."&showtree=".showtree()."\">" . htmlspecialchars($document->getName()) . "</a>";
-							if($comment) {
-								print "<br /><span style=\"font-size: 85%;\">".htmlspecialchars($comment)."</span>";
+								print "<td><img class=\"mimeicon\" src=\"" . $this->getMimeIcon($latestContent->getFileType()) . "\" title=\"" . htmlspecialchars($latestContent->getMimeType()) . "\"></td>";
+
+							print "<td><a href=\"out.ViewDocument.php?documentid=" . $docid . "&showtree=" . showtree() . "\">" . htmlspecialchars($document->getName()) . "</a>";
+							if ($comment) {
+								print "<br /><span style=\"font-size: 85%;\">" . htmlspecialchars($comment) . "</span>";
 							}
 							print "</td>\n";
 							print "<td>\n";
-							print "<a href=\"../op/op.RemoveFromClipboard.php?folderid=".$this->params['folder']->getID()."&id=".$docid."&type=document\" title=\"".getMLText('rm_from_clipboard')."\"><i class=\"icon-remove\"></i></a>";
+							print "<a href=\"../op/op.RemoveFromClipboard.php?folderid=" . $this->params['folder']->getID() . "&id=" . $docid . "&type=document\" title=\"" . getMLText('rm_from_clipboard') . "\"><i class=\"icon-remove\"></i></a>";
 							print "</td>\n";
 							print "</tr>";
 						}
@@ -1219,6 +1253,5 @@ class LetoDMS_Bootstrap_Style extends LetoDMS_View_Common {
 		}
 		echo "</div>\n";
 	} /* }}} */
-
 }
 ?>
