@@ -46,7 +46,7 @@ class LetoDMS_Bootstrap_Style extends LetoDMS_View_Common
 		echo '<link href="../styles/' . $this->theme . '/application.css" rel="stylesheet">' . "\n";
 		if ($this->extraheader)
 			echo $this->extraheader;
-		echo '<script type="text/javascript" src="https://code.jquery.com/jquery-1.8.3.min.js"></script>' . "\n";
+		echo '<script type="text/javascript" src="../styles/' . $this->theme . '/jquery/jquery-1.8.2.min.js"></script>' . "\n";
 		echo '<script type="text/javascript" src="../js/jquery.passwordstrength.js"></script>' . "\n";
 
 		echo '<link rel="shortcut icon" href="../styles/' . $this->theme . '/favicon.ico" type="image/x-icon"/>' . "\n";
@@ -1061,8 +1061,8 @@ class LetoDMS_Bootstrap_Style extends LetoDMS_View_Common
 	function printUploadApplet($uploadurl, $attributes, $maxfiles = 0, $fields = array())
 	{ /* {{{ */
 		?>
-		<link rel="stylesheet" href="https://unpkg.com/dropzone@5/dist/min/dropzone.min.css" />
-		<script src="https://unpkg.com/dropzone@5/dist/min/dropzone.min.js"></script>
+		<link rel="stylesheet" href="../styles/vendor/dropzone/dropzone.min.css" />
+		<script src="../styles/vendor/dropzone/dropzone.min.js"></script>
 		<style type="text/css">
 			.dropzone-meta-table td {
 				padding: 4px;

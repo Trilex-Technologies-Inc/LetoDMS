@@ -65,8 +65,8 @@ class LetoDMS_View_AddMultiDocument extends LetoDMS_Bootstrap_Style
 		// privileges.
 		$docAccess = $folder->getReadAccessList();
 		?>
-<link rel="stylesheet" href="https://unpkg.com/dropzone@5/dist/min/dropzone.min.css" />
-<script src="https://unpkg.com/dropzone@5/dist/min/dropzone.min.js"></script>
+<link rel="stylesheet" href="../styles/vendor/dropzone/dropzone.min.css" />
+<script src="../styles/vendor/dropzone/dropzone.min.js"></script>
 		<form id="dropzoneMetaForm" name="dropzoneMetaForm">
 			<?php echo createHiddenFieldWithKey('adddocument'); ?>
 			<input type="hidden" name="folderid" value="<?php print $folder->getId(); ?>">
