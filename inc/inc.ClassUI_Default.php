@@ -56,8 +56,8 @@ class UI_Default {
 		echo "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" />\n";
 		echo "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n";
 		
-		// Bootstrap 5 CSS
-		echo "<link href=\"https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css\" rel=\"stylesheet\" integrity=\"sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN\" crossorigin=\"anonymous\">\n";
+		// Local bootstrap CSS
+		echo "<link href=\"../styles/bootstrap/bootstrap/css/bootstrap.min.css\" rel=\"stylesheet\">\n";
 		
 		// Original theme CSS (loaded after Bootstrap to allow overrides)
 		echo "<link rel=\"STYLESHEET\" type=\"text/css\" href=\"../styles/".$theme."/style.css\"/>\n";
@@ -67,8 +67,8 @@ class UI_Default {
 		// jQuery (keeping original)
 		echo "<script type='text/javascript' src='../js/jquery.min.js'></script>\n";
 		
-		// Bootstrap 5 JavaScript Bundle with Popper
-		echo "<script src=\"https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js\" integrity=\"sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL\" crossorigin=\"anonymous\"></script>\n";
+		// Local bootstrap JavaScript
+		echo "<script src=\"../styles/bootstrap/bootstrap/js/bootstrap.min.js\"></script>\n";
 		
 		echo "<title>".(strlen($settings->_siteName)>0 ? $settings->_siteName : "LetoDMS").(strlen($title)>0 ? ": " : "").htmlspecialchars($title)."</title>\n";
 		echo "</head>\n";
@@ -811,8 +811,8 @@ class UI_Default {
 	 */
 	function printUploadApplet($uploadurl, $attributes, $maxfiles=0, $fields=array()){ /* {{{ */
 ?>
-<link rel="stylesheet" href="https://unpkg.com/dropzone@5/dist/min/dropzone.min.css" />
-<script src="https://unpkg.com/dropzone@5/dist/min/dropzone.min.js"></script>
+<link rel="stylesheet" href="../styles/vendor/dropzone/dropzone.min.css" />
+<script src="../styles/vendor/dropzone/dropzone.min.js"></script>
 <style type="text/css">
 	.dropzone-meta-table td { padding: 4px; }
 	.dropzone-message { margin-top: 12px; }

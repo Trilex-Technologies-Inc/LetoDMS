@@ -801,8 +801,8 @@ class LetoDMS_Blue_Style extends LetoDMS_View_Common {
 	 */
 	function printUploadApplet($uploadurl, $attributes, $maxfiles=0, $fields=array()){ /* {{{ */
 ?>
-<link rel="stylesheet" href="https://unpkg.com/dropzone@5/dist/min/dropzone.min.css" />
-<script src="https://unpkg.com/dropzone@5/dist/min/dropzone.min.js"></script>
+<link rel="stylesheet" href="../styles/vendor/dropzone/dropzone.min.css" />
+<script src="../styles/vendor/dropzone/dropzone.min.js"></script>
 <style type="text/css">
 	.dropzone-meta-table td { padding: 4px; }
 	.dropzone-message { margin-top: 12px; }

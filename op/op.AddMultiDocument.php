@@ -28,25 +28,25 @@ include("../inc/inc.Language.php");
 include("../inc/inc.Authentication.php");
 
 $file_param_name = 'file';
-if(!isset($_POST['partitionIndex']) || !isset($_POST['partitionCount']) || !isset($_POST['fileId'])) {
+if (!isset($_POST['partitionIndex']) || !isset($_POST['partitionCount']) || !isset($_POST['fileId'])) {
 	$_POST['partitionIndex'] = 0;
 	$_POST['partitionCount'] = 1;
 	$_POST['fileId'] = uniqid('dropzone_', false);
 }
-$file_name = $_FILES[ $file_param_name ][ 'name' ];
-$source_file_path = $_FILES[ $file_param_name ][ 'tmp_name' ];
-$target_file_path =$settings->_stagingDir.$_POST['fileId']."-".$_POST['partitionIndex'];
-if( move_uploaded_file( $source_file_path, $target_file_path ) ) {
-	if($_POST['partitionIndex']+1 == $_POST['partitionCount']) {
-		$fpnew = fopen($settings->_stagingDir.$_POST['fileId'], 'w+');
-		for($i=0; $i<$_POST['partitionCount']; $i++) {
-			$content = file_get_contents($settings->_stagingDir.$_POST['fileId']."-".$i, 'r');
+$file_name = $_FILES[$file_param_name]['name'];
+$source_file_path = $_FILES[$file_param_name]['tmp_name'];
+$target_file_path = $settings->_stagingDir . $_POST['fileId'] . "-" . $_POST['partitionIndex'];
+if (move_uploaded_file($source_file_path, $target_file_path)) {
+	if ($_POST['partitionIndex'] + 1 == $_POST['partitionCount']) {
+		$fpnew = fopen($settings->_stagingDir . $_POST['fileId'], 'w+');
+		for ($i = 0; $i < $_POST['partitionCount']; $i++) {
+			$content = file_get_contents($settings->_stagingDir . $_POST['fileId'] . "-" . $i, 'r');
 			fwrite($fpnew, $content);
-			unlink($settings->_stagingDir.$_POST['fileId']."-".$i);
+			unlink($settings->_stagingDir . $_POST['fileId'] . "-" . $i);
 		}
 		fclose($fpnew);
 
-		if (!isset($_POST["folderid"]) || !is_numeric($_POST["folderid"]) || intval($_POST["folderid"])<1) {
+		if (!isset($_POST["folderid"]) || !is_numeric($_POST["folderid"]) || intval($_POST["folderid"]) < 1) {
 			echo getMLText("invalid_folder_id");
 		}
 
@@ -63,29 +63,29 @@ if( move_uploaded_file( $source_file_path, $target_file_path ) ) {
 			echo getMLText("access_denied");
 		}
 
-		if(isset($_POST["comment"]))
+		if (isset($_POST["comment"]))
 			$comment  = $_POST["comment"];
 		else
 			$comment = '';
-		if(isset($_POST['version_comment']))
+		if (isset($_POST['version_comment']))
 			$version_comment = $_POST["version_comment"];
 		else
 			$version_comment = '';
 
-		if(isset($_POST["keywords"]))
+		if (isset($_POST["keywords"]))
 			$keywords = $_POST["keywords"];
 		else
 			$keywords = '';
 
 		$reqversion = (int)$_POST["reqversion"];
-		if ($reqversion<1) $reqversion=1;
+		if ($reqversion < 1) $reqversion = 1;
 
 		$sequence = $_POST["sequence"];
 		if (!is_numeric($sequence)) {
 			$sequence = 1;
 		}
 
-		$expires = ($_POST["expires"] == "true") ? mktime(0,0,0, intval($_POST["expmonth"]), intval($_POST["expday"]), intval($_POST["expyear"])) : false;
+		$expires = ($_POST["expires"] == "true") ? mktime(0, 0, 0, intval($_POST["expmonth"]), intval($_POST["expday"]), intval($_POST["expyear"])) : false;
 
 		// Get the list of reviewers and approvers for this document.
 		$reviewers = array();
@@ -123,94 +123,110 @@ if( move_uploaded_file( $source_file_path, $target_file_path ) ) {
 
 		// add mandatory reviewers/approvers
 		$docAccess = $folder->getReadAccessList();
-		$res=$user->getMandatoryReviewers();
-		foreach ($res as $r){
+		$res = $user->getMandatoryReviewers();
+		foreach ($res as $r) {
 
-			if ($r['reviewerUserID']!=0){
+			if ($r['reviewerUserID'] != 0) {
 				foreach ($docAccess["users"] as $usr)
-					if ($usr->getID()==$r['reviewerUserID']){
+					if ($usr->getID() == $r['reviewerUserID']) {
 						$reviewers["i"][] = $r['reviewerUserID'];
 						break;
 					}
-			}
-			else if ($r['reviewerGroupID']!=0){
+			} else if ($r['reviewerGroupID'] != 0) {
 				foreach ($docAccess["groups"] as $grp)
-					if ($grp->getID()==$r['reviewerGroupID']){
+					if ($grp->getID() == $r['reviewerGroupID']) {
 						$reviewers["g"][] = $r['reviewerGroupID'];
 						break;
 					}
 			}
 		}
-		$res=$user->getMandatoryApprovers();
-		foreach ($res as $r){
+		$res = $user->getMandatoryApprovers();
+		foreach ($res as $r) {
 
-			if ($r['approverUserID']!=0){
+			if ($r['approverUserID'] != 0) {
 				foreach ($docAccess["users"] as $usr)
-					if ($usr->getID()==$r['approverUserID']){
+					if ($usr->getID() == $r['approverUserID']) {
 						$approvers["i"][] = $r['approverUserID'];
 						break;
 					}
-			}
-			else if ($r['approverGroupID']!=0){
+			} else if ($r['approverGroupID'] != 0) {
 				foreach ($docAccess["groups"] as $grp)
-					if ($grp->getID()==$r['approverGroupID']){
+					if ($grp->getID() == $r['approverGroupID']) {
 						$approvers["g"][] = $r['approverGroupID'];
 						break;
 					}
 			}
 		}
 
-		$userfiletmp = $settings->_stagingDir.$_POST['fileId'];;
-		$userfiletype = $_FILES[ $file_param_name ]["type"];
-		$userfilename = $_FILES[ $file_param_name ]["name"];
+		$userfiletmp = $settings->_stagingDir . $_POST['fileId'];;
+		$userfiletype = $_FILES[$file_param_name]["type"];
+		$userfilename = $_FILES[$file_param_name]["name"];
 
 		$lastDotIndex = strrpos(basename($userfilename), ".");
 		if (is_bool($lastDotIndex) && !$lastDotIndex) $fileType = ".";
 		else $fileType = substr($userfilename, $lastDotIndex);
 
-		if($_POST["name"] != "")
+		if ($_POST["name"] != "")
 			$name = $_POST["name"];
 		else
 			$name = basename($userfilename);
 
-		$categories = preg_replace('/[^0-9,]+/', '', $_POST["categoryids"]);
+		$categories = array();
+		if (isset($_POST["categories"]) && is_array($_POST["categories"])) {
+			$categories = $_POST["categories"];
+		} elseif (isset($_POST["categoryids"])) {
+			$categories = preg_replace('/[^0-9,]+/', '', $_POST["categoryids"]);
+		}
 		$cats = array();
-		if($categories) {
-			$catids = explode(',', $categories);
-			foreach($catids as $catid) {
+		if ($categories) {
+			$catids = is_array($categories) ? $categories : explode(',', $categories);
+			foreach ($catids as $catid) {
 				$cats[] = $dms->getDocumentCategory($catid);
 			}
 		}
-		$res = $folder->addDocument($name, $comment, $expires, $user, $keywords,
-																$cats, $userfiletmp, basename($userfilename),
-																$fileType, $userfiletype, $sequence,
-																$reviewers, $approvers, $reqversion,$version_comment);
+		$res = $folder->addDocument(
+			$name,
+			$comment,
+			$expires,
+			$user,
+			$keywords,
+			$cats,
+			$userfiletmp,
+			basename($userfilename),
+			$fileType,
+			$userfiletype,
+			$sequence,
+			$reviewers,
+			$approvers,
+			$reqversion,
+			$version_comment
+		);
 		unlink($userfiletmp);
 		if (is_bool($res) && !$res) {
 			echo getMLText("error_occured");
 		} else {
 			$document = $res[0];
-			if(isset($GLOBALS['LETODMS_HOOKS']['postAddDocument'])) {
-				foreach($GLOBALS['LETODMS_HOOKS']['postAddDocument'] as $hookObj) {
+			if (isset($GLOBALS['LETODMS_HOOKS']['postAddDocument'])) {
+				foreach ($GLOBALS['LETODMS_HOOKS']['postAddDocument'] as $hookObj) {
 					if (method_exists($hookObj, 'postAddDocument')) {
 						$hookObj->postAddDocument($document);
 					}
 				}
 			}
 			// Send notification to subscribers.
-			if($notifier) {
+			if ($notifier) {
 				$folder->getNotifyList();
-				$subject = "###SITENAME###: ".$folder->getName()." - ".getMLText("new_document_email");
-				$message = getMLText("new_document_email")."\r\n";
-				$message .= 
-					getMLText("name").": ".$name."\r\n".
-					getMLText("folder").": ".$folder->getFolderPathPlain()."\r\n".
-					getMLText("comment").": ".$comment."\r\n".
-					getMLText("comment_for_current_version").": ".$version_comment."\r\n".
-					"URL: ###URL_PREFIX###out/out.ViewDocument.php?documentid=".$document->getID()."\r\n";
+				$subject = "###SITENAME###: " . $folder->getName() . " - " . getMLText("new_document_email");
+				$message = getMLText("new_document_email") . "\r\n";
+				$message .=
+					getMLText("name") . ": " . $name . "\r\n" .
+					getMLText("folder") . ": " . $folder->getFolderPathPlain() . "\r\n" .
+					getMLText("comment") . ": " . $comment . "\r\n" .
+					getMLText("comment_for_current_version") . ": " . $version_comment . "\r\n" .
+					"URL: ###URL_PREFIX###out/out.ViewDocument.php?documentid=" . $document->getID() . "\r\n";
 
-				$subject=$subject;
-				$message=$message;
+				$subject = $subject;
+				$message = $message;
 
 				$notifier->toList($user, $folder->_notifyList["users"], $subject, $message);
 				foreach ($folder->_notifyList["groups"] as $grp) {
@@ -219,7 +235,6 @@ if( move_uploaded_file( $source_file_path, $target_file_path ) ) {
 			}
 		}
 
-		add_log_line("?name=".$name."&folderid=".$folderid);
+		add_log_line("?name=" . $name . "&folderid=" . $folderid);
 	}
 }
-?>
