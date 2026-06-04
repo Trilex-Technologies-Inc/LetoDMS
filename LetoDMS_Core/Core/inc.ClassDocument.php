@@ -2044,13 +2044,13 @@ class LetoDMS_Core_DocumentContent extends LetoDMS_Core_Object { /* {{{ */
 	//	$source = str_replace("/", "\\", $source);
 	//	$target = str_replace("/", "\\", $target);
 
-		$command = $this->_document->_dms->convertFileTypes[$this->_fileType];
-		$command = str_replace("{SOURCE}", "\"$source\"", $command);
-		$command = str_replace("{TARGET}", "\"$target\"", $command);
+	$command = $this->_document->_dms->convertFileTypes[$this->_fileType];
+	$command = str_replace("{SOURCE}", escapeshellarg($source), $command);
+	$command = str_replace("{TARGET}", escapeshellarg($target), $command);
 
-		$output = array();
-		$res = 0;
-		exec($command, $output, $res);
+	$output = array();
+	$res = 0;
+	exec($command, $output, $res);
 
 		if ($res != 0) {
 			print (implode("\n", $output));
