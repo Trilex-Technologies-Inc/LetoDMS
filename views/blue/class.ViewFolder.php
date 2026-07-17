@@ -85,7 +85,7 @@ class LetoDMS_View_ViewFolder extends LetoDMS_Blue_Style {
 		if ((count($subFolders) > 0)||(count($documents) > 0)){
 			print "<table class=\"folderView\">";
 			print "<thead>\n<tr>\n";
-			print "<th></th>\n";	
+			print "<th></th>\n";
 			print "<th><a href=\"../out/out.ViewFolder.php?folderid=". $folderid .($orderby=="n"?"":"&orderby=n")."\">".getMLText("name")."</a></th>\n";
 			print "<th>".getMLText("owner")."</th>\n";
 			print "<th>".getMLText("status")."</th>\n";
@@ -105,7 +105,7 @@ class LetoDMS_View_ViewFolder extends LetoDMS_Blue_Style {
 			$subsub = LetoDMS_Core_DMS::filterAccess($subsub, $user, M_READ);
 			$subdoc = $subFolder->getDocuments();
 			$subdoc = LetoDMS_Core_DMS::filterAccess($subdoc, $user, M_READ);
-			
+
 			print "<tr class=\"folder\">";
 		//	print "<td><img src=\"images/folder_closed.gif\" width=18 height=18 border=0></td>";
 			print "<td><a href=\"out.ViewFolder.php?folderid=".$subFolder->getID()."&showtree=".$showtree."\"><img src=\"images/folder_closed.gif\" width=18 height=18 border=0></a></td>\n";
@@ -126,13 +126,13 @@ class LetoDMS_View_ViewFolder extends LetoDMS_Blue_Style {
 			if($latestContent = $document->getLatestContent()) {
 				$version = $latestContent->getVersion();
 				$status = $latestContent->getStatus();
-				
+
 				print "<tr>";
 
 				if (file_exists($dms->contentDir . $latestContent->getPath()))
 					print "<td><a href=\"../op/op.Download.php?documentid=".$docID."&version=".$version."\"><img class=\"mimeicon\" src=\"images/icons/".$this->getMimeIcon($latestContent->getFileType())."\" title=\"".htmlspecialchars($latestContent->getMimeType())."\"></a></td>";
 				else print "<td><img class=\"mimeicon\" src=\"images/icons/".$this->getMimeIcon($latestContent->getFileType())."\" title=\"".htmlspecialchars($latestContent->getMimeType())."\"></td>";
-				
+
 				print "<td><a href=\"out.ViewDocument.php?documentid=".$docID."&showtree=".$showtree."\">" . htmlspecialchars($document->getName()) . "</a></td>\n";
 				print "<td>".htmlspecialchars($owner->getFullName())."</td>";
 				print "<td>";

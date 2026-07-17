@@ -36,27 +36,27 @@ class LetoDMS_View_Calendar extends LetoDMS_Bootstrap_Style {
 												 getMLText("february"),
 												 getMLText("march"),
 												 getMLText("april"),
-												 getMLText("may"), 
+												 getMLText("may"),
 												 getMLText("june"),
-												 getMLText("july"), 
-												 getMLText("august"), 
-												 getMLText("september"), 
-												 getMLText("october"), 
-												 getMLText("november"), 
+												 getMLText("july"),
+												 getMLText("august"),
+												 getMLText("september"),
+												 getMLText("october"),
+												 getMLText("november"),
 												 getMLText("december") );
-												
+
 		$this->dayNamesLong = array( getMLText("sunday"),
 													 getMLText("monday"),
 													 getMLText("tuesday"),
-													 getMLText("wednesday"), 
+													 getMLText("wednesday"),
 													 getMLText("thursday"),
-													 getMLText("friday"), 
+													 getMLText("friday"),
 													 getMLText("saturday") );
-		
+
 		$this->dayNames = array();
 		foreach ( $this->dayNamesLong as $dn ){
-			 $this->dayNames[] = substr($dn,0,3);   
-		}         
+			 $this->dayNames[] = substr($dn,0,3);
+		}
 	} /* }}} */
 
 	// Calculate the number of days in a month, taking into account leap years.
@@ -67,11 +67,11 @@ class LetoDMS_View_Calendar extends LetoDMS_Bootstrap_Style {
 		$d = $daysInMonth[$month - 1];
 
 		if ($month == 2){
-		
+
 			if ($year%4 == 0){
-			
+
 				if ($year%100 == 0){
-				
+
 					if ($year%400 == 0) $d = 29;
 				}
 				else $d = 29;
@@ -105,7 +105,7 @@ class LetoDMS_View_Calendar extends LetoDMS_Bootstrap_Style {
 		$monthName = $this->monthNames[$month - 1];
 
 		$s  = "<table class=\"table\">\n";
-		
+
 		$s .= "<tr>\n";
 		$s .= "<td style=\"border-top: 0px;\" colspan=\"7\"><a href=\"../out/out.Calendar.php?mode=m&year=".$year."&month=".$month."\">".$monthName."</a></td>\n"; ;
 		$s .= "</tr>\n";
@@ -129,28 +129,28 @@ class LetoDMS_View_Calendar extends LetoDMS_Bootstrap_Style {
 
 		while ($d <= $daysInMonth)
 		{
-			$s .= "<tr>\n";       
-				
+			$s .= "<tr>\n";
+
 			for ($i = 0; $i < 7; $i++){
-			
+
 				$class = ($year == $today["year"] && $month == $today["mon"] && $d == $today["mday"]) ? "today" : "";
-				$s .= "<td class=\"$class\">";   
-						
+				$s .= "<td class=\"$class\">";
+
 				if ($d > 0 && $d <= $daysInMonth){
 
 					$s .= "<a href=\"../out/out.Calendar.php?mode=w&year=".$year."&month=".$month."&day=".$d."\">".$d."</a>";
 							}
 				else $s .= "&nbsp;";
-				
-				$s .= "</td>\n";       
+
+				$s .= "</td>\n";
 				$d++;
 			}
-			$s .= "</tr>\n";    
+			$s .= "</tr>\n";
 		}
 
 		$s .= "</table>\n";
 
-		return $s;  	
+		return $s;
 	} /* }}} */
 
 	function printYearTable($year) { /* {{{ */
@@ -195,7 +195,7 @@ class LetoDMS_View_Calendar extends LetoDMS_Bootstrap_Style {
 		if ($mode=="y"){
 
 			$this->contentHeading(getMLText("year_view").": ".$year);
-			
+
 			echo "<div class=\"pagination pagination-small\">";
 			echo "<ul>";
 			print "<li><a href=\"../out/out.Calendar.php?mode=y&year=".($year-1)."\"><img src=\"".$this->getImgPath("m.png")."\" border=0></a></li>";
@@ -212,9 +212,9 @@ class LetoDMS_View_Calendar extends LetoDMS_Bootstrap_Style {
 
 			if (!isset($this->dayNamesLong)) $this->generateCalendarArrays();
 			if (!isset($this->monthNames)) $this->generateCalendarArrays();
-			
+
 			$this->contentHeading(getMLText("month_view").": ".$this->monthNames[$month-1]. " ".$year);
-			
+
 			echo "<div class=\"pagination pagination-small\">";
 			echo "<ul>";
 			print "<li><a href=\"../out/out.Calendar.php?mode=m&year=".($year)."&month=".($month-1)."\"><img src=\"".$this->getImgPath("m.png")."\" border=0></a></li>";
@@ -223,59 +223,59 @@ class LetoDMS_View_Calendar extends LetoDMS_Bootstrap_Style {
 			echo "</ul>";
 			echo "</div>";
 			$this->contentContainerStart();
-			
+
 			$days=$this->getDaysInMonth($month, $year);
 			$today = getdate(time());
-			
+
 			$events = getEventsInInterval(mktime(0,0,0, $month, 1, $year), mktime(23,59,59, $month, $days, $year));
-			
+
 			echo "<table class='table-condensed'>\n";
-			
+
 			for ($i=1; $i<=$days; $i++){
-			
+
 				// separate weeks
 				$date = getdate(mktime(12, 0, 0, $month, $i, $year));
 				if (($date["wday"]==$this->firstdayofweek) && ($i!=1))
 					echo "<tr><td class='separator' colspan='".(count($events)+2)."'>&nbsp;</td></tr>\n";
-				
+
 				// highlight today
 				$class = ($year == $today["year"] && $month == $today["mon"] && $i == $today["mday"]) ? "todayHeader" : "header";
-				
+
 				echo "<tr>";
 				echo "<td class='".$class."'><a href=\"../out/out.Calendar.php?mode=w&year=".($year)."&month=".($month)."&day=".($i)."\">".$i."</a></td>";
 				echo "<td class='".$class."'><a href=\"../out/out.Calendar.php?mode=w&year=".($year)."&month=".($month)."&day=".($i)."\">".$this->dayNamesLong[$date["wday"]]."</a></td>";
-				
+
 				if ($class=="todayHeader") $class="today";
 				else $class="";
-				
+
 				$xdate=mktime(0, 0, 0, $month, $i, $year);
 				foreach ($events as $event){
 					if (($event["start"]<=$xdate)&&($event["stop"]>=$xdate)){
-					
+
 						if (strlen($event['name']) > 25) $event['name'] = substr($event['name'], 0, 22) . "...";
 						print "<td class='".$class."'><a href=\"../out/out.ViewEvent.php?id=".$event['id']."\">".htmlspecialchars($event['name'])."</a></td>";
 					}else{
 						print "<td class='".$class."'>&nbsp;</td>";
 					}
 				}
-				
-				echo "</tr>\n";	
+
+				echo "</tr>\n";
 			}
 			echo "</table>\n";
 
 			$this->contentContainerEnd();
-			
+
 		}else{
 
 			if (!isset($this->dayNamesLong)) $this->generateCalendarArrays();
 			if (!isset($this->monthNames)) $this->generateCalendarArrays();
-			
+
 			// get the week interval - TODO: $GET
 			$datestart=getdate(mktime(0,0,0,$month,$day,$year));
 			while($datestart["wday"]!=$this->firstdayofweek){
 				$datestart=getdate(mktime(0,0,0,$datestart["mon"],$datestart["mday"]-1,$datestart["year"]));
 			}
-				
+
 			$datestop=getdate(mktime(23,59,59,$month,$day,$year));
 			if ($datestop["wday"]==$this->firstdayofweek){
 				$datestop=getdate(mktime(23,59,59,$datestop["mon"],$datestop["mday"]+1,$datestop["year"]));
@@ -284,15 +284,15 @@ class LetoDMS_View_Calendar extends LetoDMS_Bootstrap_Style {
 				$datestop=getdate(mktime(23,59,59,$datestop["mon"],$datestop["mday"]+1,$datestop["year"]));
 			}
 			$datestop=getdate(mktime(23,59,59,$datestop["mon"],$datestop["mday"]-1,$datestop["year"]));
-			
+
 			$starttime=mktime(0,0,0,$datestart["mon"],$datestart["mday"],$datestart["year"]);
 			$stoptime=mktime(23,59,59,$datestop["mon"],$datestop["mday"],$datestop["year"]);
-			
+
 			$today = getdate(time());
 			$events = getEventsInInterval($starttime,$stoptime);
-			
+
 			$this->contentHeading(getMLText("week_view").": ".getReadableDate(mktime(12, 0, 0, $month, $day, $year)));
-			
+
 			echo "<div class=\"pagination pagination-small\">";
 			echo "<ul>";
 			print "<li><a href=\"../out/out.Calendar.php?mode=w&year=".($year)."&month=".($month)."&day=".($day-7)."\"><img src=\"".$this->getImgPath("m.png")."\" border=0></a></li>";
@@ -301,29 +301,29 @@ class LetoDMS_View_Calendar extends LetoDMS_Bootstrap_Style {
 			echo "</ul>";
 			echo "</div>";
 			$this->contentContainerStart();
-			
+
 			echo "<table class='table-condensed'>\n";
-			
+
 			for ($i=$starttime; $i<$stoptime; $i += 86400){
-			
+
 				$date = getdate($i);
-				
+
 				// for daylight saving time TODO: could be better
 				if ( ($i!=$starttime) && ($prev_day==$date["mday"]) ){
 					$i += 3600;
 					$date = getdate($i);
 				}
-				
+
 				// highlight today
 				$class = ($date["year"] == $today["year"] && $date["mon"] == $today["mon"] && $date["mday"]  == $today["mday"]) ? "todayHeader" : "header";
-				
+
 				echo "<tr>";
 				echo "<td class='".$class."'>".getReadableDate($i)."</td>";
 				echo "<td class='".$class."'>".$this->dayNamesLong[$date["wday"]]."</td>";
-				
+
 				if ($class=="todayHeader") $class="today";
 				else $class="";
-				
+
 				foreach ($events as $event){
 					if (($event["start"]<=$i)&&($event["stop"]>=$i)){
 						print "<td class='".$class."'><a href=\"../out/out.ViewEvent.php?id=".$event['id']."\">".htmlspecialchars($event['name'])."</a></td>";
@@ -331,9 +331,9 @@ class LetoDMS_View_Calendar extends LetoDMS_Bootstrap_Style {
 						print "<td class='".$class."'>&nbsp;</td>";
 					}
 				}
-				
-				echo "</tr>\n";	
-				
+
+				echo "</tr>\n";
+
 				$prev_day=$date["mday"];
 			}
 			echo "</table>\n";

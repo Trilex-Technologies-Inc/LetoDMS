@@ -24,29 +24,29 @@ include("../inc/inc.ClassEmail.php");
 include("../inc/inc.Authentication.php");
 
 if ($user->isGuest()) {
-	UI::exitError(getMLText("my_account"),getMLText("access_denied"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("my_account"),getMLText("access_denied"));
 }
 
 function add_folder_notify($folder,$userid,$recursefolder,$recursedoc) {
 	global $dms;
 
 	$folder->addNotify($userid, true);
-	
+
 	if ($recursedoc){
-	
+
 		// include all folder's document
-		
+
 		$documents = $folder->getDocuments();
 		$documents = LetoDMS_Core_DMS::filterAccess($documents, $dms->getUser($userid), M_READ);
 
 		foreach($documents as $document)
 			$document->addNotify($userid, true);
 	}
-	
+
 	if ($recursefolder){
-	
+
 		// recurse all folder's folders
-		
+
 		$subFolders = $folder->getSubFolders();
 		$subFolders = LetoDMS_Core_DMS::filterAccess($subFolders, $dms->getUser($userid), M_READ);
 
@@ -55,57 +55,57 @@ function add_folder_notify($folder,$userid,$recursefolder,$recursedoc) {
 	}
 }
 
-if (!isset($_GET["type"])) UI::exitError(getMLText("my_account"),getMLText("error_occured"));
-if (!isset($_GET["action"])) UI::exitError(getMLText("my_account"),getMLText("error_occured"));
+if (!isset($_GET["type"])) (new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("my_account"),getMLText("error_occured"));
+if (!isset($_GET["action"])) (new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("my_account"),getMLText("error_occured"));
 
 $userid=$user->getID();
-	
+
 if ($_GET["type"]=="document"){
 
 	if ($_GET["action"]=="add"){
-		if (!isset($_POST["docidform2"])) UI::exitError(getMLText("my_account"),getMLText("error_occured"));
+		if (!isset($_POST["docidform2"])) (new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("my_account"),getMLText("error_occured"));
 		$documentid = $_POST["docidform2"];
 	}else if ($_GET["action"]=="del"){
-		if (!isset($_GET["id"])) UI::exitError(getMLText("my_account"),getMLText("error_occured"));
+		if (!isset($_GET["id"])) (new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("my_account"),getMLText("error_occured"));
 		$documentid = $_GET["id"];
-	
-	}else UI::exitError(getMLText("my_account"),getMLText("error_occured"));
+
+	}else (new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("my_account"),getMLText("error_occured"));
 
 	if(!$documentid || !($document = $dms->getDocument($documentid))) {
-		UI::exitError(getMLText("my_account"),getMLText("error_no_document_selected"));
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("my_account"),getMLText("error_no_document_selected"));
 	}
-	
-	if ($document->getAccessMode($user) < M_READ) 
-		UI::exitError(getMLText("my_account"),getMLText("error_occured"));
+
+	if ($document->getAccessMode($user) < M_READ)
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("my_account"),getMLText("error_occured"));
 
 	if ($_GET["action"]=="add") $document->addNotify($userid, true);
 	else if ($_GET["action"]=="del") $document->removeNotify($userid, true);
-	
+
 } else if ($_GET["type"]=="folder") {
 
 	if ($_GET["action"]=="add"){
-		if (!isset($_POST["targetidform1"])) UI::exitError(getMLText("my_account"),getMLText("error_occured"));
+		if (!isset($_POST["targetidform1"])) (new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("my_account"),getMLText("error_occured"));
 		$folderid = $_POST["targetidform1"];
 	}else if ($_GET["action"]=="del"){
-		if (!isset($_GET["id"])) UI::exitError(getMLText("my_account"),getMLText("error_occured"));
+		if (!isset($_GET["id"])) (new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("my_account"),getMLText("error_occured"));
 		$folderid = $_GET["id"];
-	
-	}else UI::exitError(getMLText("my_account"),getMLText("error_occured"));
+
+	}else (new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("my_account"),getMLText("error_occured"));
 
 	if(!$folderid || !($folder = $dms->getFolder($folderid))) {
-		UI::exitError(getMLText("my_account"),getMLText("error_no_folder_selected"));
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("my_account"),getMLText("error_no_folder_selected"));
 	}
-	
-	if ($folder->getAccessMode($user) < M_READ) 
-		UI::exitError(getMLText("my_account"),getMLText("error_occured"));
+
+	if ($folder->getAccessMode($user) < M_READ)
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("my_account"),getMLText("error_occured"));
 
 	if ($_GET["action"]=="add"){
-	
+
 		$recursefolder = isset($_POST["recursefolder"]);
 		$recursedoc = isset($_POST["recursedoc"]);
-	
+
 		add_folder_notify($folder,$userid,$recursefolder,$recursedoc);
-		
+
 	} elseif ($_GET["action"]=="del") {
 		if($folder->removeNotify($userid, true)) {
 			$obj = $dms->getUser($userid);
@@ -121,7 +121,7 @@ if ($_GET["type"]=="document"){
 
 				$subject = "###SITENAME###: ".$folder->getName()." - ".getMLText("notify_deleted_email");
 				$message = getMLText("notify_deleted_email")."\r\n";
-				$message .= 
+				$message .=
 					getMLText("name").": ".$folder->getName()."\r\n".
 					getMLText("folder").": ".$path."\r\n".
 					getMLText("comment").": ".$folder->getComment()."\r\n".
@@ -129,7 +129,7 @@ if ($_GET["type"]=="document"){
 
 //				$subject=mydmsDecodeString($subject);
 //				$message=mydmsDecodeString($message);
-				
+
 				$notifier->toIndividual($user, $obj, $subject, $message);
 			}
 		}

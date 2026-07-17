@@ -81,9 +81,9 @@ function checkForm()
 			$lockingUser = $document->getLockingUser();
 
 			print "<div class=\"alert alert-warning\">";
-			
+
 			printMLText("update_locked_msg", array("username" => htmlspecialchars($lockingUser->getFullName()), "email" => $lockingUser->getEmail()));
-			
+
 			if ($lockingUser->getID() == $user->getID())
 				printMLText("unlock_cause_locking_user");
 			else if ($document->getAccessMode($user) == M_ALL)
@@ -119,7 +119,7 @@ function checkForm()
 <form action="../op/op.UpdateDocument.php" enctype="multipart/form-data" method="post" name="form1" onsubmit="return checkForm();">
 	<input type="hidden" name="documentid" value="<?php print $document->getID(); ?>">
 	<table class="table-condensed">
-	
+
 		<tr>
 			<td><?php printMLText("local_file");?>:</td>
 			<td><input type="File" name="userfile" size="60"></td>
@@ -179,7 +179,7 @@ function checkForm()
 <?php
 				$res=$user->getMandatoryReviewers();
 				foreach ($docAccess["users"] as $usr) {
-					if ($usr->getID()==$user->getID()) continue; 
+					if ($usr->getID()==$user->getID()) continue;
 					$mandatory=false;
 					foreach ($res as $r) if ($r['reviewerUserID']==$usr->getID()) $mandatory=true;
 
@@ -198,9 +198,9 @@ function checkForm()
         <select class="chzn-select span9" name="grpReviewers[]" multiple="multiple" data-placeholder="<?php printMLText('select_grp_reviewers'); ?>">
 <?php
 				foreach ($docAccess["groups"] as $grp) {
-				
+
 					$mandatory=false;
-					foreach ($res as $r) if ($r['reviewerGroupID']==$grp->getID()) $mandatory=true;	
+					foreach ($res as $r) if ($r['reviewerGroupID']==$grp->getID()) $mandatory=true;
 
 					if ($mandatory) print "<option value=\"".$grp->getID()."\" disabled=\"disabled\">".htmlspecialchars($grp->getName())."</option>";
 					else print "<option value=\"".$grp->getID()."\">".htmlspecialchars($grp->getName())."</option>";
@@ -210,7 +210,7 @@ function checkForm()
     </tr>
     <tr>
 			<td colspan=2>
-				<?php $this->contentSubHeading(getMLText("assign_approvers")); ?>	
+				<?php $this->contentSubHeading(getMLText("assign_approvers")); ?>
       </td>
     </tr>
     <tr>
@@ -222,11 +222,11 @@ function checkForm()
 <?php
 				$res=$user->getMandatoryApprovers();
 				foreach ($docAccess["users"] as $usr) {
-					if ($usr->getID()==$user->getID()) continue; 
+					if ($usr->getID()==$user->getID()) continue;
 
 					$mandatory=false;
 					foreach ($res as $r) if ($r['approverUserID']==$usr->getID()) $mandatory=true;
-					
+
 					if ($mandatory) print "<option value=\"". $usr->getID() ."\" disabled='disabled'>". htmlspecialchars($usr->getFullName())."</option>";
 					else print "<option value=\"". $usr->getID() ."\">". htmlspecialchars($usr->getLogin()." - ".$usr->getFullName())."</option>";
 				}
@@ -241,9 +241,9 @@ function checkForm()
         <select class="chzn-select span9" name="grpApprovers[]" multiple="multiple" data-placeholder="<?php printMLText('select_grp_approvers'); ?>">
 <?php
 				foreach ($docAccess["groups"] as $grp) {
-				
+
 					$mandatory=false;
-					foreach ($res as $r) if ($r['approverGroupID']==$grp->getID()) $mandatory=true;	
+					foreach ($res as $r) if ($r['approverGroupID']==$grp->getID()) $mandatory=true;
 
 					if ($mandatory) print "<option value=\"". $grp->getID() ."\" disabled=\"disabled\">".htmlspecialchars($grp->getName())."</option>";
 					else print "<option value=\"". $grp->getID() ."\">".htmlspecialchars($grp->getName())."</option>";
@@ -259,7 +259,7 @@ function checkForm()
 <?php
 	} else {
 ?>
-		<tr>	
+		<tr>
       <td>
 			<div class="cbSelectTitle"><?php printMLText("workflow");?>:</div>
       </td>
@@ -279,11 +279,11 @@ function checkForm()
         </select>
       </td>
     </tr>
-		<tr>	
+		<tr>
       <td colspan="2">
 			<?php $this->warningMsg(getMLText("add_doc_workflow_warning")); ?>
       </td>
-		</tr>	
+		</tr>
 <?php
 	}
 ?>

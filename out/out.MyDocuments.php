@@ -30,7 +30,7 @@ include("../inc/inc.Authentication.php");
 require_once("../LetoDMS_Preview/Preview.php");
 
 if ($user->isGuest()) {
-	UI::exitError(getMLText("my_documents"),getMLText("access_denied"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("my_documents"),getMLText("access_denied"));
 }
 
 // Check to see if the user wants to see only those documents that are still
@@ -46,7 +46,7 @@ if (isset($_GET["orderby"]) && strlen($_GET["orderby"])==1 ) {
 }
 
 $tmp = explode('.', basename($_SERVER['SCRIPT_FILENAME']));
-$view = UI::factory($theme, $tmp[1], array('dms'=>$dms, 'user'=>$user, 'orderby'=>$orderby, 'showinprocess'=>$showInProcess, 'workflowmode'=>$settings->_workflowMode, 'cachedir'=>$settings->_cacheDir));
+$view = (new UI($GLOBALS['theme'] ?? 'bootstrap'))->factory($theme, $tmp[1], array('dms'=>$dms, 'user'=>$user, 'orderby'=>$orderby, 'showinprocess'=>$showInProcess, 'workflowmode'=>$settings->_workflowMode, 'cachedir'=>$settings->_cacheDir));
 if($view) {
 	$view->show();
 	exit;

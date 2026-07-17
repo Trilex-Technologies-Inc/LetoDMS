@@ -26,31 +26,31 @@ include("../inc/inc.ClassUI.php");
 include("../inc/inc.Authentication.php");
 
 if (!isset($_POST["documentid"]) || !is_numeric($_POST["documentid"]) || intval($_POST["documentid"])<1) {
-	UI::exitError(getMLText("document_title", array("documentname" => getMLText("invalid_doc_id"))),getMLText("invalid_doc_id"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => getMLText("invalid_doc_id"))),getMLText("invalid_doc_id"));
 }
 
 $documentid = $_POST["documentid"];
 $document = $dms->getDocument($documentid);
 
 if (!is_object($document)) {
-	UI::exitError(getMLText("document_title", array("documentname" => getMLText("invalid_doc_id"))),getMLText("invalid_doc_id"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => getMLText("invalid_doc_id"))),getMLText("invalid_doc_id"));
 }
 
 $folder = $document->getFolder();
 
 if ($document->getAccessMode($user) < M_READWRITE) {
-	UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("access_denied"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("access_denied"));
 }
 
 if (is_uploaded_file($_FILES["userfile"]["tmp_name"]) && $_FILES["userfile"]["size"] > 0 && $_FILES['userfile']['error']!=0){
-	UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("uploading_failed"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("uploading_failed"));
 }
 
 $name     = $_POST["name"];
 $comment  = $_POST["comment"];
 
 if($_FILES["userfile"]["error"]) {
-	UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("error_occured"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("error_occured"));
 }
 
 $userfiletmp = $_FILES["userfile"]["tmp_name"];
@@ -63,26 +63,26 @@ if (is_bool($lastDotIndex) && !$lastDotIndex)
 else
 	$fileType = substr($userfilename, $lastDotIndex);
 
-$res = $document->addDocumentFile($name, $comment, $user, $userfiletmp, 
+$res = $document->addDocumentFile($name, $comment, $user, $userfiletmp,
                                   basename($userfilename),$fileType, $userfiletype );
-                                
+
 if (is_bool($res) && !$res) {
-	UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("error_occured"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("error_occured"));
 } else {
 	$document->getNotifyList();
 	// Send notification to subscribers.
 	if($notifier) {
 		$subject = "###SITENAME###: ".$document->getName()." - ".getMLText("new_file_email");
 		$message = getMLText("new_file_email")."\r\n";
-		$message .= 
+		$message .=
 			getMLText("name").": ".$name."\r\n".
 			getMLText("comment").": ".$comment."\r\n".
-			getMLText("user").": ".$user->getFullName()." <". $user->getEmail() .">\r\n".	
+			getMLText("user").": ".$user->getFullName()." <". $user->getEmail() .">\r\n".
 			"URL: ###URL_PREFIX###out/out.ViewDocument.php?documentid=".$document->getID()."\r\n";
 
 		$subject=$subject;
 		$message=$message;
-		
+
 		$notifier->toList($user, $document->_notifyList["users"], $subject, $message);
 		foreach ($document->_notifyList["groups"] as $grp) {
 			$notifier->toGroup($user, $grp, $subject, $message);

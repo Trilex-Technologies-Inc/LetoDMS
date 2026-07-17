@@ -24,24 +24,24 @@ include("../inc/inc.Calendar.php");
 include("../inc/inc.Authentication.php");
 
 if ($user->isGuest()) {
-	UI::exitError(getMLText("edit_event"),getMLText("access_denied"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("edit_event"),getMLText("access_denied"));
 }
 
 if (!isset($_GET["id"]) || !is_numeric($_GET["id"]) || intval($_GET["id"])<1) {
-	UI::exitError(getMLText("edit_event"),getMLText("error_occured"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("edit_event"),getMLText("error_occured"));
 }
 
 $event=getEvent($_GET["id"]);
 
 if (is_bool($event)&&!$event){
-	UI::exitError(getMLText("edit_event"),getMLText("error_occured"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("edit_event"),getMLText("error_occured"));
 }
 if (($user->getID()!=$event["userID"])&&(!$user->isAdmin())){
-	UI::exitError(getMLText("edit_event"),getMLText("access_denied"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("edit_event"),getMLText("access_denied"));
 }
 
 $tmp = explode('.', basename($_SERVER['SCRIPT_FILENAME']));
-$view = UI::factory($theme, $tmp[1], array('dms'=>$dms, 'user'=>$user, 'event'=>$event, 'strictformcheck'=>$settings->_strictFormCheck));
+$view = (new UI($GLOBALS['theme'] ?? 'bootstrap'))->factory($theme, $tmp[1], array('dms'=>$dms, 'user'=>$user, 'event'=>$event, 'strictformcheck'=>$settings->_strictFormCheck));
 if($view) {
 	$view->show();
 	exit;

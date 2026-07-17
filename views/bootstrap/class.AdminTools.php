@@ -47,7 +47,7 @@ class LetoDMS_View_AdminTools extends LetoDMS_Bootstrap_Style {
 	<ul class="unstyled">
 		<li class="first"><a href="../out/out.Statistic.php"><?php echo getMLText("folders_and_documents_statistic")?></a></li>
 		<li><a href="../out/out.BackupTools.php"><?php echo getMLText("backup_tools")?></a></li>
-<?php		
+<?php
 		if ($logfileenable) echo "<li><a href=\"../out/out.LogManagement.php\">".getMLText("log_management")."</a></li>";
 ?>
 		<li><a href="../out/out.UsrMgr.php"><?php echo getMLText("user_management")?></a></li>

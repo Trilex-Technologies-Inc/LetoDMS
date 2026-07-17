@@ -28,7 +28,7 @@ $mode = intval($_GET["mode"]);
 $exclude = intval($_GET["exclude"]);
 
 $tmp = explode('.', basename($_SERVER['SCRIPT_FILENAME']));
-$view = UI::factory($theme, $tmp[1], array('dms'=>$dms, 'user'=>$user, 'rootfolderid'=>$settings->_rootFolderID, 'form'=>$form, 'mode'=>$mode, 'exclude'=>$exclude));
+$view = (new UI($GLOBALS['theme'] ?? 'bootstrap'))->factory($theme, $tmp[1], array('dms'=>$dms, 'user'=>$user, 'rootfolderid'=>$settings->_rootFolderID, 'form'=>$form, 'mode'=>$mode, 'exclude'=>$exclude));
 if($view) {
 	$view->show();
 	exit;

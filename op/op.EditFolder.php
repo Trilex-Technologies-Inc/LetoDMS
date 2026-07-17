@@ -27,20 +27,20 @@ include("../inc/inc.ClassEmail.php");
 include("../inc/inc.Authentication.php");
 
 if (!isset($_POST["folderid"]) || !is_numeric($_POST["folderid"]) || intval($_POST["folderid"])<1) {
-	UI::exitError(getMLText("folder_title", array("foldername" => getMLText("invalid_folder_id"))),getMLText("invalid_folder_id"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("folder_title", array("foldername" => getMLText("invalid_folder_id"))),getMLText("invalid_folder_id"));
 }
 
 $folderid = $_POST["folderid"];
 $folder = $dms->getFolder($folderid);
 
 if (!is_object($folder)) {
-	UI::exitError(getMLText("folder_title", array("foldername" => getMLText("invalid_folder_id"))),getMLText("invalid_folder_id"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("folder_title", array("foldername" => getMLText("invalid_folder_id"))),getMLText("invalid_folder_id"));
 }
 
 $folderPathHTML = getFolderPathHTML($folder, true);
 
 if ($folder->getAccessMode($user) < M_READWRITE) {
-	UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("access_denied"));	
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("access_denied"));
 }
 
 $name    = $_POST["name"];
@@ -66,7 +66,7 @@ if(($oldname = $folder->getName()) != $name) {
 			$folder->getNotifyList();
 			$subject = "###SITENAME###: ".$folder->getName()." - ".getMLText("folder_renamed_email");
 			$message = getMLText("folder_renamed_email")."\r\n";
-			$message .= 
+			$message .=
 				getMLText("old").": ".$oldname."\r\n".
 				getMLText("new").": ".$folder->getName()."\r\n".
 				getMLText("folder").": ".$folder->getFolderPathPlain()."\r\n".
@@ -75,14 +75,14 @@ if(($oldname = $folder->getName()) != $name) {
 
 //			$subject=mydmsDecodeString($subject);
 //			$message=mydmsDecodeString($message);
-			
+
 			$notifier->toList($user, $folder->_notifyList["users"], $subject, $message);
 			foreach ($folder->_notifyList["groups"] as $grp) {
 				$notifier->toGroup($user, $grp, $subject, $message);
 			}
 		}
 	} else {
-		UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("error_occured"));	
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("error_occured"));
 	}
 }
 if(($oldcomment = $folder->getComment()) != $comment) {
@@ -92,7 +92,7 @@ if(($oldcomment = $folder->getComment()) != $comment) {
 			$folder->getNotifyList();
 			$subject = "###SITENAME###: ".$folder->getName()." - ".getMLText("comment_changed_email");
 			$message = getMLText("comment_changed_email")."\r\n";
-			$message .= 
+			$message .=
 				getMLText("name").": ".$folder->getName()."\r\n".
 				getMLText("folder").": ".$folder->getFolderPathPlain()."\r\n".
 				getMLText("comment").": ".$comment."\r\n".
@@ -100,14 +100,14 @@ if(($oldcomment = $folder->getComment()) != $comment) {
 
 //			$subject=mydmsDecodeString($subject);
 //			$message=mydmsDecodeString($message);
-			
+
 			$notifier->toList($user, $folder->_notifyList["users"], $subject, $message);
 			foreach ($folder->_notifyList["groups"] as $grp) {
 				$notifier->toGroup($user, $grp, $subject, $message);
 			}
 		}
 	} else {
-		UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("error_occured"));	
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("error_occured"));
 	}
 }
 
@@ -116,7 +116,7 @@ if($attributes) {
 	foreach($attributes as $attrdefid=>$attribute) {
 		if(!isset($oldattributes[$attrdefid]) || $attribute != $oldattributes[$attrdefid]->getValue()) {
 			if(!$folder->setAttributeValue($dms->getAttributeDefinition($attrdefid), $attribute))
-				UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("error_occured"));
+				(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("error_occured"));
 		}
 	}
 }
@@ -124,7 +124,7 @@ if($attributes) {
 if(strcasecmp($sequence, "keep")) {
 	if($folder->setSequence($sequence)) {
 	} else {
-		UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("error_occured"));	
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("error_occured"));
 	}
 }
 

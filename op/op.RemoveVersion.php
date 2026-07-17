@@ -27,41 +27,41 @@ include("../inc/inc.Authentication.php");
 
 /* Check if the form data comes for a trusted request */
 if(!checkFormKey('removeversion')) {
-	UI::exitError(getMLText("document_title", array("documentname" => getMLText("invalid_request_token"))),getMLText("invalid_request_token"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => getMLText("invalid_request_token"))),getMLText("invalid_request_token"));
 }
 
 if (!isset($_POST["documentid"]) || !is_numeric($_POST["documentid"]) || intval($_POST["documentid"])<1) {
-	UI::exitError(getMLText("document_title", array("documentname" => getMLText("invalid_doc_id"))),getMLText("invalid_doc_id"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => getMLText("invalid_doc_id"))),getMLText("invalid_doc_id"));
 }
 $documentid = $_POST["documentid"];
 $document = $dms->getDocument($documentid);
 
 if (!is_object($document)) {
-	UI::exitError(getMLText("document_title", array("documentname" => getMLText("invalid_doc_id"))),getMLText("invalid_doc_id"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => getMLText("invalid_doc_id"))),getMLText("invalid_doc_id"));
 }
 
 if (!$settings->_enableVersionDeletion && !$user->isAdmin()) {
-	UI::exitError(getMLText("document_title", array("documentname" => htmlspecialchars($document->getName()))),getMLText("access_denied"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => htmlspecialchars($document->getName()))),getMLText("access_denied"));
 }
 
 if ($document->getAccessMode($user) < M_ALL) {
-	UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("access_denied"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("access_denied"));
 }
 
 if (!isset($_POST["version"]) || !is_numeric($_POST["version"]) || intval($_POST["version"])<1) {
-	UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("invalid_version"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("invalid_version"));
 }
 
 $version_num = $_POST["version"];
 $version = $document->getContentByVersion($version_num);
 
 if (!is_object($version)) {
-	UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("invalid_version"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("invalid_version"));
 }
 
 if (count($document->getContent())==1) {
 	if (!$document->remove()) {
-		UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("error_occured"));
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("error_occured"));
 	} else {
 		$document->getNotifyList();
 		if ($notifier){
@@ -73,10 +73,10 @@ if (count($document->getContent())==1) {
 				if ($i +1 < count($folderPath))
 					$path .= " / ";
 			}
-		
+
 			$subject = "###SITENAME###: ".$document->getName()." - ".getMLText("document_deleted_email");
 			$message = getMLText("document_deleted_email")."\r\n";
-			$message .= 
+			$message .=
 				getMLText("document").": ".$document->getName()."\r\n".
 				getMLText("folder").": ".$path."\r\n".
 				getMLText("comment").": ".$document->getComment()."\r\n".
@@ -84,7 +84,7 @@ if (count($document->getContent())==1) {
 
 //			$subject=mydmsDecodeString($subject);
 //			$message=mydmsDecodeString($message);
-			
+
 			// Send notification to subscribers.
 			$notifier->toList($user, $document->_notifyList["users"], $subject, $message);
 			foreach ($document->_notifyList["groups"] as $grp) {
@@ -113,11 +113,11 @@ else {
 	}
 
 	if (!$document->removeContent($version)) {
-		UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("error_occured"));
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("error_occured"));
 	} else {
 		// Notify affected users.
 		if ($notifier){
-		
+
 			$recipients = array();
 			foreach ($emailList as $eID) {
 				$eU = $version->_document->_dms->getUser($eID);
@@ -125,7 +125,7 @@ else {
 			}
 			$subject = "###SITENAME###: ".$document->getName().", v.".$version->_version." - ".getMLText("version_deleted_email");
 			$message = getMLText("version_deleted_email")."\r\n";
-			$message .= 
+			$message .=
 				getMLText("document").": ".$document->getName()."\r\n".
 				getMLText("version").": ".$version->_version."\r\n".
 				getMLText("comment").": ".$version->getComment()."\r\n".
@@ -133,9 +133,9 @@ else {
 
 //			$subject=mydmsDecodeString($subject);
 //			$message=mydmsDecodeString($message);
-			
+
 			$notifier->toList($user, $recipients, $subject, $message);
-			
+
 			// Send notification to subscribers.
 			$nl=$document->getNotifyList();
 			$notifier->toList($user, $nl["users"], $subject, $message);

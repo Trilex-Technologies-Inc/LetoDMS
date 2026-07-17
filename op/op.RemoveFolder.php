@@ -27,25 +27,25 @@ include("../inc/inc.Authentication.php");
 
 /* Check if the form data comes for a trusted request */
 if (!checkFormKey('removefolder')) {
-	UI::exitError(getMLText("folder_title", array("foldername" => getMLText("invalid_request_token"))), getMLText("invalid_request_token"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("folder_title", array("foldername" => getMLText("invalid_request_token"))), getMLText("invalid_request_token"));
 }
 
 if (!isset($_POST["folderid"]) || !is_numeric($_POST["folderid"]) || intval($_POST["folderid"]) < 1) {
-	UI::exitError(getMLText("folder_title", array("foldername" => getMLText("invalid_folder_id"))), getMLText("invalid_folder_id"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("folder_title", array("foldername" => getMLText("invalid_folder_id"))), getMLText("invalid_folder_id"));
 }
 $folderid = $_POST["folderid"];
 $folder = $dms->getFolder($folderid);
 
 if (!is_object($folder)) {
-	UI::exitError(getMLText("folder_title", array("foldername" => getMLText("invalid_folder_id"))), getMLText("invalid_folder_id"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("folder_title", array("foldername" => getMLText("invalid_folder_id"))), getMLText("invalid_folder_id"));
 }
 
 if ($folderid == $settings->_rootFolderID || !$folder->getParent()) {
-	UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())), getMLText("cannot_rm_root"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("folder_title", array("foldername" => $folder->getName())), getMLText("cannot_rm_root"));
 }
 
 if ($folder->getAccessMode($user) < M_ALL) {
-	UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())), getMLText("access_denied"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("folder_title", array("foldername" => $folder->getName())), getMLText("access_denied"));
 }
 
 
@@ -74,7 +74,7 @@ if ($folder->remove()) {
 		}
 	}
 } else {
-	UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())), getMLText("error_occured"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("folder_title", array("foldername" => $folder->getName())), getMLText("error_occured"));
 }
 
 add_log_line();

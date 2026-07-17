@@ -41,16 +41,16 @@ function update_db()
 	global $db;
 
 	$fd = fopen ("update.sql", "r");
-	
+
 	if (is_bool($fd)&&!$fd) return false;
 
 	$queryStr = fread($fd, filesize("update.sql"));
-	
+
 	if (is_bool($queryStr)&&!$queryStr) return false;
-	
+
 	fclose ($fd);
 	if (!$db->getResult($queryStr)) return false;
-	
+
 	return true;
 }
 

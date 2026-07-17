@@ -47,12 +47,12 @@ class LetoDMS_View_FolderChooser extends LetoDMS_Blue_Style {
 <script language="JavaScript">
 
 function toggleTree(id){
-	
+
 	obj = document.getElementById("tree" + id);
-	
+
 	if ( obj.style.display == "none" ) obj.style.display = "";
 	else obj.style.display = "none";
-	
+
 }
 
 function decodeString(s) {

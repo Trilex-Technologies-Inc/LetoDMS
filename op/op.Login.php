@@ -30,13 +30,13 @@ include $settings->_rootDir . "languages/" . $settings->_language . "/lang.inc";
 
 function _printMessage($heading, $message) {
 
-	UI::exitError($heading, $message);
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError($heading, $message);
 	exit;
-	UI::htmlStartPage($heading, "login");
-	UI::globalBanner();
-	UI::pageNavigation($heading);
-	UI::contentContainer($message);
-	UI::htmlEndPage();
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->htmlStartPage($heading, "login");
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->globalBanner();
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->pageNavigation($heading);
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->contentContainer($message);
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->htmlEndPage();
 	return;
 }
 
@@ -51,7 +51,7 @@ if (!isset($login) || strlen($login)==0) {
 }
 
 $pwd = (string) $_POST["pwd"];
-if (get_magic_quotes_gpc()) {
+if (function_exists('get_magic_quotes_gpc') && get_magic_quotes_gpc()) {
 	$pwd = stripslashes($pwd);
 }
 
@@ -78,7 +78,7 @@ if (isset($settings->_ldapType))
         $ldapSearchAttribut = "sAMAccountName=";
         $tmpDN = $login.'@'.$settings->_ldapAccountDomainName;
     }
-} 
+}
 /* end of new code */
 
 
@@ -98,9 +98,9 @@ if (isset($settings->_ldapHost) && strlen($settings->_ldapHost)>0) {
 		// try an anonymous bind first. If it succeeds, get the DN for the user.
 		$bind = @ldap_bind($ds);
 		$dn = false;
-				
+
 		/* new code by doudoux - TO BE TESTED */
-	        if ($bind) {        
+	        if ($bind) {
 	            $search = ldap_search($ds, $settings->_ldapBaseDN, $ldapSearchAttribut.$login);
 	            if (!is_bool($search)) {
 	                $info = ldap_get_entries($ds, $search);
@@ -108,9 +108,9 @@ if (isset($settings->_ldapHost) && strlen($settings->_ldapHost)>0) {
 	                    $dn = $info[0]['dn'];
 	                }
 	            }
-	        } 
+	        }
 		/* end of new code */
-		
+
 		/* old code */
 		if ($bind) {
 			$search = ldap_search($ds, $settings->_ldapBaseDN, "uid=".$login);
@@ -123,16 +123,16 @@ if (isset($settings->_ldapHost) && strlen($settings->_ldapHost)>0) {
 		}
 		/* end of old code */
 
-		
+
 		if (is_bool($dn)) {
 			// This is the fallback position, in case the anonymous bind does not
 			// succeed.
-			
+
 			/* new code by doudoux  - TO BE TESTED */
 			$dn = $tmpDN;
 			/* old code */
-			//$dn = "uid=".$login.",".$settings->_ldapBaseDN; 
-			
+			//$dn = "uid=".$login.",".$settings->_ldapBaseDN;
+
 		}
 		$bind = @ldap_bind($ds, $dn, $pwd);
 		if ($bind) {
@@ -141,13 +141,13 @@ if (isset($settings->_ldapHost) && strlen($settings->_ldapHost)>0) {
 			$user = $dms->getUserByLogin($login);
 			if (is_bool($user) && !$settings->_restricted) {
 				// Retrieve the user's LDAP information.
-				
-				
+
+
 				/* new code by doudoux  - TO BE TESTED */
-				$search = ldap_search($ds, $settings->_ldapBaseDN, $ldapSearchAttribut . $login); 
+				$search = ldap_search($ds, $settings->_ldapBaseDN, $ldapSearchAttribut . $login);
 				/* old code */
 				//$search = ldap_search($ds, $dn, "uid=".$login);
-				
+
 				if (!is_bool($search)) {
 					$info = ldap_get_entries($ds, $search);
 					if (!is_bool($info) && $info["count"]==1 && $info[0]["count"]>0) {
@@ -202,14 +202,14 @@ if (is_bool($user)) {
 		_printMessage(getMLText("login_disabled_title"), getMLText("login_disabled_text"));
 		exit;
 	}
-	
+
 	// control admin IP address if required
 	// TODO: extend control to LDAP autentication
 	if ($user->isAdmin() && ($_SERVER['REMOTE_ADDR'] != $settings->_adminIP ) && ( $settings->_adminIP != "") ){
 		_printMessage(getMLText("login_error_title"),	getMLText("invalid_user_id"));
 		exit;
 	}
-	
+
 	/* Clear login failures if login was successful */
 	$user->clearLoginFailures();
 
@@ -227,7 +227,9 @@ else {
 		$user->setLanguage($lang);
 	}
 }
-if (isset($_REQUEST["sesstheme"]) && strlen($_REQUEST["sesstheme"])>0 && is_numeric(array_search($_REQUEST["sesstheme"],UI::getStyles())) ) {
+$ui = new UI($theme);
+$availableThemes = $ui->getStyles();
+if (isset($_REQUEST["sesstheme"]) && strlen($_REQUEST["sesstheme"])>0 && in_array($_REQUEST["sesstheme"], $availableThemes, true)) {
 	$sesstheme = $_REQUEST["sesstheme"];
 	$user->setTheme($sesstheme);
 }
@@ -279,7 +281,7 @@ if (isset($_COOKIE["mydms_session"])) {
 	setcookie("mydms_session", $id, $lifetime, $settings->_httpRoot);
 }
 
-// TODO: by the PHP manual: The superglobals $_GET and $_REQUEST  are already decoded. 
+// TODO: by the PHP manual: The superglobals $_GET and $_REQUEST  are already decoded.
 // Using urldecode() on an element in $_GET or $_REQUEST could have unexpected and dangerous results.
 
 if (isset($_POST["referuri"]) && strlen($_POST["referuri"])>0) {

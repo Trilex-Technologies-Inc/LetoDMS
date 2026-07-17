@@ -34,7 +34,7 @@ else {
 	$folder = $dms->getFolder($folderid);
 }
 if (!is_object($folder)) {
-	UI::exitError(getMLText("search"),getMLText("invalid_folder_id"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("search"),getMLText("invalid_folder_id"));
 }
 
 $attrdefs = $dms->getAllAttributeDefinitions(array(LetoDMS_Core_AttributeDefinition::objtype_document, LetoDMS_Core_AttributeDefinition::objtype_documentcontent/*, LetoDMS_Core_AttributeDefinition::objtype_all*/));
@@ -42,7 +42,7 @@ $allCats = $dms->getDocumentCategories();
 $allUsers = $dms->getAllUsers($settings->_sortUsersInList);
 
 $tmp = explode('.', basename($_SERVER['SCRIPT_FILENAME']));
-$view = UI::factory($theme, $tmp[1], array('dms'=>$dms, 'user'=>$user, 'folder'=>$folder, 'attrdefs'=>$attrdefs, 'allcategories'=>$allCats, 'allusers'=>$allUsers, 'enablefullsearch'=>$settings->_enableFullSearch));
+$view = (new UI($GLOBALS['theme'] ?? 'bootstrap'))->factory($theme, $tmp[1], array('dms'=>$dms, 'user'=>$user, 'folder'=>$folder, 'attrdefs'=>$attrdefs, 'allcategories'=>$allCats, 'allusers'=>$allUsers, 'enablefullsearch'=>$settings->_enableFullSearch));
 if($view) {
 	$view->show();
 	exit;

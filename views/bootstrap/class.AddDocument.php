@@ -45,14 +45,14 @@ class LetoDMS_View_AddDocument extends LetoDMS_Bootstrap_Style {
 		$this->globalNavigation($folder);
 		$this->contentStart();
 		$this->pageNavigation($this->getFolderPathHTML($folder, true), "view_folder", $folder);
-		
+
 ?>
 		<script language="JavaScript">
 		function checkForm()
 		{
 			msg = "";
 			//if (document.form1.userfile[].value == "") msg += "<?php printMLText("js_no_file");?>\n";
-			
+
 <?php
 			if ($strictformcheck) {
 ?>
@@ -76,11 +76,11 @@ class LetoDMS_View_AddDocument extends LetoDMS_Bootstrap_Style {
 		{
 			var li = document.createElement('li');
 			li.innerHTML = '<input type="File" name="userfile[]" size="60">';
-			document.getElementById('files').appendChild(li);	
-		//	document.getElementById("files").innerHTML += '<br><input type="File" name="userfile[]" size="60">'; 
+			document.getElementById('files').appendChild(li);
+		//	document.getElementById("files").innerHTML += '<br><input type="File" name="userfile[]" size="60">';
 			document.form1.name.disabled=true;
 		}
-		
+
 		</script>
 
 <?php
@@ -91,7 +91,7 @@ class LetoDMS_View_AddDocument extends LetoDMS_Bootstrap_Style {
 		$this->warningMsg($msg);
 		$this->contentHeading(getMLText("add_document"));
 		$this->contentContainerStart();
-		
+
 		// Retrieve a list of all users and groups that have review / approve
 		// privileges.
 		$docAccess = $folder->getReadAccessList();
@@ -122,7 +122,7 @@ class LetoDMS_View_AddDocument extends LetoDMS_Bootstrap_Style {
 			$categories = $dms->getDocumentCategories();
 			foreach($categories as $category) {
 				echo "<option value=\"".$category->getID()."\"";
-				echo ">".$category->getName()."</option>";	
+				echo ">".$category->getName()."</option>";
 			}
 ?>
 				</select>
@@ -200,7 +200,7 @@ class LetoDMS_View_AddDocument extends LetoDMS_Bootstrap_Style {
 			}
 		if($workflowmode != 'traditional') {
 ?>
-		<tr>	
+		<tr>
       <td>
 			<div class="cbSelectTitle"><?php printMLText("workflow");?>:</div>
       </td>
@@ -220,11 +220,11 @@ class LetoDMS_View_AddDocument extends LetoDMS_Bootstrap_Style {
         </select>
       </td>
     </tr>
-		<tr>	
+		<tr>
       <td colspan="2">
 			<?php $this->warningMsg(getMLText("add_doc_workflow_warning")); ?>
       </td>
-		</tr>	
+		</tr>
 <?php
 		} else {
 ?>
@@ -232,8 +232,8 @@ class LetoDMS_View_AddDocument extends LetoDMS_Bootstrap_Style {
       <td>
 		<?php $this->contentSubHeading(getMLText("assign_reviewers")); ?>
       </td>
-		</tr>	
-		<tr>	
+		</tr>
+		<tr>
       <td>
 			<div class="cbSelectTitle"><?php printMLText("individuals");?>:</div>
       </td>
@@ -242,7 +242,7 @@ class LetoDMS_View_AddDocument extends LetoDMS_Bootstrap_Style {
 <?php
 				$res=$user->getMandatoryReviewers();
 				foreach ($docAccess["users"] as $usr) {
-					if ($usr->getID()==$user->getID()) continue; 
+					if ($usr->getID()==$user->getID()) continue;
 					$mandatory=false;
 					foreach ($res as $r) if ($r['reviewerUserID']==$usr->getID()) $mandatory=true;
 
@@ -261,9 +261,9 @@ class LetoDMS_View_AddDocument extends LetoDMS_Bootstrap_Style {
         <select class="chzn-select span9" name="grpReviewers[]" multiple="multiple" data-placeholder="<?php printMLText('select_grp_reviewers'); ?>">
 <?php
 			foreach ($docAccess["groups"] as $grp) {
-			
+
 				$mandatory=false;
-				foreach ($res as $r) if ($r['reviewerGroupID']==$grp->getID()) $mandatory=true;	
+				foreach ($res as $r) if ($r['reviewerGroupID']==$grp->getID()) $mandatory=true;
 
 				if ($mandatory) print "<option value=\"".$grp->getID()."\" disabled=\"disabled\">".htmlspecialchars($grp->getName())."</option>";
 				else print "<option value=\"".$grp->getID()."\">".htmlspecialchars($grp->getName())."</option>";
@@ -272,14 +272,14 @@ class LetoDMS_View_AddDocument extends LetoDMS_Bootstrap_Style {
 			</select>
 			</td>
 			</tr>
-			
-		  <tr>	
+
+		  <tr>
         <td>
 		<?php $this->contentSubHeading(getMLText("assign_approvers")); ?>
         </td>
-		  </tr>	
-		
-		  <tr>	
+		  </tr>
+
+		  <tr>
         <td>
 			<div class="cbSelectTitle"><?php printMLText("individuals");?>:</div>
         </td>
@@ -288,19 +288,19 @@ class LetoDMS_View_AddDocument extends LetoDMS_Bootstrap_Style {
 <?php
 			$res=$user->getMandatoryApprovers();
 			foreach ($docAccess["users"] as $usr) {
-				if ($usr->getID()==$user->getID()) continue; 
+				if ($usr->getID()==$user->getID()) continue;
 
 				$mandatory=false;
 				foreach ($res as $r) if ($r['approverUserID']==$usr->getID()) $mandatory=true;
-				
+
 				if ($mandatory) print "<option value=\"". $usr->getID() ."\" disabled='disabled'>". htmlspecialchars($usr->getFullName())."</option>";
 				else print "<option value=\"". $usr->getID() ."\">". htmlspecialchars($usr->getLogin()." - ".$usr->getFullName())."</option>";
 			}
 ?>
 			</select>
 				</td>
-		  </tr>	
-		  <tr>	
+		  </tr>
+		  <tr>
         <td>
 			<div class="cbSelectTitle"><?php printMLText("groups");?>:</div>
         </td>
@@ -308,9 +308,9 @@ class LetoDMS_View_AddDocument extends LetoDMS_Bootstrap_Style {
       <select class="chzn-select span9" name="grpApprovers[]" multiple="multiple" data-placeholder="<?php printMLText('select_grp_approvers'); ?>">
 <?php
 			foreach ($docAccess["groups"] as $grp) {
-			
+
 				$mandatory=false;
-				foreach ($res as $r) if ($r['approverGroupID']==$grp->getID()) $mandatory=true;	
+				foreach ($res as $r) if ($r['approverGroupID']==$grp->getID()) $mandatory=true;
 
 				if ($mandatory) print "<option value=\"". $grp->getID() ."\" disabled=\"disabled\">".htmlspecialchars($grp->getName())."</option>";
 				else print "<option value=\"". $grp->getID() ."\">".htmlspecialchars($grp->getName())."</option>";
@@ -319,12 +319,12 @@ class LetoDMS_View_AddDocument extends LetoDMS_Bootstrap_Style {
 ?>
 			</select>
 				</td>
-		  </tr>	
-		  <tr>	
+		  </tr>
+		  <tr>
         <td colspan="2">
 			<div class="alert"><?php printMLText("add_doc_reviewer_approver_warning")?></div>
         </td>
-		  </tr>	
+		  </tr>
 <?php
 		}
 ?>

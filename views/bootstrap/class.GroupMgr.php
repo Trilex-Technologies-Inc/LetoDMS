@@ -50,7 +50,7 @@ class LetoDMS_View_GroupMgr extends LetoDMS_Bootstrap_Style {
 function checkForm1(num) {
 	msg = "";
 	eval("var formObj = document.form" + num + "_1;");
-	
+
 	if (formObj.name.value == "") msg += "<?php printMLText("js_no_name");?>\n";
 <?php
 	if ($strictformcheck) {
@@ -71,7 +71,7 @@ function checkForm1(num) {
 function checkForm2(num) {
 	msg = "";
 	eval("var formObj = document.form" + num + "_2;");
-	
+
 	if (formObj.userid.options[formObj.userid.selectedIndex].value == -1) msg += "<?php printMLText("js_select_user");?>\n";
 
 	if (msg != "")
@@ -87,11 +87,11 @@ obj = -1;
 function showUser(selectObj) {
 	if (obj != -1)
 		obj.style.display = "none";
-	
+
 	id = selectObj.options[selectObj.selectedIndex].value;
 	if (id == -1)
 		return;
-	
+
 	obj = document.getElementById("keywords" + id);
 	obj.style.display = "";
 }
@@ -125,7 +125,7 @@ function showUser(selectObj) {
 <table class="table-condensed">
   <tr>
 	<td id="keywords0" style="display : none;">
-	
+
 	<form action="../op/op.GroupMgr.php" name="form0_1" method="post" onsubmit="return checkForm1('0');">
   <?php echo createHiddenFieldWithKey('addgroup'); ?>
 	<input type="Hidden" name="action" value="addgroup">
@@ -143,11 +143,11 @@ function showUser(selectObj) {
 			<td><input type="submit" class="btn" value="<?php printMLText("add_group");?>"></td>
 		</tr>
 	</table>
-	</form>	
-	
+	</form>
+
 	</td>
-	
-<?php	
+
+<?php
 		foreach ($allGroups as $group) {
 			print "<td id=\"keywords".$group->getID()."\" style=\"display : none;\">";
 ?>
@@ -183,9 +183,9 @@ function showUser(selectObj) {
 			if (count($members) == 0)
 				print "<tr><td>".getMLText("no_group_members")."</td></tr>";
 			else {
-			
+
 				foreach ($members as $member) {
-				
+
 					print "<tr>";
 					print "<td><img src=\"images/usericon.gif\" width=16 height=16></td>";
 					print "<td>" . htmlspecialchars($member->getFullName()) . "</td>";
@@ -199,11 +199,11 @@ function showUser(selectObj) {
 			}
 ?>
 		</table>
-		
+
 <?php
 			$this->contentSubHeading(getMLText("add_member"));
 ?>
-		
+
 		<form class="form-inline" action="../op/op.GroupMgr.php" method="POST" name="form<?php print $group->getID();?>_2" onsubmit="return checkForm2('<?php print $group->getID();?>');">
 		<?php echo createHiddenFieldWithKey('addmember'); ?>
 		<input type="Hidden" name="action" value="addmember">

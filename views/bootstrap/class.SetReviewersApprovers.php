@@ -91,7 +91,7 @@ class LetoDMS_View_SetReviewersApprovers extends LetoDMS_Bootstrap_Style {
 		foreach ($docAccess["users"] as $usr) {
 			$mandatory=false;
 			foreach ($res as $r) if ($r['reviewerUserID']==$usr->getID()) $mandatory=true;
-			
+
 			if ($mandatory){
 
 				print "<option value=\"".$usr->getID()."\" disabled=\"disabled\">". htmlspecialchars($usr->getLogin() . " - ". $usr->getFullName())." &lt;".$usr->getEmail()."&gt;</option>";
@@ -125,7 +125,7 @@ class LetoDMS_View_SetReviewersApprovers extends LetoDMS_Bootstrap_Style {
 
 			$mandatory=false;
 			foreach ($res as $r) if ($r['reviewerGroupID']==$group->getID()) $mandatory=true;
-			
+
 			if ($mandatory){
 
 				print "<option value=\"".$group->getID()."\" disabled='disabled'>".htmlspecialchars($group->getName())."</option>";
@@ -166,12 +166,12 @@ class LetoDMS_View_SetReviewersApprovers extends LetoDMS_Bootstrap_Style {
 			foreach ($res as $r) if ($r['approverUserID']==$usr->getID()) $mandatory=true;
 
 			if ($mandatory){
-			
+
 				print "<option value='". $usr->getID() ."' disabled='disabled'>". htmlspecialchars($usr->getLogin() . " - ". $usr->getFullName())." &lt;".$usr->getEmail()."&gt;</option>";
 				print "<input id='appInd".$usr->getID()."' type='hidden' name='indApprovers[]' value='". $usr->getID() ."'>";
 
 			}else if (isset($approvalIndex["i"][$usr->getID()])) {
-			
+
 				switch ($approvalIndex["i"][$usr->getID()]["status"]) {
 					case 0:
 						print "<option value='". $usr->getID() ."' selected='selected'>".htmlspecialchars($usr->getLogin() . " - ". $usr->getFullName())."</option>";

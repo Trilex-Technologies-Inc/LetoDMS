@@ -60,7 +60,7 @@ class LetoDMS_Blue_Style extends LetoDMS_View_Common {
 
 	function footNote() { /* {{{ */
 		global $settings;
-		
+
 		if ($settings->_printDisclaimer){
 			echo "<div class=\"disclaimer\">".getMLText("disclaimer")."</div>";
 		}
@@ -68,7 +68,7 @@ class LetoDMS_Blue_Style extends LetoDMS_View_Common {
 		if (isset($settings->_footNote) && strlen((string)$settings->_footNote)>0) {
 			echo "<div class=\"footNote\">".(string)$settings->_footNote."</div>";
 		}
-	
+
 		return;
 	} /* }}} */
 
@@ -93,7 +93,7 @@ class LetoDMS_Blue_Style extends LetoDMS_View_Common {
 	} /* }}} */
 
 	function globalNavigation($folder=null) { /* {{{ */
-	
+
 		global $settings, $user;
 
 		echo "<div class=\"globalBox\">\n";
@@ -172,7 +172,7 @@ class LetoDMS_Blue_Style extends LetoDMS_View_Common {
 	} /* }}} */
 
 	function folderNavigationBar($folder) { /* {{{ */
-	
+
 		global $user, $settings;
 
 		if (!is_object($folder) || strcasecmp(get_class($folder), "LetoDMS_Core_Folder")) {
@@ -206,7 +206,7 @@ class LetoDMS_Blue_Style extends LetoDMS_View_Common {
 	} /* }}} */
 
 	function documentNavigationBar()	{ /* {{{ */
-	
+
 		global $user, $settings, $document;
 
 		$accessMode = $document->getAccessMode($user);
@@ -243,13 +243,13 @@ class LetoDMS_Blue_Style extends LetoDMS_View_Common {
 	} /* }}} */
 
 	function accountNavigationBar() { /* {{{ */
-	
+
 		global $settings,$user;
-		
+
 		echo "<ul class=\"localNav\">\n";
 		if (!$settings->_disableSelfEdit) echo "<li id=\"first\"><a href=\"../out/out.EditUserData.php\">".getMLText("edit_user_details")."</a></li>\n";
-		
-		if (!$user->isAdmin()) 
+
+		if (!$user->isAdmin())
 			echo "<li><a href=\"../out/out.UserDefaultKeywords.php\">".getMLText("edit_default_keywords")."</a></li>\n";
 
 		echo "<li><a href=\"../out/out.ManageNotify.php\">".getMLText("edit_existing_notify")."</a></li>\n";
@@ -257,7 +257,7 @@ class LetoDMS_Blue_Style extends LetoDMS_View_Common {
 		if ($settings->_enableUsersView){
 			echo "<li><a href=\"../out/out.UsrView.php\">".getMLText("users")."</a></li>\n";
 			echo "<li><a href=\"../out/out.GroupView.php\">".getMLText("groups")."</a></li>\n";
-		}		
+		}
 		echo "</ul>\n";
 		return;
 	} /* }}} */
@@ -274,7 +274,7 @@ class LetoDMS_Blue_Style extends LetoDMS_View_Common {
 	} /* }}} */
 
 	function adminToolsNavigationBar() { /* {{{ */
-	
+
 		global $settings;
 
 		echo "<ul class=\"localNav\">\n";
@@ -287,13 +287,13 @@ class LetoDMS_Blue_Style extends LetoDMS_View_Common {
 		echo "</ul>\n";
 		return;
 	} /* }}} */
-	
+
 	function calendarNavigationBar($d){ /* {{{ */
 
 		global $settings,$user;
 
 		$ds="&day=".$d[0]."&month=".$d[1]."&year=".$d[2];
-	
+
 		echo "<ul class=\"localNav\">\n";
 		echo "<li><a href=\"../out/out.Calendar.php?mode=w".$ds."\">".getMLText("week_view")."</a></li>\n";
 		echo "<li><a href=\"../out/out.Calendar.php?mode=m".$ds."\">".getMLText("month_view")."</a></li>\n";
@@ -301,10 +301,10 @@ class LetoDMS_Blue_Style extends LetoDMS_View_Common {
 		if (!$user->isGuest()) echo "<li><a href=\"../out/out.AddEvent.php\">".getMLText("add_event")."</a></li>\n";
 		echo "</ul>\n";
 		return;
-	
+
 	} /* }}} */
 
-	function pageList($pageNumber, $totalPages, $baseURI, $params) { /* {{{ */
+	static function pageList($pageNumber, $totalPages, $baseURI, $params) { /* {{{ */
 
 		if (!is_numeric($pageNumber) || !is_numeric($totalPages) || $totalPages<2) {
 			return;
@@ -465,10 +465,10 @@ class LetoDMS_Blue_Style extends LetoDMS_View_Common {
 		}
 	} /* }}} */
 
-	function printDateChooser($defDate = -1, $varName) { /* {{{ */
-	
+	function printDateChooser($defDate, $varName) { /* {{{ */
+
 		if ($defDate == -1)
-			$defDate = mktime();
+			$defDate = time();
 		$day   = date("d", $defDate);
 		$month = date("m", $defDate);
 		$year  = date("Y", $defDate);
@@ -491,7 +491,7 @@ class LetoDMS_Blue_Style extends LetoDMS_View_Common {
 			print ">" . $i . "</option>\n";
 		}
 		print "</select> \n";
-		print "<select name=\"" . $varName . "year\">\n";	
+		print "<select name=\"" . $varName . "year\">\n";
 		for ($i = $year-5 ; $i <= $year+5 ; $i++)
 		{
 			print "<option value=\"" . $i . "\"";
@@ -527,7 +527,7 @@ class LetoDMS_Blue_Style extends LetoDMS_View_Common {
 		}
 		print "</select>";
 	} /* }}} */
-	
+
 	function printDocumentChooser($formName) { /* {{{ */
 		global $settings;
 		?>
@@ -639,46 +639,46 @@ class LetoDMS_Blue_Style extends LetoDMS_View_Common {
 	} /* }}} */
 
 	function exitError($pagetitle,$error) { /* {{{ */
-	
+
 		$this->htmlStartPage($pagetitle);
 		$this->globalNavigation();
 
 		print "<div class=\"error\">";
 		print htmlspecialchars($error);
 		print "</div>";
-		
+
 		$this->htmlEndPage();
-		
+
 		add_log_line(" $this->exitError error=".$error." pagetitle=".$pagetitle);
-		
-		exit;	
+
+		exit;
 	} /* }}} */
 
 	// navigation flag is used for items links (navigation or selection)
 	function printFoldersTree($accessMode, $exclude, $folderID, $currentFolderID=-1, $navigation=false) {	/* {{{ */
 		global $dms, $user, $form, $settings;
-		
+
 		if ($settings->_expandFolderTree==2){
-		
+
 			// folder completely open
 			$is_open=true;
-			
+
 		}else if ($settings->_expandFolderTree==1 && $folderID==$settings->_rootFolderID ){
-		
+
 			$is_open=true;
-			
+
 		}else{
 			// open the tree until the current folder
 			$is_open=false;
-			
+
 			if ($currentFolderID!=-1){
-				
+
 				$currentFolder=$dms->getFolder($currentFolderID);
-				
+
 				if (is_object($currentFolder)){
-				
+
 					$parent=$currentFolder->getParent();
-					
+
 					while (is_object($parent)){
 						if ($parent->getID()==$folderID){
 							$is_open=true;
@@ -689,25 +689,25 @@ class LetoDMS_Blue_Style extends LetoDMS_View_Common {
 				}
 			}
 		}
-		
+
 		$folder = $dms->getFolder($folderID);
 		if (!is_object($folder)) return;
-		
+
 		$subFolders = $folder->getSubFolders();
 		$subFolders = LetoDMS_Core_DMS::filterAccess($subFolders, $user, M_READ);
-		
+
 		if ($folderID == $settings->_rootFolderID) print "<ul style='list-style-type: none;' class='tree'>\n";
 
 		print "<li>\n";
 
 		if (count($subFolders) > 0){
-			print "<a href=\"javascript:toggleTree(".$folderID.")\"><img class='treeicon' name=\"treedot".$folderID."\" src=\"";	
+			print "<a href=\"javascript:toggleTree(".$folderID.")\"><img class='treeicon' name=\"treedot".$folderID."\" src=\"";
 			if ($is_open) $this->printImgPath("minus.png");
 			else $this->printImgPath("plus.png");
 			print "\" border=0></a>\n";
 		}
 		else{
-			print "<img class='treeicon' src=\"";	
+			print "<img class='treeicon' src=\"";
 			$this->printImgPath("blank.png");
 			print "\" border=0>\n";
 		}
@@ -715,12 +715,12 @@ class LetoDMS_Blue_Style extends LetoDMS_View_Common {
 		if ($folder->getAccessMode($user) >= $accessMode) {
 
 			if ($folderID != $currentFolderID){
-			
+
 				if ($navigation) print "<a href=\"../out/out.ViewFolder.php?folderid=" . $folderID . "&showtree=1\">";
 				else print "<a class=\"foldertree_selectable\" href=\"javascript:folderSelected(" . $folderID . ", '" . str_replace("'", "\\'", htmlspecialchars($folder->getName())) . "')\">";
 
 			}else print "<span class=\"selectedfoldertree\">";
-			
+
 			if ($is_open) print "<img src=\"".$this->getImgPath("folder_opened.gif")."\" border=0 name=\"treeimg".$folderID."\">".htmlspecialchars($folder->getName());
 			else print "<img src=\"".$this->getImgPath("folder_closed.gif")."\" border=0 name=\"treeimg".$folderID."\">".htmlspecialchars($folder->getName());
 
@@ -732,28 +732,28 @@ class LetoDMS_Blue_Style extends LetoDMS_View_Common {
 
 		if ($is_open) print "<ul style='list-style-type: none;' id=\"tree".$folderID."\" >\n";
 		else print "<ul style='list-style-type: none; display: none;' id=\"tree".$folderID."\" >\n";
-		
+
 		for ($i = 0; $i < count($subFolders); $i++) {
-		
+
 			if ($subFolders[$i]->getID() == $exclude) continue;
-			
+
 			$this->printFoldersTree( $accessMode, $exclude, $subFolders[$i]->getID(),$currentFolderID,$navigation);
 		}
 
 		print "</ul>\n";
-		
+
 		if ($folderID == $settings->_rootFolderID) print "</ul>\n";
 	} /* }}} */
 
 	function printTreeNavigation($folderid,$showtree){ /* {{{ */
 		global $settings;
-		
+
 ?>
 		<script language="JavaScript">
 		function toggleTree(id){
-			
+
 			obj = document.getElementById("tree" + id);
-			
+
 			if ( obj.style.display == "none" ){
 				obj.style.display = "";
 				document["treeimg" + id].src = "<?php $this->printImgPath("folder_opened.gif"); ?>";
@@ -767,23 +767,23 @@ class LetoDMS_Blue_Style extends LetoDMS_View_Common {
 		}
 		</script>
 <?php
-	
+
 		print "<table width=\"100%\"><tr>";
 
 		if ($showtree==1){
 
 			print "<td id='tree-open'>";
 
-			$this->contentHeading("<a href=\"../out/out.ViewFolder.php?folderid=". $folderid."&showtree=0\"><img src=\"".UI::getImgPath("m.png")."\" border=0></a>", true);
+			$this->contentHeading("<a href=\"../out/out.ViewFolder.php?folderid=". $folderid."&showtree=0\"><img src=\"".(new UI($GLOBALS['theme'] ?? 'bootstrap'))->getImgPath("m.png")."\" border=0></a>", true);
 			$this->contentContainerStart();
 			$this->printFoldersTree(M_READ, -1, $settings->_rootFolderID, $folderid, true);
 			$this->contentContainerEnd();
 
 		}else{
-		
-			print "<td id='tree-closed'>";		
-		
-			$this->contentHeading("<a href=\"../out/out.ViewFolder.php?folderid=". $folderid."&showtree=1\"><img src=\"".UI::getImgPath("p.png")."\" border=0></a>", true);
+
+			print "<td id='tree-closed'>";
+
+			$this->contentHeading("<a href=\"../out/out.ViewFolder.php?folderid=". $folderid."&showtree=1\"><img src=\"".(new UI($GLOBALS['theme'] ?? 'bootstrap'))->getImgPath("p.png")."\" border=0></a>", true);
 			$this->contentContainerStart();
 			$this->contentContainerEnd();
 		}

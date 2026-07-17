@@ -1,7 +1,7 @@
 <?php
 /* Determine all languages keys used in the php files */
 $output = array();
-if(exec('sgrep -o "%r\n" \'"tMLText(\"" __ "\""\' */*.php|sort|uniq -c', &$output)) {
+if(exec('sgrep -o "%r\n" \'"tMLText(\"" __ "\""\' */*.php|sort|uniq -c', $output)) {
 	$allkeys = array();
 	foreach($output as $line) {
 		$data = explode(' ', trim($line));

@@ -33,10 +33,10 @@ class LetoDMS_View_Search extends LetoDMS_Bootstrap_Style {
 
 	function markQuery($str, $tag = "b") {
 		$querywords = preg_split("/ /", $this->query);
-		
+
 		foreach ($querywords as $queryword)
 			$str = str_ireplace("($queryword)", "<" . $tag . ">\\1</" . $tag . ">", $str);
-		
+
 		return $str;
 	}
 
@@ -161,7 +161,7 @@ class LetoDMS_View_Search extends LetoDMS_Bootstrap_Style {
 					print $folderName;
 					print "</a></td>";
 					print "<td></td>";
-					
+
 					$owner = $folder->getOwner();
 					print "<td>".htmlspecialchars($owner->getFullName())."</td>";
 					print "<td></td>";

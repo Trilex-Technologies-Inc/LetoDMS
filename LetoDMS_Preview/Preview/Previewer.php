@@ -39,7 +39,7 @@ class LetoDMS_Preview_Previewer {
 
 	function __construct($previewDir, $width=40) {
 		if(!is_dir($previewDir)) {
-			if (!LetoDMS_Core_File::makeDir($previewDir)) {
+			if (!(new LetoDMS_Core_File())->makeDir($previewDir)) {
 				$this->previewDir = '';
 			} else {
 				$this->previewDir = $previewDir;
@@ -60,7 +60,7 @@ class LetoDMS_Preview_Previewer {
 		$document = $documentcontent->getDocument();
 		$dir = $this->previewDir.'/'.$document->getDir();
 		if(!is_dir($dir)) {
-			if (!LetoDMS_Core_File::makeDir($dir)) {
+			if (!(new LetoDMS_Core_File())->makeDir($dir)) {
 				return false;
 			}
 		}

@@ -62,7 +62,7 @@ class LetoDMS_View_ReviewSummary extends LetoDMS_Bootstrap_Style {
 			$moduser = $dms->getUser($st['required']);
 
 			if ($document && $version) {
-			
+
 				if ($printheader){
 					print "<table class=\"table-condensed\">";
 					print "<thead>\n<tr>\n";
@@ -75,14 +75,14 @@ class LetoDMS_View_ReviewSummary extends LetoDMS_Bootstrap_Style {
 					print "</tr>\n</thead>\n<tbody>\n";
 					$printheader=false;
 				}
-			
+
 				print "<tr>\n";
 				print "<td><a href=\"out.DocumentVersionDetail.php?documentid=".$st["documentID"]."&version=".$st["version"]."\">".htmlspecialchars($docIdx[$st["documentID"]][$st["version"]]["name"])."</a></td>";
 				print "<td>".htmlspecialchars($owner->getFullName())."</td>";
 				print "<td>".getOverallStatusText($st["status"])."</td>";
 				print "<td>".$st["version"]."</td>";
 				print "<td>".$st["date"]." ". htmlspecialchars($moduser->getFullName()) ."</td>";
-				print "<td>".(!$document->expires() ? "-":getReadableDate($document->getExpires()))."</td>";				
+				print "<td>".(!$document->expires() ? "-":getReadableDate($document->getExpires()))."</td>";
 				print "</tr>\n";
 			}
 			if ($st["status"]!=-2) {
@@ -108,7 +108,7 @@ class LetoDMS_View_ReviewSummary extends LetoDMS_Bootstrap_Style {
 			$modgroup = $dms->getGroup($st['required']);
 
 			if (!in_array($st["documentID"], $iRev) && $document && $version) {
-			
+
 				if ($printheader){
 					print "<table class=\"folderView\">";
 					print "<thead>\n<tr>\n";
@@ -120,15 +120,15 @@ class LetoDMS_View_ReviewSummary extends LetoDMS_Bootstrap_Style {
 					print "<th>".getMLText("expires")."</th>\n";
 					print "</tr>\n</thead>\n<tbody>\n";
 					$printheader=false;
-				}		
-			
+				}
+
 				print "<tr>\n";
 				print "<td><a href=\"out.DocumentVersionDetail.php?documentid=".$st["documentID"]."&version=".$st["version"]."\">".htmlspecialchars($document->getName())."</a></td>";
 				print "<td>".htmlspecialchars($owner->getFullName())."</td>";
 				print "<td>".getOverallStatusText($st["status"])."</td>";
 				print "<td>".$st["version"]."</td>";
 				print "<td>".$st["date"]." ". htmlspecialchars($modgroup->getName()) ."</td>";
-				print "<td>".(!$document->expires() ? "-":getReadableDate($document->getExpires()))."</td>";				
+				print "<td>".(!$document->expires() ? "-":getReadableDate($document->getExpires()))."</td>";
 				print "</tr>\n";
 			}
 		}

@@ -164,7 +164,7 @@ class LetoDMS_View_DocumentVersionDetail extends LetoDMS_Blue_Style {
 			print "<tr><td colspan=4>\n";
 			$this->contentSubHeading(getMLText("reviewers"));
 			print "</td></tr>\n";
-			
+
 			print "<tr>\n";
 			print "<td width='20%'><b>".getMLText("name")."</b></td>\n";
 			print "<td width='20%'><b>".getMLText("last_update")."</b></td>\n";
@@ -210,7 +210,7 @@ class LetoDMS_View_DocumentVersionDetail extends LetoDMS_Blue_Style {
 			print "<tr><td colspan=4>\n";
 			$this->contentSubHeading(getMLText("approvers"));
 			print "</td></tr>\n";
-				
+
 			print "<tr>\n";
 			print "<td width='20%'><b>".getMLText("name")."</b></td>\n";
 			print "<td width='20%'><b>".getMLText("last_update")."</b></td>\n";

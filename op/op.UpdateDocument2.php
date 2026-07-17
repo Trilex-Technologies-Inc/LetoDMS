@@ -165,7 +165,7 @@ if( move_uploaded_file( $source_file_path, $target_file_path ) ) {
 				$folder = $document->getFolder();
 				$subject = "###SITENAME###: ".$document->getName()." - ".getMLText("document_updated_email");
 				$message = getMLText("document_updated_email")."\r\n";
-				$message .= 
+				$message .=
 					getMLText("document").": ".$document->getName()."\r\n".
 					getMLText("folder").": ".$folder->getFolderPathPlain()."\r\n".
 					getMLText("comment").": ".$document->getComment()."\r\n".
@@ -193,7 +193,7 @@ if( move_uploaded_file( $source_file_path, $target_file_path ) ) {
 					// Send notification to subscribers.
 					$subject = "###SITENAME###: ".$document->getName()." - ".getMLText("expiry_changed_email");
 					$message = getMLText("expiry_changed_email")."\r\n";
-					$message .= 
+					$message .=
 						getMLText("document").": ".$document->getName()."\r\n".
 						getMLText("folder").": ".$folder->getFolderPathPlain()."\r\n".
 						getMLText("comment").": ".$document->getComment()."\r\n".
@@ -208,7 +208,7 @@ if( move_uploaded_file( $source_file_path, $target_file_path ) ) {
 					}
 				}
 			} else {
-				UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("error_occured"));
+				(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("error_occured"));
 			}
 		}
 		add_log_line("?documentid=".$documentid);

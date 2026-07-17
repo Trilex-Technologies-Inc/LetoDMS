@@ -32,7 +32,7 @@ require_once("class.Bootstrap.php");
 class LetoDMS_View_WorkflowGraph extends LetoDMS_Bootstrap_Style {
 
 	function printGraph() { /* {{{ */
-		$transitions = $this->workflow->getTransitions();	
+		$transitions = $this->workflow->getTransitions();
 		if($transitions) {
 
 			foreach($transitions as $transition) {

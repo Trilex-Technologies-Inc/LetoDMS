@@ -54,7 +54,7 @@ function checkForm()
 				!document.form1.pendingReview.checked && !document.form1.pendingApproval.checked)
 			msg += "<?php printMLText("js_no_query");?>\n";
 	}
-	
+
 	if (msg != "")
 	{
 		alert(msg);

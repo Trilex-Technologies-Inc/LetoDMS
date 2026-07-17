@@ -28,11 +28,11 @@ include("../inc/inc.ClassUI.php");
 include("../inc/inc.Authentication.php");
 
 if (!$user->isAdmin()) {
-	UI::exitError(getMLText("admin_tools"),getMLText("access_denied"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("access_denied"));
 }
 
 if(!$settings->_enableFullSearch) {
-	UI::exitError(getMLText("admin_tools"),getMLText("fulltextsearch_disabled"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("fulltextsearch_disabled"));
 }
 
 if(!empty($settings->_luceneClassDir))
@@ -51,7 +51,7 @@ if(isset($_GET['create']) && $_GET['create'] == 1) {
 } else {
 	$index = LetoDMS_Lucene_Indexer::open($settings->_luceneDir);
 	if(!$index) {
-		UI::exitError(getMLText("admin_tools"),getMLText("no_fulltextindex"));
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("no_fulltextindex"));
 	}
 	echo "<p>Updating index</p>";
 	LetoDMS_Lucene_Indexer::init($settings->_stopWordsFile);
@@ -60,7 +60,7 @@ if(isset($_GET['create']) && $_GET['create'] == 1) {
 $folder = $dms->getFolder($settings->_rootFolderID);
 
 $tmp = explode('.', basename($_SERVER['SCRIPT_FILENAME']));
-$view = UI::factory($theme, $tmp[1], array('dms'=>$dms, 'user'=>$user, 'index'=>$index, 'recreate'=>(isset($_GET['create']) && $_GET['create']==1), 'folder'=>$folder));
+$view = (new UI($GLOBALS['theme'] ?? 'bootstrap'))->factory($theme, $tmp[1], array('dms'=>$dms, 'user'=>$user, 'index'=>$index, 'recreate'=>(isset($_GET['create']) && $_GET['create']==1), 'folder'=>$folder));
 if($view) {
 	$view->show();
 	exit;

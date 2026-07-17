@@ -177,13 +177,14 @@ class Settings { /* {{{ */
 	var $_ldapAccountDomainName = "";
 	var $_ldapType = 1; // 0 = ldap; 1 = AD
 	var $_converters = array(); // list of commands used to convert files to text for Indexer
+	var $_convertFileTypes = array();
 
 	/**
 	 * Constructor
 	 *
 	 * @param string $configFilePath path to config file
 	 */
-	function Settings($configFilePath='') { /* {{{ */
+	function __construct($configFilePath='') { /* {{{ */
 		if($configFilePath=='') {
 			$configFilePath = $this->searchConfigFilePath();
 
@@ -195,12 +196,14 @@ class Settings { /* {{{ */
 
 		// Load config file
 		if (!defined("LETODMS_INSTALL")) {
-			if(!file_exists($configFilePath)) {
+			if(!is_string($configFilePath) || $configFilePath === '' || !file_exists($configFilePath)) {
 				echo "You does not seem to have a valid configuration. Run the <a href=\"install/install.php\">install tool</a> first.";
 				exit;
 			}
 		}
-		$this->load($configFilePath);
+		if (is_string($configFilePath) && $configFilePath !== '' && file_exists($configFilePath)) {
+			$this->load($configFilePath);
+		}
 
 		// files with one of the following endings will be converted with the
 		// given commands for windows users
@@ -227,7 +230,7 @@ class Settings { /* {{{ */
 	 * @param string $var value
 	 * @return true/false
 	 */
-	function boolVal($var) { /* {{{ */
+	static function boolVal($var) { /* {{{ */
 		$var = strtolower(strval($var));
 		switch ($var) {
 			case 'true':
@@ -270,6 +273,10 @@ class Settings { /* {{{ */
 	 * @return true/false
 	 */
 	function load($configFilePath) { /* {{{ */
+		if (!is_string($configFilePath) || $configFilePath === '' || !file_exists($configFilePath)) {
+			return false;
+		}
+
 		$contents = file_get_contents($configFilePath);
 		if(!$contents) {
 			return false;
@@ -738,7 +745,7 @@ class Settings { /* {{{ */
 	 * 3. The directory /etc/letodms
 	 * @return NULL|string config directory
 	 */
-	function getConfigDir() { /* {{{ */
+	static function getConfigDir() { /* {{{ */
 		$_tmp = dirname($_SERVER['SCRIPT_FILENAME']);
 		$_arr = preg_split('/\//', $_tmp);
 		$configDir = null;
@@ -787,7 +794,7 @@ class Settings { /* {{{ */
 	 * @param string $file name of file to search
 	 * @return string path where file was found
 	 */
-	function findInIncPath($file) { /* {{{ */
+	static function findInIncPath($file) { /* {{{ */
 		$incarr = explode(':', ini_get('include_path'));
 		$found = '';
 		foreach($incarr as $path) {

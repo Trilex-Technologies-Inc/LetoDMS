@@ -72,7 +72,7 @@ function showWorkflow(selectObj) {
 		<input type="hidden" name="version" value="<?php print $latestContent->getVersion(); ?>">
 		<input type="hidden" name="showtree" value="<?php echo showtree();?>">
 		<table class="table-condensed">
-		<tr>	
+		<tr>
       <td>
 			<div class="cbSelectTitle"><?php printMLText("workflow");?>:</div>
       </td>
@@ -91,7 +91,7 @@ function showWorkflow(selectObj) {
 ?>
 				</td>
 			</tr>
-			<tr>	
+			<tr>
 				<td>
 				</td>
 				<td><input type="submit" class="btn" value="<?php printMLText("set_workflow");?>"></td>

@@ -27,7 +27,7 @@ class LetoDMS_Core_UserAccess { /* {{{ */
 	var $_user;
 	var $_mode;
 
-	function LetoDMS_Core_UserAccess($user, $mode) {
+	function __construct($user, $mode) {
 		$this->_user = $user;
 		$this->_mode = $mode;
 	}
@@ -60,7 +60,7 @@ class LetoDMS_Core_GroupAccess { /* {{{ */
 	var $_group;
 	var $_mode;
 
-	function LetoDMS_Core_GroupAccess($group, $mode) {
+	function __construct($group, $mode) {
 		$this->_group = $group;
 		$this->_mode = $mode;
 	}

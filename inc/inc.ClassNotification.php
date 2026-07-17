@@ -56,7 +56,7 @@ class LetoDMS_Core_Notification { /* {{{ */
 	 */
 	protected $_dms;
 
-	function LetoDMS_Core_Notification($target, $targettype, $userid, $groupid) { /* {{{ */
+	function __construct($target, $targettype, $userid, $groupid) { /* {{{ */
 		$this->_target = $target;
 		$this->_targettype = $targettype;
 		$this->_userid = $userid;

@@ -56,7 +56,7 @@ class LetoDMS_Core_Workflow { /* {{{ */
 	 */
 	var $_dms;
 
-	function LetoDMS_Core_Workflow($id, $name, $initstate) { /* {{{ */
+	function __construct($id, $name, $initstate) { /* {{{ */
 		$this->_id = $id;
 		$this->_name = $name;
 		$this->_initstate = $initstate;
@@ -390,7 +390,7 @@ class LetoDMS_Core_Workflow_State { /* {{{ */
 	 */
 	var $_dms;
 
-	function LetoDMS_Core_Workflow_State($id, $name, $maxtime, $precondfunc, $documentstatus) {
+	function __construct($id, $name, $maxtime, $precondfunc, $documentstatus) {
 		$this->_id = $id;
 		$this->_name = $name;
 		$this->_maxtime = $maxtime;
@@ -543,7 +543,7 @@ class LetoDMS_Core_Workflow_Action { /* {{{ */
 	 */
 	var $_dms;
 
-	function LetoDMS_Core_Workflow_Action($id, $name) {
+	function __construct($id, $name) {
 		$this->_id = $id;
 		$this->_name = $name;
 		$this->_dms = null;
@@ -685,7 +685,7 @@ class LetoDMS_Core_Workflow_Transition { /* {{{ */
 	 */
 	var $_dms;
 
-	function LetoDMS_Core_Workflow_Transition($id, $workflow, $state, $action, $nextstate, $maxtime) {
+	function __construct($id, $workflow, $state, $action, $nextstate, $maxtime) {
 		$this->_id = $id;
 		$this->_workflow = $workflow;
 		$this->_state = $state;
@@ -890,7 +890,7 @@ class LetoDMS_Core_Workflow_Transition_User { /* {{{ */
 	 */
 	var $_dms;
 
-	function LetoDMS_Core_Workflow_Transition_User($id, $transition, $user) {
+	function __construct($id, $transition, $user) {
 		$this->_id = $id;
 		$this->_transition = $transition;
 		$this->_user = $user;
@@ -964,7 +964,7 @@ class LetoDMS_Core_Workflow_Transition_Group { /* {{{ */
 	 */
 	var $_dms;
 
-	function LetoDMS_Core_Workflow_Transition_Group($id, $transition, $group, $numOfUsers) { /* {{{ */
+	function __construct($id, $transition, $group, $numOfUsers) { /* {{{ */
 		$this->_id = $id;
 		$this->_transition = $transition;
 		$this->_group = $group;
@@ -1077,7 +1077,7 @@ class LetoDMS_Core_Workflow_Log { /* {{{ */
 	 */
 	var $_dms;
 
-	function LetoDMS_Core_Workflow_Log($id, $document, $version, $workflow, $user, $transition, $date, $comment) {
+	function __construct($id, $document, $version, $workflow, $user, $transition, $date, $comment) {
 		$this->_id = $id;
 		$this->_document = $document;
 		$this->_version = $version;

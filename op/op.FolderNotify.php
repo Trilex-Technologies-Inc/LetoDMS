@@ -26,45 +26,45 @@ include("../inc/inc.ClassEmail.php");
 include("../inc/inc.Authentication.php");
 
 if(!checkFormKey('foldernotify')) {
-	UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("invalid_request_token"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("invalid_request_token"));
 }
 
 if (!isset($_POST["folderid"]) || !is_numeric($_POST["folderid"]) || intval($_POST["folderid"])<1) {
-	UI::exitError(getMLText("folder_title", array("foldername" => getMLText("invalid_folder_id"))),getMLText("invalid_folder_id"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("folder_title", array("foldername" => getMLText("invalid_folder_id"))),getMLText("invalid_folder_id"));
 }
 
 $folderid = $_POST["folderid"];
 $folder = $dms->getFolder($folderid);
 
 if (!is_object($folder)) {
-	UI::exitError(getMLText("folder_title", array("foldername" => getMLText("invalid_folder_id"))),getMLText("invalid_folder_id"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("folder_title", array("foldername" => getMLText("invalid_folder_id"))),getMLText("invalid_folder_id"));
 }
 
 if (!isset($_POST["action"]) || (strcasecmp($_POST["action"], "delnotify") && strcasecmp($_POST["action"], "addnotify"))) {
-	UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("invalid_action"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("invalid_action"));
 }
 $action = $_POST["action"];
 
 if (isset($_POST["userid"]) && (!is_numeric($_POST["userid"]) || $_POST["userid"]<-1)) {
-	UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("unknown_user"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("unknown_user"));
 }
 $userid = $_POST["userid"];
 
 if (isset($_POST["groupid"]) && (!is_numeric($_POST["groupid"]) || $_POST["groupid"]<-1)) {
-	UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("unknown_group"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("unknown_group"));
 }
 $groupid = $_POST["groupid"];
 
 if (isset($_POST["groupid"])&&$_POST["groupid"]!=-1){
 	$group=$dms->getGroup($groupid);
 	if (!$group->isMember($user,true) && !$user->isAdmin())
-		UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("access_denied"));
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("access_denied"));
 }
 
 $folderPathHTML = getFolderPathHTML($folder, true);
 
 if ($folder->getAccessMode($user) < M_READ) {
-	UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("access_denied"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("access_denied"));
 }
 
 // Delete notification -------------------------------------------------------
@@ -80,16 +80,16 @@ if ($action == "delnotify") {
 	}
 	switch ($res) {
 		case -1:
-			UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),isset($userid) ? getMLText("unknown_user") : getMLText("unknown_group"));
+			(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("folder_title", array("foldername" => $folder->getName())),isset($userid) ? getMLText("unknown_user") : getMLText("unknown_group"));
 			break;
 		case -2:
-			UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("access_denied"));
+			(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("access_denied"));
 			break;
 		case -3:
-			UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("already_subscribed"));
+			(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("already_subscribed"));
 			break;
 		case -4:
-			UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("internal_error"));
+			(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("internal_error"));
 			break;
 		case 0:
 			if($notifier) {
@@ -104,7 +104,7 @@ if ($action == "delnotify") {
 
 				$subject = "###SITENAME###: ".$folder->getName()." - ".getMLText("notify_deleted_email");
 				$message = getMLText("notify_deleted_email")."\r\n";
-				$message .= 
+				$message .=
 					getMLText("name").": ".$folder->getName()."\r\n".
 					getMLText("folder").": ".$path."\r\n".
 					getMLText("comment").": ".$folder->getComment()."\r\n".
@@ -112,7 +112,7 @@ if ($action == "delnotify") {
 
 //				$subject=mydmsDecodeString($subject);
 //				$message=mydmsDecodeString($message);
-				
+
 				if ($userid > 0) {
 					$notifier->toIndividual($user, $obj, $subject, $message);
 				}
@@ -131,16 +131,16 @@ else if ($action == "addnotify") {
 		$res = $folder->addNotify($userid, true);
 		switch ($res) {
 			case -1:
-				UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("unknown_user"));
+				(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("unknown_user"));
 				break;
 			case -2:
-				UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("access_denied"));
+				(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("access_denied"));
 				break;
 			case -3:
-				UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("already_subscribed"));
+				(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("already_subscribed"));
 				break;
 			case -4:
-				UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("internal_error"));
+				(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("internal_error"));
 				break;
 			case 0:
 				$obj = $dms->getUser($userid);
@@ -155,7 +155,7 @@ else if ($action == "addnotify") {
 				if($notifier) {
 					$subject = "###SITENAME###: ".$folder->getName()." - ".getMLText("notify_added_email");
 					$message = getMLText("notify_added_email")."\r\n";
-					$message .= 
+					$message .=
 						getMLText("name").": ".$folder->getName()."\r\n".
 						getMLText("folder").": ".$path."\r\n".
 						getMLText("comment").": ".$folder->getComment()."\r\n".
@@ -163,7 +163,7 @@ else if ($action == "addnotify") {
 
 //					$subject=mydmsDecodeString($subject);
 //					$message=mydmsDecodeString($message);
-					
+
 					$notifier->toIndividual($user, $obj, $subject, $message);
 				}
 
@@ -174,16 +174,16 @@ else if ($action == "addnotify") {
 		$res = $folder->addNotify($groupid, false);
 		switch ($res) {
 			case -1:
-				UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("unknown_group"));
+				(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("unknown_group"));
 				break;
 			case -2:
-				UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("access_denied"));
+				(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("access_denied"));
 				break;
 			case -3:
-				UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("already_subscribed"));
+				(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("already_subscribed"));
 				break;
 			case -4:
-				UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("internal_error"));
+				(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("internal_error"));
 				break;
 			case 0:
 				$obj = $dms->getGroup($groupid);
@@ -198,7 +198,7 @@ else if ($action == "addnotify") {
 				if($notifier) {
 					$subject = "###SITENAME###: ".$folder->getName()." - ".getMLText("notify_added_email");
 					$message = getMLText("notify_added_email")."\r\n";
-					$message .= 
+					$message .=
 						getMLText("name").": ".$folder->getName()."\r\n".
 						getMLText("folder").": ".$path."\r\n".
 						getMLText("comment").": ".$folder->getComment()."\r\n".
@@ -206,14 +206,14 @@ else if ($action == "addnotify") {
 
 //					$subject=mydmsDecodeString($subject);
 //					$message=mydmsDecodeString($message);
-					
+
 					$notifier->toGroup($user, $obj, $subject, $message);
 				}
 				break;
 		}
 	}
 }
-	
+
 header("Location:../out/out.FolderNotify.php?folderid=".$folderid);
 
 ?>

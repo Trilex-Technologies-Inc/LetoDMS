@@ -60,7 +60,7 @@ class LetoDMS_View_LogManagement extends LetoDMS_Blue_Style {
 		$entries = array_reverse($entries);
 
 		foreach ($entries as $entry){
-			
+
 			if ($print_header){
 				print "<table class=\"folderView\">\n";
 				print "<thead>\n<tr>\n";
@@ -71,18 +71,18 @@ class LetoDMS_View_LogManagement extends LetoDMS_Blue_Style {
 				print "</tr>\n</thead>\n<tbody>\n";
 				$print_header=false;
 			}
-					
+
 			print "<tr>\n";
 			print "<td><a href=\"out.LogManagement.php?logname=".$entry."\">".$entry."</a></td>\n";
 			print "<td>".getLongReadableDate(filectime($contentdir.$entry))."</td>\n";
 			print "<td>".formatted_size(filesize($contentdir.$entry))."</td>\n";
 			print "<td><ul class=\"actions\">";
-			
+
 			print "<li><a href=\"out.RemoveLog.php?logname=".$entry."\">".getMLText("rm_file")."</a></li>";
-			
+
 			print "<li><a href=\"../op/op.Download.php?logname=".$entry."\">".getMLText("download")."</a></li>";
-				
-			print "</ul></td>\n";	
+
+			print "</ul></td>\n";
 			print "</tr>\n";
 		}
 
@@ -95,7 +95,7 @@ class LetoDMS_View_LogManagement extends LetoDMS_Blue_Style {
 
 			$this->contentHeading(" ");
 			$this->contentContainerStart();
-			
+
 			$this->contentSubHeading(sanitizeString($logname));
 
 			echo "<div class=\"logview\">";

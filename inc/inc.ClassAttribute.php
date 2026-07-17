@@ -63,7 +63,7 @@ class LetoDMS_Core_Attribute {
 	 */
 	protected $_dms;
 
-	function LetoDMS_Core_Attribute($id, $obj, $attrdef, $value) { /* {{{ */
+	function __construct($id, $obj, $attrdef, $value) { /* {{{ */
 		$this->_id = $id;
 		$this->_obj = $obj;
 		$this->_attrdef = $attrdef;
@@ -242,7 +242,7 @@ class LetoDMS_Core_AttributeDefinition {
 	 * @param string $valueset separated list of allowed values, the first char
 	 *        is taken as the separator
 	 */
-	function LetoDMS_Core_AttributeDefinition($id, $name, $objtype, $type, $multiple, $minvalues, $maxvalues, $valueset) { /* {{{ */
+	function __construct($id, $name, $objtype, $type, $multiple, $minvalues, $maxvalues, $valueset) { /* {{{ */
 		$this->_id = $id;
 		$this->_name = $name;
 		$this->_type = $type;

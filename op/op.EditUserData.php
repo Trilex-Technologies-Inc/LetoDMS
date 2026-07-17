@@ -28,11 +28,11 @@ include("../inc/inc.ClassPasswordStrength.php");
 include("../inc/inc.ClassPasswordHistoryManager.php");
 
 if ($user->isGuest()) {
-	UI::exitError(getMLText("edit_user_details"),getMLText("access_denied"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("edit_user_details"),getMLText("access_denied"));
 }
 
 if (!$user->isAdmin() && ($settings->_disableSelfEdit)) {
-	UI::exitError(getMLText("edit_user_details"),getMLText("access_denied"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("edit_user_details"),getMLText("access_denied"));
 }
 
 $fullname = $_POST["fullname"];
@@ -43,7 +43,7 @@ $mytheme  = $_POST["theme"];
 $current_pwd  = $_POST["currentpwd"];
 
 if($user->getPwd() != md5($current_pwd)) {
-	UI::exitError(getMLText("edit_user_details"),getMLText("password_wrong"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("edit_user_details"),getMLText("password_wrong"));
 }
 
 if (isset($_POST["pwd"]) && ($_POST["pwd"] != "")) {
@@ -57,7 +57,7 @@ if (isset($_POST["pwd"]) && ($_POST["pwd"] != "")) {
 				$phm = new LetoDMS_PasswordHistoryManager($db);
 				$oldpwd = $phm->search($user, md5($_POST["pwd"]));
 				if($oldpwd) {
-					UI::exitError(getMLText("set_password"),getMLText("password_already_used"));
+					(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("set_password"),getMLText("password_already_used"));
 				} else {
 					$phm->add($user, md5($_POST["pwd"]));
 				}
@@ -65,14 +65,14 @@ if (isset($_POST["pwd"]) && ($_POST["pwd"] != "")) {
 			$user->setPwd(md5($_POST["pwd"]));
 			$user->setPwdExpiration(date('Y-m-d H:i:s', time()+$settings->_passwordExpiration*86400));
 		} else {
-			UI::exitError(getMLText("set_password"),getMLText("password_strength_insuffient"));
+			(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("set_password"),getMLText("password_strength_insuffient"));
 		}
 	} else {
 		if($settings->_passwordHistory > 0) {
 			$phm = new LetoDMS_PasswordHistoryManager($db);
 			$oldpwd = $phm->search($user, md5($_POST["pwd"]));
 			if($oldpwd) {
-				UI::exitError(getMLText("set_password"),getMLText("password_already_used"));
+				(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("set_password"),getMLText("password_already_used"));
 			} else {
 				$phm->add($user, md5($_POST["pwd"]));
 			}
@@ -102,7 +102,7 @@ if (isset($_FILES["userfile"]) && is_uploaded_file($_FILES["userfile"]["tmp_name
 	$finfo = new finfo(FILEINFO_MIME);
 	echo $finfo->file($_FILES["userfile"]["tmp_name"]);
 	if(substr($finfo->file($_FILES["userfile"]["tmp_name"]), 0, 10) != "image/jpeg") {;
-		UI::exitError(getMLText("user_info"),getMLText("only_jpg_user_images"));
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("user_info"),getMLText("only_jpg_user_images"));
 	}
 	// shrink the image to a max height of 150 px
 	// read original image

@@ -29,7 +29,7 @@ include("../inc/inc.Authentication.php");
 include("../inc/inc.ClassPasswordStrength.php");
 
 if (!$user->isAdmin()) {
-	UI::exitError(getMLText("admin_tools"),getMLText("access_denied"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("access_denied"));
 }
 
 if (isset($_POST["action"])) $action=$_POST["action"];
@@ -37,22 +37,22 @@ else $action=NULL;
 
 // add new workflow ---------------------------------------------------------
 if ($action == "addworkflowaction") {
-	
+
 	/* Check if the form data comes for a trusted request */
 	if(!checkFormKey('addworkflowaction')) {
-		UI::exitError(getMLText("admin_tools"),getMLText("invalid_request_token"));
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("invalid_request_token"));
 	}
 
 	$name    = $_POST["name"];
 	$docstatus = $_POST["docstatus"];
 
 	if (is_object($dms->getWorkflowActionByName($name))) {
-		UI::exitError(getMLText("admin_tools"),getMLText("workflow_action_exists"));
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("workflow_action_exists"));
 	}
 
 	$newWorkflowaction = $dms->addWorkflowAction($name, $docstatus);
 	if (!$newWorkflowaction) {
-		UI::exitError(getMLText("admin_tools"),getMLText("error_occured"));
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("error_occured"));
 	}
 
 	$workflowactionid = $newWorkflowaction->getID();
@@ -64,7 +64,7 @@ else if ($action == "removeworkflowaction") {
 
 	/* Check if the form data comes for a trusted request */
 	if(!checkFormKey('removeworkflowaction')) {
-		UI::exitError(getMLText("admin_tools"),getMLText("invalid_request_token"));
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("invalid_request_token"));
 	}
 
 	if (isset($_POST["workflowactionid"])) {
@@ -72,20 +72,20 @@ else if ($action == "removeworkflowaction") {
 	}
 
 	if (!isset($workflowactionid) || !is_numeric($workflowactionid) || intval($workflowactionid)<1) {
-		UI::exitError(getMLText("admin_tools"),getMLText("invalid_workflow_id"));
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("invalid_workflow_id"));
 	}
 
 	$workflowActionToRemove = $dms->getWorkflowAction($workflowactionid);
 	if (!is_object($workflowActionToRemove)) {
-		UI::exitError(getMLText("admin_tools"),getMLText("invalid_workflow_id"));
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("invalid_workflow_id"));
 	}
 
 	if (!$workflowActionToRemove->remove()) {
-		UI::exitError(getMLText("admin_tools"),getMLText("error_occured"));
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("error_occured"));
 	}
-		
+
 	add_log_line(".php&action=removeworkflowaction&workflowactionid=".$workflowactionid);
-	
+
 	$workflowactionid=-1;
 }
 
@@ -94,30 +94,30 @@ else if ($action == "editworkflowaction") {
 
 	/* Check if the form data comes for a trusted request */
 	if(!checkFormKey('editworkflowaction')) {
-		UI::exitError(getMLText("admin_tools"),getMLText("invalid_request_token"));
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("invalid_request_token"));
 	}
 
 	if (!isset($_POST["workflowactionid"]) || !is_numeric($_POST["workflowactionid"]) || intval($_POST["workflowactionid"])<1) {
-		UI::exitError(getMLText("admin_tools"),getMLText("invalid_workflow_id"));
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("invalid_workflow_id"));
 	}
-	
+
 	$workflowactionid=$_POST["workflowactionid"];
 	$editedWorkflowAction = $dms->getWorkflowAction($workflowactionid);
-	
+
 	if (!is_object($editedWorkflowAction)) {
-		UI::exitError(getMLText("admin_tools"),getMLText("invalid_workflow_id"));
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("invalid_workflow_id"));
 	}
-	
+
 	$name = $_POST["name"];
 	$docstatus = $_POST["docstatus"];
-	
+
 	if ($editedWorkflowAction->getName() != $name)
 		$editedWorkflowAction->setName($name);
-	
+
 	add_log_line(".php&action=editworkflowaction&workflowactionid=".$workflow);
 
 }
-else UI::exitError(getMLText("admin_tools"),getMLText("unknown_command"));
+else (new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("unknown_command"));
 
 header("Location:../out/out.WorkflowActionsMgr.php?workflowactionid=".$workflowactionid);
 

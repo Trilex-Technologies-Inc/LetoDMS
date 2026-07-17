@@ -29,28 +29,28 @@ include("../inc/inc.Calendar.php");
 include("../inc/inc.Authentication.php");
 
 if ($user->isGuest()) {
-	UI::exitError(getMLText("edit_event"),getMLText("access_denied"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("edit_event"),getMLText("access_denied"));
 }
 
 /* Check if the form data comes for a trusted request */
 if(!checkFormKey('editevent')) {
-	UI::exitError(getMLText("edit_event"),getMLText("invalid_request_token"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("edit_event"),getMLText("invalid_request_token"));
 }
 
 if (!isset($_POST["from"]) && !(isset($_POST["frommonth"]) && isset($_POST["fromday"]) && isset($_POST["fromyear"])) ) {
-	UI::exitError(getMLText("edit_event"),getMLText("error_occured"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("edit_event"),getMLText("error_occured"));
 }
 
 if (!isset($_POST["to"]) && !(isset($_POST["tomonth"]) && isset($_POST["today"]) && isset($_POST["toyear"])) ) {
-	UI::exitError(getMLText("edit_event"),getMLText("error_occured"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("edit_event"),getMLText("error_occured"));
 }
 
 if (!isset($_POST["name"]) || !isset($_POST["comment"]) ) {
-	UI::exitError(getMLText("edit_event"),getMLText("error_occured"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("edit_event"),getMLText("error_occured"));
 }
 
 if (!isset($_POST["eventid"])) {
-	UI::exitError(getMLText("edit_event"),getMLText("error_occured"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("edit_event"),getMLText("error_occured"));
 }
 
 $name     = $_POST["name"];
@@ -75,7 +75,7 @@ if ($to<=$from){
 $res = editEvent($_POST["eventid"], $from, $to, $name, $comment );
 
 if (is_bool($res) && !$res) {
-	UI::exitError(getMLText("edit_event"),getMLText("error_occured"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("edit_event"),getMLText("error_occured"));
 }
 
 add_log_line("?eventid=".$_POST["eventid"]."&name=".$name."&from=".$from."&to=".$to);

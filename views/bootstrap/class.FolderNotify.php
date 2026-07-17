@@ -52,7 +52,7 @@ class LetoDMS_View_FolderNotify extends LetoDMS_Bootstrap_Style {
 function checkForm()
 {
 	msg = "";
-	if ((document.form1.userid.options[document.form1.userid.selectedIndex].value == -1) && 
+	if ((document.form1.userid.options[document.form1.userid.selectedIndex].value == -1) &&
 		(document.form1.groupid.options[document.form1.groupid.selectedIndex].value == -1))
 			msg += "<?php printMLText("js_select_user_or_group");?>\n";
 	if (msg != "")

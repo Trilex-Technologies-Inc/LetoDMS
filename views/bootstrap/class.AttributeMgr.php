@@ -44,11 +44,11 @@ obj = -1;
 function showAttributeDefinitions(selectObj) {
 	if (obj != -1)
 		obj.style.display = "none";
-	
+
 	id = selectObj.options[selectObj.selectedIndex].value;
 	if (id == -1)
 		return;
-	
+
 	obj = document.getElementById("attrdefs" + id);
 	obj.style.display = "";
 }
@@ -72,8 +72,8 @@ function showAttributeDefinitions(selectObj) {
 		$count=2;
 		if($attrdefs) {
 			foreach ($attrdefs as $attrdef) {
-			
-				if (isset($_GET["attrdefid"]) && $attrdef->getID()==$_GET["attrdefid"]) $selected=$count;				
+
+				if (isset($_GET["attrdefid"]) && $attrdef->getID()==$_GET["attrdefid"]) $selected=$count;
 				switch($attrdef->getObjType()) {
 					case LetoDMS_Core_AttributeDefinition::objtype_all:
 						$ot = getMLText("all");
@@ -133,13 +133,13 @@ function showAttributeDefinitions(selectObj) {
 			</table>
 			</form>
 		</td>
-	
-<?php	
-	
+
+<?php
+
 			if($attrdefs) {
 				foreach ($attrdefs as $attrdef) {
-				
-					print "<td id=\"attrdefs".$attrdef->getID()."\" style=\"display : none;\">";	
+
+					print "<td id=\"attrdefs".$attrdef->getID()."\" style=\"display : none;\">";
 ?>
 				<table class="table-condensed">
 					<tr>
@@ -229,7 +229,7 @@ function showAttributeDefinitions(selectObj) {
 						</td>
 					</tr>
 					</form>
-					
+
 				</table>
 			</td>
 <?php
@@ -240,7 +240,7 @@ function showAttributeDefinitions(selectObj) {
 </div>
 </div>
 </div>
-	
+
 <script language="JavaScript">
 
 sel = document.getElementById("selector");

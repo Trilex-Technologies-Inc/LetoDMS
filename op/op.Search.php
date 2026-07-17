@@ -111,7 +111,7 @@ else {
 	$startFolder = $dms->getFolder($targetid);
 }
 if (!is_object($startFolder)) {
-	UI::exitError(getMLText("search_results"),getMLText("invalid_folder_id"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("search_results"),getMLText("invalid_folder_id"));
 }
 
 // Check to see if the search has been restricted to a particular
@@ -120,9 +120,9 @@ $owner = null;
 if (isset($_GET["ownerid"]) && is_numeric($_GET["ownerid"]) && $_GET["ownerid"]!=-1) {
 	$owner = $dms->getUser($_GET["ownerid"]);
 	if (!is_object($owner)) {
-		UI::htmlStartPage(getMLText("search_results"));
-		UI::contentContainer(getMLText("unknown_owner"));
-		UI::htmlEndPage();
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->htmlStartPage(getMLText("search_results"));
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->contentContainer(getMLText("unknown_owner"));
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->htmlEndPage();
 		exit;
 	}
 }
@@ -138,9 +138,9 @@ if (isset($_GET["creationdate"]) && $_GET["creationdate"]!=null) {
 		$startdate = array('year'=>$_GET["createstartyear"], 'month'=>$_GET["createstartmonth"], 'day'=>$_GET["createstartday"], 'hour'=>0, 'minute'=>0, 'second'=>0);
 	}
 	if (!checkdate($startdate['month'], $startdate['day'], $startdate['year'])) {
-		UI::htmlStartPage(getMLText("search_results"));
-		UI::contentContainer(getMLText("invalid_create_date_start"));
-		UI::htmlEndPage();
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->htmlStartPage(getMLText("search_results"));
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->contentContainer(getMLText("invalid_create_date_start"));
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->htmlEndPage();
 		exit;
 	}
 	if(isset($_GET["createend"])) {
@@ -150,9 +150,9 @@ if (isset($_GET["creationdate"]) && $_GET["creationdate"]!=null) {
 		$stopdate = array('year'=>$_GET["createendyear"], 'month'=>$_GET["createendmonth"], 'day'=>$_GET["createendday"], 'hour'=>23, 'minute'=>59, 'second'=>59);
 	}
 	if (!checkdate($stopdate['month'], $stopdate['day'], $stopdate['year'])) {
-		UI::htmlStartPage(getMLText("search_results"));
-		UI::contentContainer(getMLText("invalid_create_date_end"));
-		UI::htmlEndPage();
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->htmlStartPage(getMLText("search_results"));
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->contentContainer(getMLText("invalid_create_date_end"));
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->htmlEndPage();
 		exit;
 	}
 }
@@ -164,7 +164,7 @@ if (isset($_GET["expirationdate"]) && $_GET["expirationdate"]!=null) {
 		$tmp = explode("-", $_GET["expirationstart"]);
 		$expstartdate = array('year'=>(int)$tmp[2], 'month'=>(int)$tmp[1], 'day'=>(int)$tmp[0], 'hour'=>0, 'minute'=>0, 'second'=>0);
 		if (!checkdate($expstartdate['month'], $expstartdate['day'], $expstartdate['year'])) {
-			UI::exitError(getMLText("search"),getMLText("invalid_expiration_date_start"));
+			(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("search"),getMLText("invalid_expiration_date_start"));
 		}
 	} else {
 		$expstartdate = array('year'=>$_GET["expirationstartyear"], 'month'=>$_GET["expirationstartmonth"], 'day'=>$_GET["expirationstartday"], 'hour'=>0, 'minute'=>0, 'second'=>0);
@@ -174,7 +174,7 @@ if (isset($_GET["expirationdate"]) && $_GET["expirationdate"]!=null) {
 		$tmp = explode("-", $_GET["expirationend"]);
 		$expstopdate = array('year'=>(int)$tmp[2], 'month'=>(int)$tmp[1], 'day'=>(int)$tmp[0], 'hour'=>0, 'minute'=>0, 'second'=>0);
 		if (!checkdate($expstopdate['month'], $expstopdate['day'], $expstopdate['year'])) {
-			UI::exitError(getMLText("search"),getMLText("invalid_expiration_date_end"));
+			(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("search"),getMLText("invalid_expiration_date_end"));
 		}
 	} else {
 		$expstopdate = array('year'=>$_GET["expirationendyear"], 'month'=>$_GET["expirationendmonth"], 'day'=>$_GET["expirationendday"], 'hour'=>23, 'minute'=>59, 'second'=>59);
@@ -274,7 +274,7 @@ if(count($entries) == 1) {
 	}
 } else {
 	$tmp = explode('.', basename($_SERVER['SCRIPT_FILENAME']));
-	$view = UI::factory($theme, $tmp[1], array('dms'=>$dms, 'user'=>$user, 'folder'=>$startFolder, 'query'=>$query, 'searchhits'=>$entries, 'totalpages'=>$resArr['totalPages'], 'pagenumber'=>$pageNumber, 'searchtime'=>$searchTime, 'urlparams'=>$_GET, 'searchin'=>$searchin, 'cachedir'=>$settings->_cacheDir));
+	$view = (new UI($GLOBALS['theme'] ?? 'bootstrap'))->factory($theme, $tmp[1], array('dms'=>$dms, 'user'=>$user, 'folder'=>$startFolder, 'query'=>$query, 'searchhits'=>$entries, 'totalpages'=>$resArr['totalPages'], 'pagenumber'=>$pageNumber, 'searchtime'=>$searchTime, 'urlparams'=>$_GET, 'searchin'=>$searchin, 'cachedir'=>$settings->_cacheDir));
 	if($view) {
 		$view->show();
 		exit;

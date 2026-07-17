@@ -101,7 +101,7 @@ function checkForm()
 				echo "<option value=\"".$category->getID()."\"";
 				if(in_array($category, $document->getCategories()))
 					echo " selected";
-				echo ">".$category->getName()."</option>";	
+				echo ">".$category->getName()."</option>";
 			}
 ?>
 				</select>

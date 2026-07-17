@@ -37,7 +37,7 @@ if (isset($_REQUEST["hash"]) && strlen($_REQUEST["hash"])>0) {
 }
 
 $tmp = explode('.', basename($_SERVER['SCRIPT_FILENAME']));
-$view = UI::factory($theme, $tmp[1], array('dms'=>$dms, 'referui'=>$referui, 'hash'=>$hash, 'passwordstrength'=>$settings->_passwordStrength));
+$view = (new UI($GLOBALS['theme'] ?? 'bootstrap'))->factory($theme, $tmp[1], array('dms'=>$dms, 'referui'=>$referui, 'hash'=>$hash, 'passwordstrength'=>$settings->_passwordStrength));
 if($view) {
 	$view->show();
 	exit;

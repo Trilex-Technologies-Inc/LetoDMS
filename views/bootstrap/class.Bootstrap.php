@@ -452,7 +452,7 @@ class LetoDMS_Bootstrap_Style extends LetoDMS_View_Common
 		return;
 	} /* }}} */
 
-	function pageList($pageNumber, $totalPages, $baseURI, $params)
+	static function pageList($pageNumber, $totalPages, $baseURI, $params)
 	{ /* {{{ */
 
 		if (!is_numeric($pageNumber) || !is_numeric($totalPages) || $totalPages < 2) {
@@ -617,11 +617,11 @@ class LetoDMS_Bootstrap_Style extends LetoDMS_View_Common
 		}
 	} /* }}} */
 
-	function printDateChooser($defDate = -1, $varName)
+	function printDateChooser($defDate, $varName)
 	{ /* {{{ */
 
 		if ($defDate == -1)
-			$defDate = mktime();
+			$defDate = time();
 		$day   = date("d", $defDate);
 		$month = date("m", $defDate);
 		$year  = date("Y", $defDate);

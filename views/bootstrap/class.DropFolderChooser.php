@@ -60,7 +60,7 @@ var targetName = document.<?php echo $form?>.dropfolderfile<?php print $form ?>;
 				while (false !== ($entry = $d->read())) {
 					if($entry != '..' && $entry != '.') {
 						if(!is_dir($entry)) {
-							echo "<tr><td><span style=\"cursor: pointer;\" onClick=\"targetName.value = '".$entry."'; window.close();\">".$entry."</span></td><td align=\"right\">".LetoDMS_Core_File::format_filesize(filesize($dir.'/'.$entry))."</td></tr>\n";
+							echo "<tr><td><span style=\"cursor: pointer;\" onClick=\"targetName.value = '".$entry."'; window.close();\">".$entry."</span></td><td align=\"right\">".(new LetoDMS_Core_File())->format_filesize(filesize($dir.'/'.$entry))."</td></tr>\n";
 						}
 					}
 				}

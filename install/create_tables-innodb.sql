@@ -699,6 +699,8 @@ CREATE TABLE `tblVersion` (
   `subminor` smallint
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+INSERT INTO tblVersion VALUES (NOW(), 4, 0, 0);
+
 INSERT INTO tblCategory (name) VALUES ('');
 
 INSERT INTO tblUsers (

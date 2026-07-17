@@ -34,7 +34,7 @@ require_once("../LetoDMS_Preview/Preview.php");
 
 
 $tmp = explode('.', basename($_SERVER['SCRIPT_FILENAME']));
-$view = UI::factory($theme, $tmp[1]);
+$view = (new UI($GLOBALS['theme'] ?? 'bootstrap'))->factory($theme, $tmp[1]);
 if(!$view) {
 }
 

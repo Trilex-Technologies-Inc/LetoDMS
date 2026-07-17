@@ -47,14 +47,14 @@ class LetoDMS_View_ApprovalSummary extends LetoDMS_Blue_Style {
 		}
 
 		// TODO: verificare scadenza
-		
+
 		// Get document list for the current user.
 		$approvalStatus = $user->getApprovalStatus();
 
 		// reverse order
 		$approvalStatus["indstatus"]=array_reverse($approvalStatus["indstatus"],true);
 		$approvalStatus["grpstatus"]=array_reverse($approvalStatus["grpstatus"],true);
-		
+
 		// Create a comma separated list of all the documentIDs whose information is
 		// required.
 		$dList = array();
@@ -72,9 +72,9 @@ class LetoDMS_View_ApprovalSummary extends LetoDMS_Blue_Style {
 		foreach ($dList as $d) {
 			$docCSV .= (strlen($docCSV)==0 ? "" : ", ")."'".$d."'";
 		}
-		
+
 		if (strlen($docCSV)>0) {
-		
+
 			$queryStr = "SELECT `tblDocuments`.*, `tblDocumentLocks`.`userID` as `lockUser`, ".
 				"`tblDocumentStatus`.*, `tblDocumentStatusLog`.`status`, ".
 				"`tblDocumentStatusLog`.`comment` AS `statusComment`, `tblDocumentStatusLog`.`date` as `statusDate`, ".
@@ -89,9 +89,9 @@ class LetoDMS_View_ApprovalSummary extends LetoDMS_Blue_Style {
 				"WHERE `ttstatid`.`maxLogID`=`tblDocumentStatusLog`.`statusLogID` ".
 				"AND `tblDocuments`.`id` IN (" . $docCSV . ") ".
 				"ORDER BY `statusDate` DESC";
-		
+
 			$resArr = $db->getResultArray($queryStr);
-			
+
 			if (is_bool($resArr) && !$resArr) {
 				$this->exitError(getMLText("approval_summary"),getMLText("internal_error_exit"));
 			}
@@ -101,7 +101,7 @@ class LetoDMS_View_ApprovalSummary extends LetoDMS_Blue_Style {
 			// new document information is required.
 			$docIdx = array();
 			foreach ($resArr as $res) {
-			
+
 				// verify expiry
 				if ( $res["expires"] && time()>$res["expires"]+24*60*60 ){
 					if  ( $res["status"]==S_DRAFT_APP || $res["status"]==S_DRAFT_REV ){
@@ -112,13 +112,13 @@ class LetoDMS_View_ApprovalSummary extends LetoDMS_Blue_Style {
 				$docIdx[$res["id"]][$res["version"]] = $res;
 			}
 		}
-		
-		$iRev = array();	
+
+		$iRev = array();
 		$printheader = true;
 		foreach ($approvalStatus["indstatus"] as $st) {
 
 			if (isset($docIdx[$st["documentID"]][$st["version"]])) {
-			
+
 				if ($printheader){
 					print "<table class=\"folderView\">";
 					print "<thead>\n<tr>\n";
@@ -131,14 +131,14 @@ class LetoDMS_View_ApprovalSummary extends LetoDMS_Blue_Style {
 					print "</tr>\n</thead>\n<tbody>\n";
 					$printheader = false;
 				}
-			
+
 				print "<tr>\n";
 				print "<td><a href=\"out.DocumentVersionDetail.php?documentid=".$st["documentID"]."&version=".$st["version"]."\">".htmlspecialchars($docIdx[$st["documentID"]][$st["version"]]["name"])."</a></td>";
 				print "<td>".htmlspecialchars($docIdx[$st["documentID"]][$st["version"]]["ownerName"])."</td>";
 				print "<td>".getOverallStatusText($docIdx[$st["documentID"]][$st["version"]]["status"])."</td>";
 				print "<td>".$st["version"]."</td>";
 				print "<td>".$st["date"]." ". htmlspecialchars($docIdx[$st["documentID"]][$st["version"]]["statusName"]) ."</td>";
-				print "<td>".(!$docIdx[$st["documentID"]][$st["version"]]["expires"] ? "-":getReadableDate($docIdx[$st["documentID"]][$st["version"]]["expires"]))."</td>";				
+				print "<td>".(!$docIdx[$st["documentID"]][$st["version"]]["expires"] ? "-":getReadableDate($docIdx[$st["documentID"]][$st["version"]]["expires"]))."</td>";
 				print "</tr>\n";
 			}
 			if ($st["status"]!=-2) {
@@ -159,7 +159,7 @@ class LetoDMS_View_ApprovalSummary extends LetoDMS_Blue_Style {
 		foreach ($approvalStatus["grpstatus"] as $st) {
 
 			if (!in_array($st["documentID"], $iRev) && isset($docIdx[$st["documentID"]][$st["version"]])) {
-			
+
 				if ($printheader){
 					print "<table class=\"folderView\">";
 					print "<thead>\n<tr>\n";
@@ -171,15 +171,15 @@ class LetoDMS_View_ApprovalSummary extends LetoDMS_Blue_Style {
 					print "<th>".getMLText("expires")."</th>\n";
 					print "</tr>\n</thead>\n<tbody>\n";
 					$printheader = false;
-				}	
-			
+				}
+
 				print "<tr>\n";
 				print "<td><a href=\"out.DocumentVersionDetail.php?documentid=".$st["documentID"]."&version=".$st["version"]."\">".htmlspecialchars($docIdx[$st["documentID"]][$st["version"]]["name"])."</a></td>";
 				print "<td>".htmlspecialchars($docIdx[$st["documentID"]][$st["version"]]["ownerName"])."</td>";
 				print "<td>".getOverallStatusText($docIdx[$st["documentID"]][$st["version"]]["status"])."</td>";
 				print "<td>".$st["version"]."</td>";
 				print "<td>".$st["date"]." ". htmlspecialchars($docIdx[$st["documentID"]][$st["version"]]["statusName"]) ."</td>";
-				print "<td>".(!$docIdx[$st["documentID"]][$st["version"]]["expires"] ? "-":getReadableDate($docIdx[$st["documentID"]][$st["version"]]["expires"]))."</td>";				
+				print "<td>".(!$docIdx[$st["documentID"]][$st["version"]]["expires"] ? "-":getReadableDate($docIdx[$st["documentID"]][$st["version"]]["expires"]))."</td>";
 				print "</tr>\n";
 			}
 		}

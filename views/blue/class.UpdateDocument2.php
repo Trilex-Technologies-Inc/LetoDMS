@@ -47,11 +47,11 @@ class LetoDMS_View_UpdateDocument2 extends LetoDMS_Blue_Style {
 		if ($document->isLocked()) {
 
 			$lockingUser = $document->getLockingUser();
-			
+
 			print "<table><tr><td class=\"warning\">";
-			
+
 			printMLText("update_locked_msg", array("username" => htmlspecialchars($lockingUser->getFullName()), "email" => htmlspecialchars($lockingUser->getEmail())));
-			
+
 			if ($lockingUser->getID() == $user->getID())
 				printMLText("unlock_cause_locking_user");
 			else if ($document->getAccessMode($user) == M_ALL)

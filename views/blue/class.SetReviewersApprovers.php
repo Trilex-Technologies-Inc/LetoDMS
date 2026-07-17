@@ -93,7 +93,7 @@ class LetoDMS_View_SetReviewersApprovers extends LetoDMS_Blue_Style {
 
 			$mandatory=false;
 			foreach ($res as $r) if ($r['reviewerUserID']==$usr->getID()) $mandatory=true;
-			
+
 			if ($mandatory){
 
 				print "<li class=\"cbSelectItem\"><input type='checkbox' checked='checked' disabled='disabled'>". htmlspecialchars($usr->getLogin() . " - ". $usr->getFullName())." &lt;".$usr->getEmail()."&gt;";
@@ -128,7 +128,7 @@ class LetoDMS_View_SetReviewersApprovers extends LetoDMS_Blue_Style {
 
 			$mandatory=false;
 			foreach ($res as $r) if ($r['reviewerGroupID']==$group->getID()) $mandatory=true;
-			
+
 			if ($mandatory){
 
 				print "<li class=\"cbSelectItem\"><input type='checkbox' checked='checked' disabled='disabled'>".htmlspecialchars($group->getName());
@@ -171,12 +171,12 @@ class LetoDMS_View_SetReviewersApprovers extends LetoDMS_Blue_Style {
 			foreach ($res as $r) if ($r['approverUserID']==$usr->getID()) $mandatory=true;
 
 			if ($mandatory){
-			
+
 				print "<li class=\"cbSelectItem\"><input type='checkbox' checked='checked' disabled='disabled'>". htmlspecialchars($usr->getLogin() . " - ". $usr->getFullName())." &lt;".$usr->getEmail()."&gt;";
 				print "<input id='appInd".$usr->getID()."' type='hidden' name='indApprovers[]' value='". $usr->getID() ."'>";
 
 			}else if (isset($approvalIndex["i"][$usr->getID()])) {
-			
+
 				switch ($approvalIndex["i"][$usr->getID()]["status"]) {
 					case 0:
 						print "<li class=\"cbSelectItem\"><input id='appInd".$usr->getID()."' type='checkbox' name='indApprovers[]' value='". $usr->getID() ."' checked='checked'>".htmlspecialchars($usr->getLogin() . " - ". $usr->getFullName());

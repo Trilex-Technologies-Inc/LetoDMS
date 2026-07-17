@@ -35,11 +35,12 @@ else if (isset($_POST["referuri"]) && strlen($_POST["referuri"])>0) {
 	$refer = '';
 }
 
-$theme = UI::getStyles();
-$themes = $theme;
+$ui = new UI($theme);
+$themes = $ui->getStyles();
+$selectedTheme = in_array($theme, $themes, true) ? $theme : ($themes[0] ?? 'bootstrap');
 
 $tmp = explode('.', basename($_SERVER['SCRIPT_FILENAME']));
-$view = UI::factory($theme[1], $tmp[1], array('enableguestlogin'=>$settings->_enableGuestLogin, 'enablepasswordforgotten'=>$settings->_enablePasswordForgotten, 'referrer'=>$refer, 'themes'=>$themes));
+$view = $ui->factory($selectedTheme, $tmp[1], array('enableguestlogin'=>$settings->_enableGuestLogin, 'enablepasswordforgotten'=>$settings->_enablePasswordForgotten, 'referrer'=>$refer, 'themes'=>$themes));
 
 if($view) {
 

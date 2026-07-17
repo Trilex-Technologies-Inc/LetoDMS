@@ -77,7 +77,7 @@ class LetoDMS_View_Statistic extends LetoDMS_Bootstrap_Style {
 
 		print "</ul>";
 
-		print "<small>".LetoDMS_Core_File::format_filesize($folder_size).", ".$doc_count." ".getMLText("documents")."</small>\n";
+		print "<small>".(new LetoDMS_Core_File())->format_filesize($folder_size).", ".$doc_count." ".getMLText("documents")."</small>\n";
 
 		print "</li>";
 
@@ -114,7 +114,7 @@ class LetoDMS_View_Statistic extends LetoDMS_Bootstrap_Style {
 
 		if (! $document->inheritsAccess()) $this->printAccessList($document);
 
-		print "<small>".LetoDMS_Core_File::format_filesize($folder_size).", ".$local_file_count." ".getMLText("files")."</small>\n";
+		print "<small>".(new LetoDMS_Core_File())->format_filesize($folder_size).", ".$local_file_count." ".getMLText("files")."</small>\n";
 
 		print "</li>";
 
@@ -224,7 +224,7 @@ print "<ul class=\"unstyled\">\n";
 print "<li>".getMLText("folders").": ".$this->folder_count."</li>\n";
 print "<li>".getMLText("documents").": ".$this->document_count."</li>\n";
 print "<li>".getMLText("files").": ".$this->file_count."</li>\n";
-print "<li>".getMLText("storage_size").": ".LetoDMS_Core_File::format_filesize($this->storage_size)."</li>\n";
+print "<li>".getMLText("storage_size").": ".(new LetoDMS_Core_File())->format_filesize($this->storage_size)."</li>\n";
 
 print "</ul>\n";
 

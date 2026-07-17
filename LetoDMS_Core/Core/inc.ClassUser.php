@@ -119,6 +119,11 @@ class LetoDMS_Core_User {
 	var $_loginFailures;
 
 	/**
+	 * @var int maximum storage space assigned to the user
+	 */
+	var $_quota;
+
+	/**
 	 * @var object reference to the dms instance this user belongs to
 	 *
 	 * @access protected
@@ -129,7 +134,7 @@ class LetoDMS_Core_User {
 	const role_admin = '1';
 	const role_guest = '2';
 
-	function LetoDMS_Core_User($id, $login, $pwd, $fullName, $email, $language, $theme, $comment, $role, $isHidden=0, $isDisabled=0, $pwdExpiration='', $loginFailures=0, $quota=0) {
+	function __construct($id, $login, $pwd, $fullName, $email, $language, $theme, $comment, $role, $isHidden=0, $isDisabled=0, $pwdExpiration='', $loginFailures=0, $quota=0) {
 		$this->_id = $id;
 		$this->_login = $login;
 		$this->_pwd = $pwd;

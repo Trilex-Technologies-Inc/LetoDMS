@@ -36,34 +36,34 @@ class LetoDMS_View_ManageNotify extends LetoDMS_Blue_Style {
 
 		// First, get the list of groups of which the user is a member.
 		if ($as_group){
-		
+
 			$groups = $this->user->getGroups();
-			
+
 			if (count($groups)==0) return NULL;
-			
+
 			$grpList = "";
 			foreach ($groups as $group) {
 				$grpList .= (strlen($grpList)==0 ? "" : ", ") . $group->getID();
 			}
-			
+
 			$queryStr = "SELECT `tblNotify`.* FROM `tblNotify` ".
 			 "WHERE `tblNotify`.`groupID` IN (". $grpList .")";
-					
+
 		} else {
 			$queryStr = "SELECT `tblNotify`.* FROM `tblNotify` ".
 				"WHERE `tblNotify`.`userID` = '". $this->user->getID()."'" ;
 		}
-		
+
 		$resArr = $this->db->getResultArray($queryStr);
-		
+
 		$ret=array();
-			
+
 		foreach ($resArr as $res){
-			
+
 			if (($res["targetType"] == T_DOCUMENT)&&(!$folders)) $ret[]=$res["target"];
 			if (($res["targetType"] == T_FOLDER)&&($folders)) $ret[]=$res["target"];
 		}
-		
+
 		return $ret;
 	} /* }}} */
 

@@ -34,7 +34,7 @@ class LetoDMS_View_LogManagement extends LetoDMS_Bootstrap_Style {
 	function filelist($entries) { /* {{{ */
 		$print_header = true;
 		foreach ($entries as $entry){
-			
+
 			if ($print_header){
 				print "<table class=\"table-condensed\">\n";
 				print "<thead>\n<tr>\n";
@@ -45,20 +45,20 @@ class LetoDMS_View_LogManagement extends LetoDMS_Bootstrap_Style {
 				print "</tr>\n</thead>\n<tbody>\n";
 				$print_header=false;
 			}
-					
+
 			print "<tr>\n";
 			print "<td><a href=\"out.LogManagement.php?logname=".$entry."\">".$entry."</a></td>\n";
 			print "\n";
 			print "<td>".getLongReadableDate(filectime($this->contentdir.$entry))."</td>\n";
-			print "<td>".LetoDMS_Core_File::format_filesize(filesize($this->contentdir.$entry))."</td>\n";
+			print "<td>".(new LetoDMS_Core_File())->format_filesize(filesize($this->contentdir.$entry))."</td>\n";
 			print "<td>";
-			
+
 			print "<a href=\"out.RemoveLog.php?logname=".$entry."\" class=\"btn btn-mini\"><i class=\"icon-remove\"></i> ".getMLText("rm_file")."</a>";
 			print "&nbsp;";
 			print "<a href=\"../op/op.Download.php?logname=".$entry."\" class=\"btn btn-mini\"><i class=\"icon-download\"></i> ".getMLText("download")."</a>";
 			print "&nbsp;";
 			print "<a data-target=\"#logViewer\" data-cache=\"false\" href=\"out.LogManagement.php?logname=".$entry."\" role=\"button\" class=\"btn btn-mini\" data-toggle=\"modal\"><i class=\"icon-eye-open\"></i> ".getMLText('view')." …</a>";
-			print "</td>\n";	
+			print "</td>\n";
 			print "</tr>\n";
 		}
 

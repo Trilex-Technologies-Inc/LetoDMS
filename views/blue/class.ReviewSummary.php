@@ -34,7 +34,7 @@ class LetoDMS_View_ReviewSummary extends LetoDMS_Blue_Style {
 	function show() { /* {{{ */
 
 		if (!$db->createTemporaryTable("ttstatid")) {
-			UI::exitError(getMLText("review_summary"),getMLText("internal_error_exit"));
+			(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("review_summary"),getMLText("internal_error_exit"));
 		}
 
 	} /* }}} */

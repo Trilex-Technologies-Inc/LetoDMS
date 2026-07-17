@@ -73,7 +73,7 @@ class LetoDMS_Session {
 			return false;
 		if (count($resArr) == 0)
 			return false;
-		$queryStr = "UPDATE tblSessions SET lastAccess = " . mktime() . " WHERE id = " . $this->db->qstr($id);
+		$queryStr = "UPDATE tblSessions SET lastAccess = " . time() . " WHERE id = " . $this->db->qstr($id);
 		if (!$this->db->getResult($queryStr))
 			return false;
 		$this->id = $id;
@@ -93,9 +93,9 @@ class LetoDMS_Session {
 	 * @return string/boolean id of session of false in case of an error
 	 */
 	function create($data) { /* {{{ */
-		$id = "" . rand() . mktime() . rand() . "";
+		$id = "" . rand() . time() . rand() . "";
 		$id = md5($id);
-		$lastaccess = mktime();
+		$lastaccess = time();
 		$queryStr = "INSERT INTO tblSessions (id, userID, lastAccess, theme, language) ".
 		  "VALUES ('".$id."', ".$data['userid'].", ".$lastaccess.", '".$data['theme']."', '".$data['lang']."')";
 		if (!$this->db->getResult($queryStr)) {
@@ -116,7 +116,7 @@ class LetoDMS_Session {
 	 * @return boolean true if successful otherwise false
 	 */
 	function deleteByTime($sec) { /* {{{ */
-		$queryStr = "DELETE FROM tblSessions WHERE " . mktime() . " - lastAccess > ".$sec;
+		$queryStr = "DELETE FROM tblSessions WHERE " . time() . " - lastAccess > ".$sec;
 		if (!$this->db->getResult($queryStr)) {
 			return false;
 		}

@@ -28,7 +28,7 @@ $userid = intval($_GET["userid"]);
 $myUser = $dms->getUser($userid);
 
 if (!$myUser->hasImage())
-	UI::exitError(getMLText("user_image"),getMLText("no_user_image"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("user_image"),getMLText("no_user_image"));
 
 if($resArr = $myUser->getImage()) {
 	header("ContentType: " . $resArr["mimeType"]);

@@ -90,7 +90,7 @@ class LetoDMS_View_ViewEvent extends LetoDMS_Blue_Style {
 			print "<li><a href=\"../out/out.RemoveEvent.php?id=".$event["id"]."\">".getMLText("delete")."</a>";
 			print "<li><a href=\"../out/out.EditEvent.php?id=".$event["id"]."\">".getMLText("edit")."</a>";
 			print "</ul>";
-			
+
 			$this->contentContainerEnd();
 		}
 

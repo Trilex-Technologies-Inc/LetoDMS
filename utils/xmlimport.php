@@ -214,7 +214,7 @@ function startElement($parser, $name, $attrs) { /* {{{ */
 				$acl = array('type'=>$attrs['TYPE'], 'mode'=>$attrs['MODE']);
 				if($attrs['TYPE'] == 'user') {
 					$acl['user'] = $attrs['USER'];
-				} elseif($attrs['TYPE'] == 'group') { 
+				} elseif($attrs['TYPE'] == 'group') {
 					$acl['group'] = $attrs['GROUP'];
 				}
 				$cur_folder['acls'][] = $acl;
@@ -222,7 +222,7 @@ function startElement($parser, $name, $attrs) { /* {{{ */
 				$acl = array('type'=>$attrs['TYPE'], 'mode'=>$attrs['MODE']);
 				if($attrs['TYPE'] == 'user') {
 					$acl['user'] = $attrs['USER'];
-				} elseif($attrs['TYPE'] == 'group') { 
+				} elseif($attrs['TYPE'] == 'group') {
 					$acl['group'] = $attrs['GROUP'];
 				}
 				$cur_document['acls'][] = $acl;
@@ -397,7 +397,7 @@ function characterData($parser, $data) { /* {{{ */
 			}
 			break;
 	}
-	
+
 } /* }}} */
 
 $version = "0.0.1";

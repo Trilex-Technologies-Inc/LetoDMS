@@ -57,23 +57,23 @@ class LetoDMS_View_UsrView extends LetoDMS_Blue_Style {
 
 			if ($currUser->isGuest())
 				continue;
-				
+
 			if ($currUser->isHidden()=="1") continue;
-				
+
 			echo "<tr>\n";
-			
+
 			print "<td>".htmlspecialchars($currUser->getFullName())."</td>";
-			
+
 			print "<td><a href=\"mailto:".htmlspecialchars($currUser->getEmail())."\">".htmlspecialchars($currUser->getEmail())."</a></td>";
 			print "<td>".htmlspecialchars($currUser->getComment())."</td>";
-			
+
 			if ($enableuserimage){
 				print "<td>";
 				if ($currUser->hasImage()) print "<img src=\"".$httproot . "out/out.UserImage.php?userid=".$currUser->getId()."\">";
 				else printMLText("no_user_image");
-				print "</td>";	
+				print "</td>";
 			}
-			
+
 			echo "</tr>\n";
 		}
 

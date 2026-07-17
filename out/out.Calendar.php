@@ -36,7 +36,7 @@ if (isset($_GET["day"])&&is_numeric($_GET["day"])) $day=$_GET["day"];
 else $day = (int)date("d", $currDate);
 
 $tmp = explode('.', basename($_SERVER['SCRIPT_FILENAME']));
-$view = UI::factory($theme, $tmp[1], array('dms'=>$dms, 'user'=>$user,'mode'=>$mode, 'year'=>$year, 'month'=>$month, 'day'=>$day, 'firstdayofweek'=>$settings->_firstDayOfWeek));
+$view = (new UI($GLOBALS['theme'] ?? 'bootstrap'))->factory($theme, $tmp[1], array('dms'=>$dms, 'user'=>$user,'mode'=>$mode, 'year'=>$year, 'month'=>$month, 'day'=>$day, 'firstdayofweek'=>$settings->_firstDayOfWeek));
 if($view) {
 	$view->show();
 	exit;
