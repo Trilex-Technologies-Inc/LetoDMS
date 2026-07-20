@@ -403,6 +403,60 @@ body:not(.login) .dropzone .dz-message {
   font-weight: 700;
   text-align: center;
 }
+body:not(.login) .dropzone .dz-preview {
+  margin: 14px;
+  padding: 10px;
+  border: 1px solid #dfe8e6;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 6px 18px rgba(28,43,61,.08);
+}
+body:not(.login) .dropzone .dz-preview .dz-image {
+  display: grid;
+  place-items: center;
+  width: 160px;
+  height: 120px;
+  overflow: hidden;
+  border-radius: 8px;
+  background: #eef3f5;
+}
+body:not(.login) .dropzone .dz-preview .dz-image img {
+  display: block;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+body:not(.login) .dropzone .dz-preview .dz-file-icon {
+  color: #5e777a;
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: .06em;
+}
+body:not(.login) .dropzone .dz-preview .dz-details {
+  padding: 18px 10px 10px;
+  color: #344054;
+}
+body:not(.login) .dropzone .dz-preview .dz-size {
+  margin-top: 4px;
+  color: #84909e;
+  font-size: 11px;
+}
+body:not(.login) .dropzone .dz-preview .dz-filename {
+  overflow: hidden;
+  max-width: 160px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+body:not(.login) .dropzone .dz-preview .dz-remove {
+  margin-top: 8px;
+  color: #bd4e4c;
+  font-size: 12px;
+  font-weight: 700;
+}
+body:not(.login) .dropzone .dz-preview .dz-success-mark svg { fill: #238b7b; }
+body:not(.login) .dropzone .dz-preview .dz-error-mark svg { fill: #d65a58; }
+body:not(.login) .dropzone .dz-preview.dz-success { border-color: #9dd7ca; }
+body:not(.login) .dropzone .dz-preview.dz-error { border-color: #e5aaa9; }
 
 body:not(.login) .cbSelectTitle {
   margin: 14px 0 8px;

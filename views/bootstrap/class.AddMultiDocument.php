@@ -131,7 +131,10 @@ class LetoDMS_View_AddMultiDocument extends LetoDMS_Bootstrap_Style
 				uploadMultiple: false,
 				parallelUploads: 2,
 				maxFiles: null,
-				createImageThumbnails: false,
+				createImageThumbnails: true,
+				thumbnailWidth: 160,
+				thumbnailHeight: 120,
+				thumbnailMethod: "contain",
 				addRemoveLinks: true
 			});
 
