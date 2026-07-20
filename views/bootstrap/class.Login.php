@@ -69,10 +69,10 @@ function guestLogin()
 
 <main class="login-shell">
 	<section class="login-intro" aria-label="<?php printMLText("sign_in");?>">
-		<div class="login-mark" aria-hidden="true">
-			<svg viewBox="0 0 24 24" focusable="false"><path d="M7 3.5h7l4 4V20.5H7z"/><path d="M14 3.5v4h4M10 12h5M10 15.5h5"/></svg>
+		<div class="login-brand">
+			<img src="../styles/logo.png" alt="">
+			<span><?php echo htmlspecialchars($siteName); ?></span>
 		</div>
-		<p class="login-eyebrow"><?php echo htmlspecialchars($siteName); ?></p>
 		<h1><?php printMLText("sign_in");?></h1>
 		<p class="login-lead">Secure access to your documents, workflows, and shared knowledge.</p>
 		<ul class="login-benefits" aria-hidden="true">
@@ -84,7 +84,7 @@ function guestLogin()
 
 	<section class="login-panel">
 		<div class="login-panel-heading">
-			<span class="login-mobile-mark" aria-hidden="true">L</span>
+			<span class="login-mobile-mark"><img src="../styles/logo.png" alt=""></span>
 			<div>
 				<h2><?php printMLText("sign_in");?></h2>
 				<p>Enter your account details to continue.</p>
