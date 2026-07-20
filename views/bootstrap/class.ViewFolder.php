@@ -197,9 +197,9 @@ class LetoDMS_View_ViewFolder extends LetoDMS_Bootstrap_Style {
 			print "<td></td>";
 			print "<td>";
 ?>
-     <p><a class_="btn btn-mini" href="../out/out.RemoveFolder.php?folderid=<?php echo $subFolder->getID(); ?>"><i class="icon-remove"></i></a>
-     <a class_="btn btn-mini" href="../out/out.EditFolder.php?folderid=<?php echo $subFolder->getID(); ?>"><i class="icon-edit"></i></a></p>
-     <a class_="btn btn-mini" href="../op/op.AddToClipboard.php?folderid=<?php echo $folder->getID(); ?>&type=folder&id=<?php echo $subFolder->getID(); ?>" title="<?php printMLText("add_to_clipboard");?>"><i class="icon-bookmark"></i></a></p>
+     <div class="table-actions"><a class="btn btn-mini" href="../out/out.RemoveFolder.php?folderid=<?php echo $subFolder->getID(); ?>"><i class="icon-remove"></i></a>
+     <a class="btn btn-mini" href="../out/out.EditFolder.php?folderid=<?php echo $subFolder->getID(); ?>"><i class="icon-edit"></i></a>
+     <a class="btn btn-mini" href="../op/op.AddToClipboard.php?folderid=<?php echo $folder->getID(); ?>&type=folder&id=<?php echo $subFolder->getID(); ?>" title="<?php printMLText("add_to_clipboard");?>"><i class="icon-bookmark"></i></a></div>
 <?php
 			print "</td>";
 			print "</tr>\n";
@@ -244,9 +244,9 @@ class LetoDMS_View_ViewFolder extends LetoDMS_Bootstrap_Style {
 				print "<td>".$version."</td>";
 				print "<td>";
 ?>
-     <p><a class_="btn btn-mini" href="../out/out.RemoveDocument.php?documentid=<?php echo $docID; ?>"><i class="icon-remove"></i></a>
-     <a class_="btn btn-mini" href="../out/out.EditDocument.php?documentid=<?php echo $docID; ?>"><i class="icon-edit"></i></a></p>
-     <a class_="btn btn-mini" href="../op/op.AddToClipboard.php?folderid=<?php echo $folder->getID(); ?>&type=document&id=<?php echo $docID; ?>" title="<?php printMLText("add_to_clipboard");?>"><i class="icon-bookmark"></i></a></p>
+     <div class="table-actions"><a class="btn btn-mini" href="../out/out.RemoveDocument.php?documentid=<?php echo $docID; ?>"><i class="icon-remove"></i></a>
+     <a class="btn btn-mini" href="../out/out.EditDocument.php?documentid=<?php echo $docID; ?>"><i class="icon-edit"></i></a>
+     <a class="btn btn-mini" href="../op/op.AddToClipboard.php?folderid=<?php echo $folder->getID(); ?>&type=document&id=<?php echo $docID; ?>" title="<?php printMLText("add_to_clipboard");?>"><i class="icon-bookmark"></i></a></div>
 <?php
 				print "</td>";
 				print "</tr>\n";
