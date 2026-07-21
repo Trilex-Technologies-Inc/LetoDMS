@@ -247,8 +247,9 @@ class LetoDMS_Bootstrap_Style extends LetoDMS_View_Common
 	{ /* {{{ */
 
 		if ($pageType != null && strcasecmp($pageType, "noNav")) {
-			if ($pageType == "view_folder" || $pageType == "view_document")
-				echo $pageTitle . "\n";
+			if ($pageType == "view_folder" || $pageType == "view_document") {
+				echo "<div class=\"object-page-heading\">" . $pageTitle . "</div>\n";
+			}
 			echo "<div class=\"navbar\">\n";
 			echo " <div class=\"navbar-inner\">\n";
 			switch ($pageType) {
@@ -1069,13 +1070,13 @@ class LetoDMS_Bootstrap_Style extends LetoDMS_View_Common
 
 		if ($showtree == 1) {
 
-			$this->contentHeading("<a href=\"../out/out.ViewFolder.php?folderid=" . $folderid . "&showtree=0\"><i class=\"icon-minus-sign\"></i></a>", true);
+			$this->contentHeading("<span>" . getMLText("folders") . "</span><a class=\"tree-toggle\" href=\"../out/out.ViewFolder.php?folderid=" . $folderid . "&showtree=0\" title=\"Hide folder tree\"><i class=\"icon-minus-sign\"></i></a>", true);
 			$this->contentContainerStart();
 			$this->printFoldersTree(M_READ, -1, $this->params['rootfolderid'], $folderid, true);
 			$this->contentContainerEnd();
 		} else {
 
-			$this->contentHeading("<a href=\"../out/out.ViewFolder.php?folderid=" . $folderid . "&showtree=1\"><i class=\"icon-plus-sign\"></i></a>", true);
+			$this->contentHeading("<span>" . getMLText("folders") . "</span><a class=\"tree-toggle\" href=\"../out/out.ViewFolder.php?folderid=" . $folderid . "&showtree=1\" title=\"Show folder tree\"><i class=\"icon-plus-sign\"></i></a>", true);
 		}
 	} /* }}} */
 
