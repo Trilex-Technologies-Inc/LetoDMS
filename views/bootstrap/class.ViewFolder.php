@@ -89,18 +89,18 @@ class LetoDMS_View_ViewFolder extends LetoDMS_Bootstrap_Style {
 		$this->contentStart();
 		$this->pageNavigation($this->getFolderPathHTML($folder), "view_folder", $folder);
 
-		echo "<div class=\"row-fluid\">\n";
-		echo "<div class=\"span4\">\n";
+		echo "<div class=\"row-fluid folder-workspace\">\n";
+		echo "<aside class=\"span3 folder-sidebar\">\n";
 		if ($enableFolderTree) $this->printTreeNavigation($folderid, $showtree);
 		if (1 || $enableClipboard) $this->printClipboard($this->params['session']->getClipboard());
-		echo "</div>\n";
-		echo "<div class=\"span8\">\n";
+		echo "</aside>\n";
+		echo "<main class=\"span9 folder-main\">\n";
 
 		$this->contentHeading(getMLText("folder_infos"));
 
 		$owner = $folder->getOwner();
 		$this->contentContainerStart();
-		echo "<table class=\"table-condensed\">\n";
+		echo "<table class=\"table table-condensed folder-info-table\">\n";
 		if($user->isAdmin()) {
 			echo "<tr>";
 			echo "<td>".getMLText("id").":</td>\n";
@@ -122,8 +122,7 @@ class LetoDMS_View_ViewFolder extends LetoDMS_Bootstrap_Style {
 			if($folder->inheritsAccess()) {
 				echo "<tr>";
 				echo "<td>".getMLText("access_mode").":</td>\n";
-				echo "<td>";
-				echo getMLText("inherited");
+				echo "<td>".getMLText("inherited")."</td>";
 				echo "</tr>";
 			} else {
 				echo "<tr>";
@@ -161,7 +160,7 @@ class LetoDMS_View_ViewFolder extends LetoDMS_Bootstrap_Style {
 		$documents = LetoDMS_Core_DMS::filterAccess($documents, $user, M_READ);
 
 		if ((count($subFolders) > 0)||(count($documents) > 0)){
-			print "<table class=\"table\">";
+			print "<div class=\"folder-table-wrap\"><table class=\"table table-striped table-hover folder-contents-table\">";
 			print "<thead>\n<tr>\n";
 			print "<th></th>\n";
 			print "<th><a href=\"../out/out.ViewFolder.php?folderid=". $folderid .($orderby=="n"?"":"&orderby=n")."\">".getMLText("name")."</a></th>\n";
@@ -171,7 +170,7 @@ class LetoDMS_View_ViewFolder extends LetoDMS_Bootstrap_Style {
 			print "<th>".getMLText("action")."</th>\n";
 			print "</tr>\n</thead>\n<tbody>\n";
 		}
-		else printMLText("empty_folder_list");
+		else echo "<div class=\"alert alert-info folder-empty\"><i class=\"icon-info-sign\"></i> " . getMLText("empty_folder_list") . "</div>";
 
 
 		foreach($subFolders as $subFolder) {
@@ -186,19 +185,19 @@ class LetoDMS_View_ViewFolder extends LetoDMS_Bootstrap_Style {
 
 			print "<tr rel=\"folder_".$subFolder->getID()."\" class=\"folder\" ondragover=\"allowDrop(event)\" ondrop=\"onDrop(event)\">";
 		//	print "<td><img src=\"images/folder_closed.gif\" width=18 height=18 border=0></td>";
-			print "<td><a rel=\"folder_".$subFolder->getID()."\" draggable=\"true\" ondragstart=\"onDragStartFolder(event);\" href=\"out.ViewFolder.php?folderid=".$subFolder->getID()."&showtree=".$showtree."\"><img src=\"".$this->imgpath."folder.png\" width=\"24\" height=\"24\" border=0></a></td>\n";
-			print "<td><a href=\"out.ViewFolder.php?folderid=".$subFolder->getID()."&showtree=".$showtree."\">" . htmlspecialchars($subFolder->getName()) . "</a>";
+			print "<td class=\"folder-type-cell\"><a rel=\"folder_".$subFolder->getID()."\" draggable=\"true\" ondragstart=\"onDragStartFolder(event);\" href=\"out.ViewFolder.php?folderid=".$subFolder->getID()."&showtree=".$showtree."\"><img src=\"".$this->imgpath."folder.png\" width=\"28\" height=\"28\" alt=\"\"></a></td>\n";
+			print "<td class=\"folder-name-cell\"><a class=\"folder-item-name\" href=\"out.ViewFolder.php?folderid=".$subFolder->getID()."&showtree=".$showtree."\">" . htmlspecialchars($subFolder->getName()) . "</a>";
 			if($comment) {
-				print "<br /><span style=\"font-size: 85%;\">".htmlspecialchars($comment)."</span>";
+				print "<br /><small class=\"muted\">".htmlspecialchars($comment)."</small>";
 			}
 			print "</td>\n";
 			print "<td>".htmlspecialchars($owner->getFullName())."</td>";
-			print "<td colspan=\"1\"><small>".count($subsub)." ".getMLText("folders")."<br />".count($subdoc)." ".getMLText("documents")."</small></td>";
+			print "<td><span class=\"label\">".count($subsub)." ".getMLText("folders")."</span> <span class=\"label\">".count($subdoc)." ".getMLText("documents")."</span></td>";
 			print "<td></td>";
 			print "<td>";
 ?>
-     <div class="table-actions"><a class="btn btn-mini" href="../out/out.RemoveFolder.php?folderid=<?php echo $subFolder->getID(); ?>"><i class="icon-remove"></i></a>
-     <a class="btn btn-mini" href="../out/out.EditFolder.php?folderid=<?php echo $subFolder->getID(); ?>"><i class="icon-edit"></i></a>
+     <div class="btn-group table-actions"><a class="btn btn-mini btn-danger" href="../out/out.RemoveFolder.php?folderid=<?php echo $subFolder->getID(); ?>" title="<?php printMLText("rm_folder");?>"><i class="icon-remove icon-white"></i></a>
+     <a class="btn btn-mini" href="../out/out.EditFolder.php?folderid=<?php echo $subFolder->getID(); ?>" title="<?php printMLText("edit_folder_props");?>"><i class="icon-edit"></i></a>
      <a class="btn btn-mini" href="../op/op.AddToClipboard.php?folderid=<?php echo $folder->getID(); ?>&type=folder&id=<?php echo $subFolder->getID(); ?>" title="<?php printMLText("add_to_clipboard");?>"><i class="icon-bookmark"></i></a></div>
 <?php
 			print "</td>";
@@ -220,7 +219,7 @@ class LetoDMS_View_ViewFolder extends LetoDMS_Bootstrap_Style {
 				print "<tr>";
 
 				if (file_exists($dms->contentDir . $latestContent->getPath())) {
-					print "<td><a rel=\"document_".$docID."\" draggable=\"true\" ondragstart=\"onDragStartDocument(event);\" href=\"../op/op.Download.php?documentid=".$docID."&version=".$version."\">";
+					print "<td class=\"folder-type-cell\"><a rel=\"document_".$docID."\" draggable=\"true\" ondragstart=\"onDragStartDocument(event);\" href=\"../op/op.Download.php?documentid=".$docID."&version=".$version."\">";
 					if($previewer->hasPreview($latestContent)) {
 						print "<img class=\"mimeicon\" width=\"40\"src=\"../op/op.Preview.php?documentid=".$document->getID()."&version=".$latestContent->getVersion()."&width=40\" title=\"".htmlspecialchars($latestContent->getMimeType())."\">";
 					} else {
@@ -228,11 +227,11 @@ class LetoDMS_View_ViewFolder extends LetoDMS_Bootstrap_Style {
 					}
 					print "</a></td>";
 				} else
-					print "<td><img class=\"mimeicon\" src=\"".$this->getMimeIcon($latestContent->getFileType())."\" title=\"".htmlspecialchars($latestContent->getMimeType())."\"></td>";
+					print "<td class=\"folder-type-cell\"><img class=\"mimeicon\" src=\"".$this->getMimeIcon($latestContent->getFileType())."\" title=\"".htmlspecialchars($latestContent->getMimeType())."\"></td>";
 
-				print "<td><a href=\"out.ViewDocument.php?documentid=".$docID."&showtree=".$showtree."\">" . htmlspecialchars($document->getName()) . "</a>";
+				print "<td class=\"folder-name-cell\"><a class=\"folder-item-name\" href=\"out.ViewDocument.php?documentid=".$docID."&showtree=".$showtree."\">" . htmlspecialchars($document->getName()) . "</a>";
 				if($comment) {
-					print "<br /><span style=\"font-size: 85%;\">".htmlspecialchars($comment)."</span>";
+					print "<br /><small class=\"muted\">".htmlspecialchars($comment)."</small>";
 				}
 				print "</td>\n";
 				print "<td>".htmlspecialchars($owner->getFullName())."</td>";
@@ -240,12 +239,12 @@ class LetoDMS_View_ViewFolder extends LetoDMS_Bootstrap_Style {
 				if ( $document->isLocked() ) {
 					print "<img src=\"".$this->getImgPath("lock.png")."\" title=\"". getMLText("locked_by").": ".htmlspecialchars($document->getLockingUser()->getFullName())."\"> ";
 				}
-				print getOverallStatusText($status["status"])."</td>";
-				print "<td>".$version."</td>";
+				print "<span class=\"label label-info\">".getOverallStatusText($status["status"])."</span></td>";
+				print "<td><span class=\"badge\">".$version."</span></td>";
 				print "<td>";
 ?>
-     <div class="table-actions"><a class="btn btn-mini" href="../out/out.RemoveDocument.php?documentid=<?php echo $docID; ?>"><i class="icon-remove"></i></a>
-     <a class="btn btn-mini" href="../out/out.EditDocument.php?documentid=<?php echo $docID; ?>"><i class="icon-edit"></i></a>
+     <div class="btn-group table-actions"><a class="btn btn-mini btn-danger" href="../out/out.RemoveDocument.php?documentid=<?php echo $docID; ?>" title="<?php printMLText("rm_document");?>"><i class="icon-remove icon-white"></i></a>
+     <a class="btn btn-mini" href="../out/out.EditDocument.php?documentid=<?php echo $docID; ?>" title="<?php printMLText("edit_document_props");?>"><i class="icon-edit"></i></a>
      <a class="btn btn-mini" href="../op/op.AddToClipboard.php?folderid=<?php echo $folder->getID(); ?>&type=document&id=<?php echo $docID; ?>" title="<?php printMLText("add_to_clipboard");?>"><i class="icon-bookmark"></i></a></div>
 <?php
 				print "</td>";
@@ -253,10 +252,10 @@ class LetoDMS_View_ViewFolder extends LetoDMS_Bootstrap_Style {
 			}
 		}
 
-		if ((count($subFolders) > 0)||(count($documents) > 0)) echo "</tbody>\n</table>\n";
+		if ((count($subFolders) > 0)||(count($documents) > 0)) echo "</tbody>\n</table></div>\n";
 
 
-		echo "</div>\n";
+		echo "</main>\n";
 
 		$this->contentEnd();
 
