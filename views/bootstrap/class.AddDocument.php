@@ -75,7 +75,7 @@ class LetoDMS_View_AddDocument extends LetoDMS_Bootstrap_Style {
 		function addFiles()
 		{
 			var li = document.createElement('li');
-			li.innerHTML = '<input type="File" name="userfile[]" size="60">';
+			li.innerHTML = '<input class="add-document-file" type="file" name="userfile[]" size="60">';
 			document.getElementById('files').appendChild(li);
 		//	document.getElementById("files").innerHTML += '<br><input type="File" name="userfile[]" size="60">';
 			document.form1.name.disabled=true;
@@ -84,6 +84,7 @@ class LetoDMS_View_AddDocument extends LetoDMS_Bootstrap_Style {
 		</script>
 
 <?php
+		echo '<div class="add-document-page">';
 		$msg = getMLText("max_upload_size").": ".ini_get( "upload_max_filesize");
 		if($enablelargefileupload) {
 			$msg .= "<p>".sprintf(getMLText('link_alt_updatedocument'), "out.AddMultiDocument.php?folderid=".$folderid."&showtree=".showtree())."</p>";
@@ -97,11 +98,11 @@ class LetoDMS_View_AddDocument extends LetoDMS_Bootstrap_Style {
 		$docAccess = $folder->getReadAccessList();
 		$this->contentSubHeading(getMLText("document_infos"));
 ?>
-		<form action="../op/op.AddDocument.php" enctype="multipart/form-data" method="post" name="form1" onsubmit="return checkForm();">
+		<form class="form-horizontal add-document-form" action="../op/op.AddDocument.php" enctype="multipart/form-data" method="post" name="form1" onsubmit="return checkForm();">
 		<?php echo createHiddenFieldWithKey('adddocument'); ?>
 		<input type="hidden" name="folderid" value="<?php print $folderid; ?>">
 		<input type="hidden" name="showtree" value="<?php echo showtree();?>">
-		<table class="table-condensed">
+		<table class="table table-condensed add-document-table">
 		<tr>
 			<td><?php printMLText("name");?>:</td>
 			<td><input type="text" name="name" size="60"></td>
@@ -158,8 +159,8 @@ class LetoDMS_View_AddDocument extends LetoDMS_Bootstrap_Style {
 			</td>
 		</tr>
 
-		<tr>
-			<td>
+		<tr class="form-section-row">
+			<td colspan="2">
 		<?php $this->contentSubHeading(getMLText("version_info")); ?>
 			</td>
 		</tr>
@@ -170,9 +171,9 @@ class LetoDMS_View_AddDocument extends LetoDMS_Bootstrap_Style {
 		<tr>
 			<td><?php printMLText("local_file");?>:</td>
 			<td>
-			<a href="javascript:addFiles()"><?php printMLtext("add_multiple_files") ?></a>
+			<a class="btn btn-small add-file-button" href="javascript:addFiles()"><i class="icon-plus"></i> <?php printMLtext("add_multiple_files") ?></a>
 			<ol id="files">
-			<li><input type="file" name="userfile[]" size="60"></li>
+			<li><input class="add-document-file" type="file" name="userfile[]" size="60"></li>
 			</ol>
 			</td>
 		</tr>
@@ -228,8 +229,8 @@ class LetoDMS_View_AddDocument extends LetoDMS_Bootstrap_Style {
 <?php
 		} else {
 ?>
-		<tr>
-      <td>
+		<tr class="form-section-row">
+			<td colspan="2">
 		<?php $this->contentSubHeading(getMLText("assign_reviewers")); ?>
       </td>
 		</tr>
@@ -273,8 +274,8 @@ class LetoDMS_View_AddDocument extends LetoDMS_Bootstrap_Style {
 			</td>
 			</tr>
 
-		  <tr>
-        <td>
+		  <tr class="form-section-row">
+				<td colspan="2">
 		<?php $this->contentSubHeading(getMLText("assign_approvers")); ?>
         </td>
 		  </tr>
@@ -330,10 +331,15 @@ class LetoDMS_View_AddDocument extends LetoDMS_Bootstrap_Style {
 ?>
 		</table>
 
-			<p><input type="submit" class="btn" value="<?php printMLText("add_document");?>"></p>
+			<div class="form-actions add-document-actions">
+				<a class="btn" href="../out/out.ViewFolder.php?folderid=<?php echo $folderid; ?>&showtree=<?php echo showtree(); ?>"><?php printMLText("folder"); ?></a>
+				<input type="submit" class="btn btn-primary" value="<?php printMLText("add_document");?>">
+			</div>
 		</form>
 <?php
 		$this->contentContainerEnd();
+		echo '</div>';
+		$this->contentEnd();
 		$this->htmlEndPage();
 
 	} /* }}} */
