@@ -833,17 +833,17 @@ class LetoDMS_Bootstrap_Style extends LetoDMS_View_Common
 			<input type="text" id="<?php echo $fieldname; ?>" name="<?php echo $fieldname; ?>" value="<?php print htmlspecialchars($keywords); ?>" />
 			<a data-target="#keywordChooser" role="button" class="btn" data-toggle="modal" href="out.KeywordChooser.php?target=<?php echo $formName; ?>"><?php printMLText("keywords"); ?>…</a>
 		</div>
-		<div class="modal hide" id="keywordChooser" tabindex="-1" role="dialog" aria-labelledby="keywordChooserLabel" aria-hidden="true">
+		<div class="modal hide keyword-chooser-modal" id="keywordChooser" tabindex="-1" role="dialog" aria-labelledby="keywordChooserLabel" aria-hidden="true">
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-				<h3 id="keywordChooserLabel"><?php printMLText("use_default_keywords") ?></h3>
+				<h3 id="keywordChooserLabel"><i class="icon-tags"></i> <?php printMLText("use_default_keywords") ?></h3>
 			</div>
 			<div class="modal-body">
-				<p>Please wait, until keyword list is loaded …</p>
+				<p class="muted keyword-loading"><i class="icon-refresh"></i> Please wait, until keyword list is loaded …</p>
 			</div>
 			<div class="modal-footer">
-				<button class="btn btn-primary" data-dismiss="modal" aria-hidden="true">Close</button>
-				<button class="btn" data-dismiss="modal" aria-hidden="true" onClick="acceptKeywords();">Save</button>
+				<button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
+				<button class="btn btn-primary" data-dismiss="modal" aria-hidden="true" onClick="acceptKeywords();"><i class="icon-ok icon-white"></i> Save</button>
 			</div>
 		</div>
 	<?php

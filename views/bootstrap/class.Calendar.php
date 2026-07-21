@@ -104,13 +104,13 @@ class LetoDMS_View_Calendar extends LetoDMS_Bootstrap_Style {
 		$first = $date["wday"];
 		$monthName = $this->monthNames[$month - 1];
 
-		$s  = "<table class=\"table\">\n";
+		$s  = "<table class=\"table table-condensed calendar-month\">\n";
 
-		$s .= "<tr>\n";
-		$s .= "<td style=\"border-top: 0px;\" colspan=\"7\"><a href=\"../out/out.Calendar.php?mode=m&year=".$year."&month=".$month."\">".$monthName."</a></td>\n"; ;
+		$s .= "<thead><tr class=\"calendar-month-title\">\n";
+		$s .= "<th colspan=\"7\"><a href=\"../out/out.Calendar.php?mode=m&year=".$year."&month=".$month."\">".$monthName." <i class=\"icon-chevron-right\"></i></a></th>\n";
 		$s .= "</tr>\n";
 
-		$s .= "<tr>\n";
+		$s .= "<tr class=\"calendar-weekdays\">\n";
 		$s .= "<th class=\"header\">" . $this->dayNames[($startDay)%7] . "</th>\n";
 		$s .= "<th class=\"header\">" . $this->dayNames[($startDay+1)%7] . "</th>\n";
 		$s .= "<th class=\"header\">" . $this->dayNames[($startDay+2)%7] . "</th>\n";
@@ -118,7 +118,7 @@ class LetoDMS_View_Calendar extends LetoDMS_Bootstrap_Style {
 		$s .= "<th class=\"header\">" . $this->dayNames[($startDay+4)%7] . "</th>\n";
 		$s .= "<th class=\"header\">" . $this->dayNames[($startDay+5)%7] . "</th>\n";
 		$s .= "<th class=\"header\">" . $this->dayNames[($startDay+6)%7] . "</th>\n";
-		$s .= "</tr>\n";
+		$s .= "</tr></thead>\n<tbody>\n";
 
 		// We need to work out what date to start at so that the first appears in the correct column
 		$d = $startDay + 1 - $first;
@@ -134,6 +134,7 @@ class LetoDMS_View_Calendar extends LetoDMS_Bootstrap_Style {
 			for ($i = 0; $i < 7; $i++){
 
 				$class = ($year == $today["year"] && $month == $today["mon"] && $d == $today["mday"]) ? "today" : "";
+				if ($d < 1 || $d > $daysInMonth) $class .= " calendar-empty-day";
 				$s .= "<td class=\"$class\">";
 
 				if ($d > 0 && $d <= $daysInMonth){
@@ -148,32 +149,16 @@ class LetoDMS_View_Calendar extends LetoDMS_Bootstrap_Style {
 			$s .= "</tr>\n";
 		}
 
-		$s .= "</table>\n";
+		$s .= "</tbody></table>\n";
 
 		return $s;
 	} /* }}} */
 
 	function printYearTable($year) { /* {{{ */
-		print "<table class=\"table-condensed\">\n";
-		print "<tr>";
-		print "<td valign=\"top\">" . $this->getMonthHTML(1 , $year) ."</td>\n";
-		print "<td valign=\"top\">" . $this->getMonthHTML(2 , $year) ."</td>\n";
-		print "<td valign=\"top\">" . $this->getMonthHTML(3 , $year) ."</td>\n";
-		print "<td valign=\"top\">" . $this->getMonthHTML(4 , $year) ."</td>\n";
-		print "</tr>\n";
-		print "<tr>\n";
-		print "<td valign=\"top\">" . $this->getMonthHTML(5 , $year) ."</td>\n";
-		print "<td valign=\"top\">" . $this->getMonthHTML(6 , $year) ."</td>\n";
-		print "<td valign=\"top\">" . $this->getMonthHTML(7 , $year) ."</td>\n";
-		print "<td valign=\"top\">" . $this->getMonthHTML(8 , $year) ."</td>\n";
-		print "</tr>\n";
-		print "<tr>\n";
-		print "<td valign=\"top\">" . $this->getMonthHTML(9 , $year) ."</td>\n";
-		print "<td valign=\"top\">" . $this->getMonthHTML(10, $year) ."</td>\n";
-		print "<td valign=\"top\">" . $this->getMonthHTML(11, $year) ."</td>\n";
-		print "<td valign=\"top\">" . $this->getMonthHTML(12, $year) ."</td>\n";
-		print "</tr>\n";
-		print "</table>\n";
+		print "<div class=\"calendar-year-grid\">\n";
+		for ($month = 1; $month <= 12; $month++)
+			print "<section class=\"calendar-month-card\">" . $this->getMonthHTML($month, $year) . "</section>\n";
+		print "</div>\n";
 	} /* }}} */
 
 	function show() { /* {{{ */
@@ -194,19 +179,17 @@ class LetoDMS_View_Calendar extends LetoDMS_Bootstrap_Style {
 
 		if ($mode=="y"){
 
-			$this->contentHeading(getMLText("year_view").": ".$year);
+			echo "<div class=\"calendar-page-header\">";
+			echo "<div><span class=\"calendar-eyebrow\">" . getMLText("calendar") . "</span><h1>" . getMLText("year_view") . ": " . $year . "</h1></div>";
+			echo "<div class=\"btn-group calendar-period-nav\">";
+			print "<a class=\"btn\" href=\"../out/out.Calendar.php?mode=y&year=".($year-1)."\" title=\"Previous year\"><i class=\"icon-chevron-left\"></i></a>";
+			print "<a class=\"btn\" href=\"../out/out.Calendar.php?mode=y\">" . date('Y') . "</a>";
+			print "<a class=\"btn\" href=\"../out/out.Calendar.php?mode=y&year=".($year+1)."\" title=\"Next year\"><i class=\"icon-chevron-right\"></i></a>";
+			echo "</div></div>";
 
-			echo "<div class=\"pagination pagination-small\">";
-			echo "<ul>";
-			print "<li><a href=\"../out/out.Calendar.php?mode=y&year=".($year-1)."\"><img src=\"".$this->getImgPath("m.png")."\" border=0></a></li>";
-			print "<li><a href=\"../out/out.Calendar.php?mode=y\"><img src=\"".$this->getImgPath("c.png")."\" border=0></a></li>";
-			print "<li><a href=\"../out/out.Calendar.php?mode=y&year=".($year+1)."\"><img src=\"".$this->getImgPath("p.png")."\" border=0></a></li>";
-			echo "</ul>";
-			echo "</div>";
-
-			$this->contentContainerStart();
+			echo "<div class=\"calendar-year-shell\">";
 			$this->printYearTable($year);
-			$this->contentContainerEnd();
+			echo "</div>";
 
 		}else if ($mode=="m"){
 
@@ -341,6 +324,7 @@ class LetoDMS_View_Calendar extends LetoDMS_Bootstrap_Style {
 			$this->contentContainerEnd();
 		}
 
+		$this->contentEnd();
 		$this->htmlEndPage();
 
 	} /* }}} */
