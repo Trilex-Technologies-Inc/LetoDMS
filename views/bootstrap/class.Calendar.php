@@ -196,57 +196,56 @@ class LetoDMS_View_Calendar extends LetoDMS_Bootstrap_Style {
 			if (!isset($this->dayNamesLong)) $this->generateCalendarArrays();
 			if (!isset($this->monthNames)) $this->generateCalendarArrays();
 
-			$this->contentHeading(getMLText("month_view").": ".$this->monthNames[$month-1]. " ".$year);
-
-			echo "<div class=\"pagination pagination-small\">";
-			echo "<ul>";
-			print "<li><a href=\"../out/out.Calendar.php?mode=m&year=".($year)."&month=".($month-1)."\"><img src=\"".$this->getImgPath("m.png")."\" border=0></a></li>";
-			print "<li><a href=\"../out/out.Calendar.php?mode=m\"><img src=\"".$this->getImgPath("c.png")."\" border=0></a></li>";
-			print "<li><a href=\"../out/out.Calendar.php?mode=m&year=".($year)."&month=".($month+1)."\"><img src=\"".$this->getImgPath("p.png")."\" border=0></a></li>";
-			echo "</ul>";
-			echo "</div>";
-			$this->contentContainerStart();
-
 			$days=$this->getDaysInMonth($month, $year);
 			$today = getdate(time());
-
 			$events = getEventsInInterval(mktime(0,0,0, $month, 1, $year), mktime(23,59,59, $month, $days, $year));
 
-			echo "<table class='table-condensed'>\n";
+			echo "<div class=\"calendar-page-header calendar-month-header\">";
+			echo "<div><span class=\"calendar-eyebrow\">" . getMLText("month_view") . "</span><h1>" . htmlspecialchars($this->monthNames[$month-1]." ".$year) . "</h1><p>" . count($events) . " " . (count($events) == 1 ? "event" : "events") . "</p></div>";
+			echo "<div class=\"calendar-header-actions\"><div class=\"btn-group calendar-period-nav\">";
+			print "<a class=\"btn\" href=\"../out/out.Calendar.php?mode=m&year=".$year."&month=".($month-1)."\" title=\"Previous month\" aria-label=\"Previous month\"><i class=\"icon-chevron-left\"></i></a>";
+			print "<a class=\"btn calendar-today-button\" href=\"../out/out.Calendar.php?mode=m\">Today</a>";
+			print "<a class=\"btn\" href=\"../out/out.Calendar.php?mode=m&year=".$year."&month=".($month+1)."\" title=\"Next month\" aria-label=\"Next month\"><i class=\"icon-chevron-right\"></i></a>";
+			echo "</div><a class=\"btn btn-primary calendar-add-event\" href=\"../out/out.AddEvent.php\"><span aria-hidden=\"true\">+</span> " . getMLText("add_event") . "</a></div></div>";
 
-			for ($i=1; $i<=$days; $i++){
+			$firstWeekday = (int) date('w', mktime(12, 0, 0, $month, 1, $year));
+			$leadingDays = ($firstWeekday - $this->firstdayofweek + 7) % 7;
+			$totalCells = (int) ceil(($leadingDays + $days) / 7) * 7;
 
-				// separate weeks
-				$date = getdate(mktime(12, 0, 0, $month, $i, $year));
-				if (($date["wday"]==$this->firstdayofweek) && ($i!=1))
-					echo "<tr><td class='separator' colspan='".(count($events)+2)."'>&nbsp;</td></tr>\n";
+			echo "<section class=\"calendar-month-board\" aria-label=\"" . htmlspecialchars($this->monthNames[$month-1]." ".$year) . "\">";
+			echo "<div class=\"calendar-month-weekdays\">";
+			for ($i=0; $i<7; $i++) echo "<div>" . htmlspecialchars($this->dayNames[($this->firstdayofweek+$i)%7]) . "</div>";
+			echo "</div><div class=\"calendar-month-grid\">";
 
-				// highlight today
-				$class = ($year == $today["year"] && $month == $today["mon"] && $i == $today["mday"]) ? "todayHeader" : "header";
-
-				echo "<tr>";
-				echo "<td class='".$class."'><a href=\"../out/out.Calendar.php?mode=w&year=".($year)."&month=".($month)."&day=".($i)."\">".$i."</a></td>";
-				echo "<td class='".$class."'><a href=\"../out/out.Calendar.php?mode=w&year=".($year)."&month=".($month)."&day=".($i)."\">".$this->dayNamesLong[$date["wday"]]."</a></td>";
-
-				if ($class=="todayHeader") $class="today";
-				else $class="";
-
-				$xdate=mktime(0, 0, 0, $month, $i, $year);
-				foreach ($events as $event){
-					if (($event["start"]<=$xdate)&&($event["stop"]>=$xdate)){
-
-						if (strlen($event['name']) > 25) $event['name'] = substr($event['name'], 0, 22) . "...";
-						print "<td class='".$class."'><a href=\"../out/out.ViewEvent.php?id=".$event['id']."\">".htmlspecialchars($event['name'])."</a></td>";
-					}else{
-						print "<td class='".$class."'>&nbsp;</td>";
+			for ($cell=0; $cell<$totalCells; $cell++) {
+				$dayNumber = $cell - $leadingDays + 1;
+				$cellTime = mktime(12, 0, 0, $month, $dayNumber, $year);
+				$cellDate = getdate($cellTime);
+				$isCurrentMonth = ($cellDate['mon'] == $month && $cellDate['year'] == $year);
+				$isToday = ($cellDate['year'] == $today['year'] && $cellDate['mon'] == $today['mon'] && $cellDate['mday'] == $today['mday']);
+				$isSelected = ($isCurrentMonth && $cellDate['mday'] == $day);
+				$classes = 'calendar-day';
+				if (!$isCurrentMonth) $classes .= ' calendar-day-muted';
+				if ($isToday) $classes .= ' calendar-day-today';
+				if ($isSelected) $classes .= ' calendar-day-selected';
+				echo "<article class=\"".$classes."\">";
+				echo "<a class=\"calendar-day-number\" href=\"../out/out.Calendar.php?mode=w&year=".$cellDate['year']."&month=".$cellDate['mon']."&day=".$cellDate['mday']."\" aria-label=\"".htmlspecialchars($this->dayNamesLong[$cellDate['wday']]." ".$cellDate['mday'])."\">".$cellDate['mday']."</a>";
+				if ($isCurrentMonth) {
+					$dayStart = mktime(0, 0, 0, $month, $cellDate['mday'], $year);
+					$dayEnd = mktime(23, 59, 59, $month, $cellDate['mday'], $year);
+					$dayEvents = array();
+					foreach ($events as $event) if ($event['start'] <= $dayEnd && $event['stop'] >= $dayStart) $dayEvents[] = $event;
+					if (count($dayEvents)) echo "<div class=\"calendar-day-events\">";
+					foreach (array_slice($dayEvents, 0, 3) as $event) {
+						$name = htmlspecialchars($event['name']);
+						echo "<a class=\"calendar-event-chip\" href=\"../out/out.ViewEvent.php?id=".(int)$event['id']."\" title=\"".$name."\"><i></i><span>".$name."</span></a>";
 					}
+					if (count($dayEvents) > 3) echo "<a class=\"calendar-event-more\" href=\"../out/out.Calendar.php?mode=w&year=".$year."&month=".$month."&day=".$cellDate['mday']."\">+".(count($dayEvents)-3)." more</a>";
+					if (count($dayEvents)) echo "</div>";
 				}
-
-				echo "</tr>\n";
+				echo "</article>";
 			}
-			echo "</table>\n";
-
-			$this->contentContainerEnd();
+			echo "</div></section>";
 
 		}else{
 
