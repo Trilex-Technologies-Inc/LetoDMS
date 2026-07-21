@@ -72,9 +72,10 @@ class LetoDMS_Bootstrap_Style extends LetoDMS_View_Common
 
 	function footNote()
 	{ /* {{{ */
-		echo '<div class="row-fluid" style="padding-top: 20px;">' . "\n";
+		$siteName = !empty($this->params['sitename']) ? $this->params['sitename'] : "LetoDMS";
+		echo '<footer class="row-fluid app-footer" role="contentinfo">' . "\n";
 		echo '<div class="span12">' . "\n";
-		echo '<div class="alert alert-info">' . "\n";
+		echo '<div class="app-footer-content">' . "\n";
 		if ($this->params['printdisclaimer']) {
 			echo "<div class=\"disclaimer\">" . getMLText("disclaimer") . "</div>";
 		}
@@ -82,9 +83,10 @@ class LetoDMS_Bootstrap_Style extends LetoDMS_View_Common
 		if (isset($this->params['footnote']) && strlen((string)$this->params['footnote']) > 0) {
 			echo "<div class=\"footNote\">" . (string)$this->params['footnote'] . "</div>";
 		}
+		echo '<div class="app-copyright">&copy; ' . date('Y') . ' ' . htmlspecialchars($siteName) . '. All rights reserved.</div>' . "\n";
 		echo "</div>\n";
 		echo "</div>\n";
-		echo "</div>\n";
+		echo "</footer>\n";
 
 		return;
 	} /* }}} */
@@ -128,7 +130,7 @@ class LetoDMS_Bootstrap_Style extends LetoDMS_View_Common
 	function globalNavigation($folder = null)
 	{ /* {{{ */
 		$siteName = (strlen($this->params['sitename']) > 0 ? $this->params['sitename'] : "LetoDMS");
-		echo "<button class=\"sb-sidebar-toggle\" type=\"button\" aria-label=\"Toggle navigation\" aria-controls=\"sb-sidebar\" aria-expanded=\"false\"><span></span><span></span><span></span></button>\n";
+		echo "<button class=\"sb-sidebar-toggle\" type=\"button\" aria-label=\"Collapse navigation\" aria-controls=\"sb-sidebar\" aria-expanded=\"true\"><span></span><span></span><span></span></button>\n";
 		echo "<aside class=\"sb-sidebar\" id=\"sb-sidebar\">\n";
 		echo " <a class=\"sb-sidebar-brand\" href=\"../out/out.ViewFolder.php?folderid=" . $this->params['rootfolderid'] . "\"><span class=\"sb-brand-mark\"><img src=\"../styles/logo.png\" alt=\"\"></span><span>" . htmlspecialchars($siteName) . "</span></a>\n";
 		echo " <div class=\"sb-sidebar-divider\"></div>\n";
@@ -141,6 +143,7 @@ class LetoDMS_Bootstrap_Style extends LetoDMS_View_Common
 			if ($this->params['user']->isAdmin()) {
 				echo " <div class=\"sb-sidebar-divider\"></div><div class=\"sb-sidebar-label\">Management</div>\n";
 				echo "  <a href=\"../out/out.AdminTools.php\"><span class=\"sb-nav-icon\">&#9881;</span><span>" . getMLText("admin_tools") . "</span></a>\n";
+				echo "  <a href=\"../out/out.Statistic.php\"><span class=\"sb-nav-icon\">&#9638;</span><span>" . getMLText("folders_and_documents_statistic") . "</span></a>\n";
 			}
 			echo "  <a href=\"../out/out.Help.php\"><span class=\"sb-nav-icon\">?</span><span>" . getMLText("help") . "</span></a>\n";
 		}
@@ -166,6 +169,7 @@ class LetoDMS_Bootstrap_Style extends LetoDMS_View_Common
 				if ($this->params['workflowmode'] != 'traditional')
 					echo "      <li><a href=\"../out/out.WorkflowMgr.php\"><span class=\"sb-menu-icon\">&#8635;</span>" . getMLText("global_workflows") . "</a></li>\n";
 				echo "      <li><a href=\"../out/out.BackupTools.php\"><span class=\"sb-menu-icon\">&#128190;</span>" . getMLText("backup_tools") . "</a></li>\n";
+				echo "      <li><a href=\"../out/out.Statistic.php\"><span class=\"sb-menu-icon\">&#9638;</span>" . getMLText("folders_and_documents_statistic") . "</a></li>\n";
 				if (!empty($this->params['logfileenable']))
 					echo "      <li><a href=\"../out/out.LogManagement.php\"><span class=\"sb-menu-icon\">&#9776;</span>" . getMLText("log_management") . "</a></li>\n";
 				echo "      <li><a href=\"../out/out.Info.php\"><span class=\"sb-menu-icon\">i</span>" . getMLText("version_info") . "</a></li>\n";
