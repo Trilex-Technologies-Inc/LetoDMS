@@ -128,11 +128,27 @@ class LetoDMS_Bootstrap_Style extends LetoDMS_View_Common
 	function globalNavigation($folder = null)
 	{ /* {{{ */
 		$siteName = (strlen($this->params['sitename']) > 0 ? $this->params['sitename'] : "LetoDMS");
-		echo "<div style=\"padding-top: 60px;\"></div>\n";
-		echo "<div class=\"navbar navbar-inverse navbar-fixed-top\">\n";
+		echo "<button class=\"sb-sidebar-toggle\" type=\"button\" aria-label=\"Toggle navigation\" aria-controls=\"sb-sidebar\" aria-expanded=\"false\"><span></span><span></span><span></span></button>\n";
+		echo "<aside class=\"sb-sidebar\" id=\"sb-sidebar\">\n";
+		echo " <a class=\"sb-sidebar-brand\" href=\"../out/out.ViewFolder.php?folderid=" . $this->params['rootfolderid'] . "\"><span class=\"sb-brand-mark\"><img src=\"../styles/logo.png\" alt=\"\"></span><span>" . htmlspecialchars($siteName) . "</span></a>\n";
+		echo " <div class=\"sb-sidebar-divider\"></div>\n";
+		echo " <div class=\"sb-sidebar-label\">Workspace</div>\n";
+		echo " <nav class=\"sb-sidebar-nav\" aria-label=\"Primary navigation\">\n";
+		echo "  <a href=\"../out/out.ViewFolder.php?folderid=" . $this->params['rootfolderid'] . "\"><span class=\"sb-nav-icon\">&#9638;</span><span>" . getMLText("content") . "</span></a>\n";
+		if (isset($this->params['user']) && $this->params['user']) {
+			echo "  <a href=\"../out/out.MyDocuments.php?inProcess=1\"><span class=\"sb-nav-icon\">&#128196;</span><span>" . getMLText("my_documents") . "</span></a>\n";
+			if ($this->params['enablecalendar']) echo "  <a href=\"../out/out.Calendar.php?mode=" . $this->params['calendardefaultview'] . "\"><span class=\"sb-nav-icon\">&#9635;</span><span>" . getMLText("calendar") . "</span></a>\n";
+			if ($this->params['user']->isAdmin()) {
+				echo " <div class=\"sb-sidebar-divider\"></div><div class=\"sb-sidebar-label\">Management</div>\n";
+				echo "  <a href=\"../out/out.AdminTools.php\"><span class=\"sb-nav-icon\">&#9881;</span><span>" . getMLText("admin_tools") . "</span></a>\n";
+			}
+			echo "  <a href=\"../out/out.Help.php\"><span class=\"sb-nav-icon\">?</span><span>" . getMLText("help") . "</span></a>\n";
+		}
+		echo " </nav>\n";
+		echo "</aside>\n";
+		echo "<div class=\"navbar navbar-inverse navbar-fixed-top sb-topbar\">\n";
 		echo " <div class=\"navbar-inner\">\n";
 		echo "  <div class=\"container\">\n";
-		echo "   <a class=\"brand\" href=\"../out/out.ViewFolder.php?folderid=" . $this->params['rootfolderid'] . "\"><img src=\"../styles/logo.png\" alt=\"" . $siteName . "\" style=\"height: 30px; margin-right: 8px; vertical-align: middle;\">" . $siteName . "</a>\n";
 		if (isset($this->params['user']) && $this->params['user']) {
 			echo "   <div class=\"nav-collapse collapse\">\n";
 			echo "   <ul class=\"nav pull-right\">\n";
@@ -166,14 +182,7 @@ class LetoDMS_Bootstrap_Style extends LetoDMS_View_Common
 			echo "    </li>\n";
 			echo "   </ul>\n";
 
-			echo "   <ul class=\"nav\">\n";
-			//		echo "    <li id=\"first\"><a href=\"../out/out.ViewFolder.php?folderid=".$this->params['rootfolderid']."\">".getMLText("content")."</a></li>\n";
-			//		echo "    <li><a href=\"../out/out.SearchForm.php?folderid=".$this->params['rootfolderid']."\">".getMLText("search")."</a></li>\n";
-			if ($this->params['enablecalendar']) echo "    <li><a href=\"../out/out.Calendar.php?mode=" . $this->params['calendardefaultview'] . "\">" . getMLText("calendar") . "</a></li>\n";
-			if ($this->params['user']->isAdmin()) echo "    <li><a href=\"../out/out.AdminTools.php\">" . getMLText("admin_tools") . "</a></li>\n";
-			echo "    <li><a href=\"../out/out.Help.php\">" . getMLText("help") . "</a></li>\n";
-			echo "   </ul>\n";
-			echo "     <form action=\"../op/op.Search.php\" class=\"form-inline navbar-search pull-left\" autocomplete=\"off\">";
+			echo "     <form action=\"../op/op.Search.php\" class=\"form-inline navbar-search pull-left\" autocomplete=\"off\"><span class=\"sb-search-icon\">&#128269;</span>";
 			if ($folder != null && is_object($folder) && !strcasecmp(get_class($folder), "LetoDMS_Core_Folder")) {
 				echo "      <input type=\"hidden\" name=\"folderid\" value=\"" . $folder->getID() . "\" />";
 			}

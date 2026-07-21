@@ -1,5 +1,13 @@
 
 $(document).ready( function() {
+	$('.sb-sidebar-toggle').on('click', function() {
+		var isOpen = $('body').toggleClass('sb-sidebar-open').hasClass('sb-sidebar-open');
+		$(this).attr('aria-expanded', isOpen ? 'true' : 'false');
+	});
+	$('.sb-sidebar-nav a').each(function() {
+		if (window.location.pathname.indexOf($(this).attr('href').split('/').pop().split('?')[0]) !== -1)
+			$(this).addClass('active');
+	});
 	$('body').on('hidden', '.modal', function () {
 		$(this).removeData('modal');
 	});
