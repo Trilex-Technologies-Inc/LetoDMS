@@ -152,6 +152,26 @@ class LetoDMS_Bootstrap_Style extends LetoDMS_View_Common
 		if (isset($this->params['user']) && $this->params['user']) {
 			echo "   <div class=\"nav-collapse collapse\">\n";
 			echo "   <ul class=\"nav pull-right\">\n";
+			if ($this->params['user']->isAdmin()) {
+				echo "    <li class=\"dropdown sb-admin-menu\">\n";
+				echo "     <a href=\"#\" class=\"dropdown-toggle sb-admin-trigger\" data-toggle=\"dropdown\" title=\"" . getMLText("admin_tools") . "\" aria-label=\"" . getMLText("admin_tools") . "\"><span class=\"sb-gear\">&#9881;</span><b class=\"caret\"></b></a>\n";
+				echo "     <ul class=\"dropdown-menu sb-admin-dropdown\" role=\"menu\">\n";
+				echo "      <li><a href=\"../out/out.AdminTools.php\"><span class=\"sb-menu-icon\">&#9776;</span>" . getMLText("admin_tools") . "</a></li>\n";
+				echo "      <li><a href=\"../out/out.Settings.php\"><span class=\"sb-menu-icon\">&#9881;</span>" . getMLText("settings") . "</a></li>\n";
+				echo "      <li><a href=\"../out/out.UsrMgr.php\"><span class=\"sb-menu-icon\">&#9786;</span>" . getMLText("user_management") . "</a></li>\n";
+				echo "      <li><a href=\"../out/out.GroupMgr.php\"><span class=\"sb-menu-icon\">&#9783;</span>" . getMLText("group_management") . "</a></li>\n";
+				echo "      <li class=\"divider\"></li>\n";
+				echo "      <li><a href=\"../out/out.Categories.php\"><span class=\"sb-menu-icon\">&#9671;</span>" . getMLText("global_document_categories") . "</a></li>\n";
+				echo "      <li><a href=\"../out/out.AttributeMgr.php\"><span class=\"sb-menu-icon\">&#9678;</span>" . getMLText("global_attributedefinitions") . "</a></li>\n";
+				if ($this->params['workflowmode'] != 'traditional')
+					echo "      <li><a href=\"../out/out.WorkflowMgr.php\"><span class=\"sb-menu-icon\">&#8635;</span>" . getMLText("global_workflows") . "</a></li>\n";
+				echo "      <li><a href=\"../out/out.BackupTools.php\"><span class=\"sb-menu-icon\">&#128190;</span>" . getMLText("backup_tools") . "</a></li>\n";
+				if (!empty($this->params['logfileenable']))
+					echo "      <li><a href=\"../out/out.LogManagement.php\"><span class=\"sb-menu-icon\">&#9776;</span>" . getMLText("log_management") . "</a></li>\n";
+				echo "      <li><a href=\"../out/out.Info.php\"><span class=\"sb-menu-icon\">i</span>" . getMLText("version_info") . "</a></li>\n";
+				echo "     </ul>\n";
+				echo "    </li>\n";
+			}
 			echo "    <li class=\"dropdown\">\n";
 			echo "     <a href=\"#\" class=\"dropdown-toggle\" data-toggle=\"dropdown\">" . getMLText("signed_in_as") . " " . htmlspecialchars($this->params['user']->getFullName()) . "<b class=\"caret\"></b></a>\n";
 			echo "     <ul class=\"dropdown-menu\" role=\"menu\">\n";
