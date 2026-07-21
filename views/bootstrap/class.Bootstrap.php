@@ -83,7 +83,7 @@ class LetoDMS_Bootstrap_Style extends LetoDMS_View_Common
 		if (isset($this->params['footnote']) && strlen((string)$this->params['footnote']) > 0) {
 			echo "<div class=\"footNote\">" . (string)$this->params['footnote'] . "</div>";
 		}
-		echo '<div class="app-copyright">&copy; ' . date('Y') . ' ' . htmlspecialchars($siteName) . '. All rights reserved.</div>' . "\n";
+		echo '<div class="app-copyright">&copy; ' . date('Y') . ' ' . htmlspecialchars($siteName) . '<span class="app-footer-separator" aria-hidden="true">&bull;</span>Open source under the GNU GPL v2</div>' . "\n";
 		echo "</div>\n";
 		echo "</div>\n";
 		echo "</footer>\n";
