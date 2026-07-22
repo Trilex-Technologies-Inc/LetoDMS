@@ -5,7 +5,10 @@ class LetoDMS_View_ModuleManager extends LetoDMS_Bootstrap_Style {
 		$this->htmlStartPage('Modules'); $this->globalNavigation(); $this->contentStart(); $this->contentHeading('Module management');
 		if (!empty($this->params['message'])) echo '<div class="alert alert-info">'.htmlspecialchars($this->params['message']).'</div>';
 ?>
-<p class="muted">Install modules to create their required data, then enable or disable them without losing data. <a href="#module-development-guide">Read the module development guide</a>.</p>
+<div class="clearfix" style="margin-bottom:15px">
+<a class="btn btn-info pull-right" href="../out/out.ModuleGuide.php"><i class="icon-book icon-white"></i> Module Development Guide</a>
+<p class="muted" style="margin-top:7px">Install modules to create their required data, then enable or disable them without losing data.</p>
+</div>
 <table class="table table-striped table-bordered">
 <thead><tr><th>Module</th><th>Version</th><th>Status</th><th style="width:300px">Actions</th></tr></thead><tbody>
 <?php foreach ($this->params['modules'] as $name => $module) { ?>
@@ -17,13 +20,13 @@ class LetoDMS_View_ModuleManager extends LetoDMS_Bootstrap_Style {
 </td></tr><?php } ?>
 <?php if (!$this->params['modules']) { ?><tr><td colspan="4">No valid packages were found in the modules directory.</td></tr><?php } ?>
 </tbody></table>
-<?php $this->developmentGuide(); $this->contentEnd(); $this->htmlEndPage(); }
+<?php $this->contentEnd(); $this->htmlEndPage(); }
 
 	private function code($source) {
 		echo '<pre><code>'.htmlspecialchars($source, ENT_QUOTES, 'UTF-8').'</code></pre>';
 	}
 
-	private function developmentGuide() { ?>
+	protected function developmentGuide() { ?>
 <section id="module-development-guide" class="well" style="margin-top:30px">
 <h2>Module Development Guide</h2>
 <p>A module is a self-contained package under <code>modules/</code>. It owns its PHP classes, controllers, views, and database SQL. Core provides generic dispatchers, authentication, enabled-state checks, navigation, and lifecycle actions.</p>
