@@ -35,6 +35,8 @@ class LetoDMS_Bootstrap_Style extends LetoDMS_View_Common
 
 	function htmlStartPage($title = "", $bodyClass = "")
 	{ /* {{{ */
+		$applicationCss = dirname(__FILE__) . '/../../styles/' . $this->theme . '/application.css';
+		$applicationCssVersion = @filemtime($applicationCss);
 		echo "<!DOCTYPE html>\n";
 		echo "<html lang=\"en\">\n<head>\n";
 		echo "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" />\n";
@@ -43,7 +45,7 @@ class LetoDMS_Bootstrap_Style extends LetoDMS_View_Common
 		echo '<link href="../styles/' . $this->theme . '/bootstrap/css/bootstrap-responsive.css" rel="stylesheet">' . "\n";
 		echo '<link href="../styles/' . $this->theme . '/datepicker/css/datepicker.css" rel="stylesheet">' . "\n";
 		echo '<link href="../styles/' . $this->theme . '/chosen/css/chosen.css" rel="stylesheet">' . "\n";
-		echo '<link href="../styles/' . $this->theme . '/application.css" rel="stylesheet">' . "\n";
+		echo '<link href="../styles/' . $this->theme . '/application.css?v=' . ($applicationCssVersion ? $applicationCssVersion : '1') . '" rel="stylesheet">' . "\n";
 		if ($this->extraheader)
 			echo $this->extraheader;
 		echo '<script type="text/javascript" src="../styles/' . $this->theme . '/jquery/jquery-1.8.2.min.js"></script>' . "\n";
@@ -62,11 +64,13 @@ class LetoDMS_Bootstrap_Style extends LetoDMS_View_Common
 
 	function htmlEndPage()
 	{ /* {{{ */
+		$applicationJs = dirname(__FILE__) . '/../../styles/' . $this->theme . '/application.js';
+		$applicationJsVersion = @filemtime($applicationJs);
 		$this->footNote();
 		echo '<script src="../styles/' . $this->theme . '/bootstrap/js/bootstrap.min.js"></script>' . "\n";
 		echo '<script src="../styles/' . $this->theme . '/datepicker/js/bootstrap-datepicker.js"></script>' . "\n";
 		echo '<script src="../styles/' . $this->theme . '/chosen/js/chosen.jquery.min.js"></script>' . "\n";
-		echo '<script src="../styles/' . $this->theme . '/application.js"></script>' . "\n";
+		echo '<script src="../styles/' . $this->theme . '/application.js?v=' . ($applicationJsVersion ? $applicationJsVersion : '1') . '"></script>' . "\n";
 		echo "</body>\n</html>\n";
 	} /* }}} */
 
@@ -256,7 +260,7 @@ class LetoDMS_Bootstrap_Style extends LetoDMS_View_Common
 			if ($pageType == "view_folder" || $pageType == "view_document") {
 				echo "<div class=\"object-page-heading\">" . $pageTitle . "</div>\n";
 			}
-			echo "<div class=\"navbar\">\n";
+			echo "<div class=\"navbar page-navigation\">\n";
 			echo " <div class=\"navbar-inner\">\n";
 			switch ($pageType) {
 				case "view_folder":

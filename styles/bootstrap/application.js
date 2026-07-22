@@ -1,6 +1,14 @@
 
 $(document).ready( function() {
 	var sidebarStorageKey = 'letodms-sidebar-collapsed';
+
+	/*
+	 * Bootstrap 2 listens to both touchstart and click for dropdown toggles.
+	 * Mobile browsers synthesize a click after a tap, which can open and then
+	 * immediately close the menu. Use the click path alone for reliable taps.
+	 */
+	$(document).off('touchstart.dropdown.data-api');
+
 	if (window.matchMedia && window.matchMedia('(min-width: 701px)').matches) {
 		try {
 			if (window.localStorage.getItem(sidebarStorageKey) === 'true')

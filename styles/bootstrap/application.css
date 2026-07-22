@@ -1034,6 +1034,45 @@ body:not(.login) > .container-fluid > .row-fluid > .navbar .nav > li > a:hover {
   body:not(.login) .sb-topbar .nav > li > a { padding: 25px 8px; }
   body:not(.login) > .container-fluid { margin-top: 70px; padding: 22px 15px 32px; }
   body:not(.login) > .row-fluid { margin-left: 0; padding: 0 15px 20px !important; }
+
+  /* Keep page-level navigation dropdowns in the document flow on phones. */
+  body:not(.login) .page-navigation .navbar-inner {
+    display: block;
+    height: auto;
+    padding: 8px 10px;
+    overflow: visible;
+  }
+  body:not(.login) .page-navigation .brand {
+    display: block;
+    float: none;
+    margin: 0 0 6px;
+    padding: 10px 8px;
+  }
+  body:not(.login) .page-navigation .nav {
+    display: block;
+    float: none;
+    width: 100%;
+    margin: 0;
+  }
+  body:not(.login) .page-navigation .nav > li { float: none; }
+  body:not(.login) .page-navigation .nav > li > a {
+    box-sizing: border-box;
+    width: 100%;
+    margin: 1px 0;
+    padding: 10px 8px;
+  }
+  body:not(.login) .page-navigation .dropdown-menu {
+    position: static;
+    top: auto;
+    right: auto;
+    left: auto;
+    float: none;
+    box-sizing: border-box;
+    width: 100%;
+    min-width: 0;
+    margin: 0 0 6px;
+    box-shadow: none;
+  }
 }
 
 /* Folder browser */
@@ -1180,6 +1219,71 @@ body:not(.login) > .container-fluid > .row-fluid > .object-page-heading + .navba
 		border-bottom: 1px solid #eaecf4;
 	}
 	body:not(.login) > .container-fluid > .row-fluid > .object-page-heading + .navbar .nav > li { float: left; }
+}
+
+@media (max-width: 700px) {
+	body:not(.login) > .container-fluid > .row-fluid > .object-page-heading + .page-navigation .navbar-inner,
+	body:not(.login) > .container-fluid > .row-fluid > .object-page-heading + .page-navigation .nav {
+		display: block;
+	}
+	body:not(.login) > .container-fluid > .row-fluid > .object-page-heading + .page-navigation .nav > li {
+		float: none;
+		width: 100%;
+	}
+	body:not(.login) > .container-fluid > .row-fluid > .object-page-heading + .page-navigation .nav > li > a {
+		display: block;
+		box-sizing: border-box;
+		width: 100%;
+		margin: 1px 0;
+		padding: 10px 8px;
+	}
+
+	body:not(.login) .sb-topbar { z-index: 1070; }
+	body:not(.login) .sb-topbar .nav > li > a {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		box-sizing: border-box;
+		min-width: 48px;
+		height: 70px;
+		padding: 0 12px;
+	}
+	body:not(.login) .sb-topbar .dropdown.open { position: static; }
+	body:not(.login) .sb-topbar .dropdown > .dropdown-menu,
+	body:not(.login) .sb-topbar .nav.pull-right > .dropdown > .dropdown-menu {
+		position: fixed;
+		top: 70px;
+		right: 12px;
+		left: 12px;
+		z-index: 1080;
+		box-sizing: border-box;
+		width: auto;
+		min-width: 0;
+		max-height: calc(100vh - 82px);
+		margin: 0;
+		padding: 8px;
+		overflow-x: hidden;
+		overflow-y: auto;
+		-webkit-overflow-scrolling: touch;
+		border-radius: 0 0 10px 10px;
+		background: #fff;
+		box-shadow: 0 12px 30px rgba(58,59,69,.24);
+	}
+	body:not(.login) .sb-topbar .dropdown-menu > li > a {
+		display: flex;
+		align-items: center;
+		box-sizing: border-box;
+		min-height: 48px;
+		padding: 11px 14px;
+		font-size: 15px;
+	}
+	body:not(.login) .sb-topbar .sb-admin-dropdown::before { display: none; }
+	body:not(.login) .sb-topbar .dropdown-menu .dropdown-menu {
+		position: static;
+		width: 100%;
+		margin: 0;
+		box-shadow: none;
+	}
 }
 
 /* Administration dashboard */
