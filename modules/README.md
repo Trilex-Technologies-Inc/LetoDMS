@@ -22,9 +22,9 @@ Both methods return a boolean. Installation should create module-owned tables;
 uninstallation should remove them. Disabling a module never calls uninstall,
 so its data remains intact.
 
-Every module output and operation route must authenticate the user and call
-`LetoDMS_ModuleManager::isEnabled()` before reading or changing module data.
-State-changing operations must use LetoDMS form keys for CSRF protection.
+The generic output and operation dispatchers authenticate the user and verify
+that the requested module is installed and enabled. State-changing module
+operations must use POST and LetoDMS form keys for CSRF protection.
 
 Core exposes `out/out.Module.php` and `op/op.Module.php` as generic dispatchers.
 All module-specific controllers, classes, views, and SQL remain inside the
