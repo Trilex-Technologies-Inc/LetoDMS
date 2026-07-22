@@ -79,6 +79,7 @@ class LetoDMS_View_AdminTools extends LetoDMS_Bootstrap_Style {
 			$maintenanceItems[] = array("../out/out.LogManagement.php", getMLText("log_management"), "icon-list");
 		$systemItems = array(
 			array("../out/out.Settings.php", getMLText("settings"), "icon-cog"),
+			array("../out/out.ModuleManager.php", "Modules", "icon-th"),
 			array("../out/out.Statistic.php", getMLText("folders_and_documents_statistic"), "icon-signal"),
 			array("../out/out.ObjectCheck.php", getMLText("objectcheck"), "icon-check"),
 			array("../out/out.Info.php", getMLText("version_info"), "icon-info-sign")

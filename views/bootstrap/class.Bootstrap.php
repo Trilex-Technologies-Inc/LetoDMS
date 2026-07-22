@@ -139,6 +139,8 @@ class LetoDMS_Bootstrap_Style extends LetoDMS_View_Common
 		echo "  <a href=\"../out/out.ViewFolder.php?folderid=" . $this->params['rootfolderid'] . "\"><span class=\"sb-nav-icon\">&#9638;</span><span>" . getMLText("content") . "</span></a>\n";
 		if (isset($this->params['user']) && $this->params['user']) {
 			echo "  <a href=\"../out/out.MyDocuments.php?inProcess=1\"><span class=\"sb-nav-icon\">&#128196;</span><span>" . getMLText("my_documents") . "</span></a>\n";
+			if (!empty($this->params['modulenavigation'])) foreach ($this->params['modulenavigation'] as $moduleLink)
+				echo "  <a href=\"".htmlspecialchars($moduleLink['url'])."\"><span class=\"sb-nav-icon\">&#9745;</span><span>".htmlspecialchars($moduleLink['title'])."</span></a>\n";
 			if ($this->params['enablecalendar']) echo "  <a href=\"../out/out.Calendar.php?mode=" . $this->params['calendardefaultview'] . "\"><span class=\"sb-nav-icon\">&#9635;</span><span>" . getMLText("calendar") . "</span></a>\n";
 			if ($this->params['user']->isAdmin()) {
 				echo " <div class=\"sb-sidebar-divider\"></div><div class=\"sb-sidebar-label\">Management</div>\n";
