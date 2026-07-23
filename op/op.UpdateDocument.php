@@ -26,7 +26,7 @@ include("../inc/inc.ClassUI.php");
 include("../inc/inc.Authentication.php");
 
 if (!isset($_POST["documentid"]) || !is_numeric($_POST["documentid"]) || intval($_POST["documentid"])<1) {
-	UI::exitError(getMLText("document_title", array("documentname" => getMLText("invalid_doc_id"))),getMLText("invalid_doc_id"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => getMLText("invalid_doc_id"))),getMLText("invalid_doc_id"));
 }
 
 $documentid = $_POST["documentid"];
@@ -34,17 +34,17 @@ $document = $dms->getDocument($documentid);
 $folder = $document->getFolder();
 
 if (!is_object($document)) {
-	UI::exitError(getMLText("document_title", array("documentname" => getMLText("invalid_doc_id"))),getMLText("invalid_doc_id"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => getMLText("invalid_doc_id"))),getMLText("invalid_doc_id"));
 }
 
 if ($document->getAccessMode($user) < M_READWRITE) {
-	UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("access_denied"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("access_denied"));
 }
 
 if ($document->isLocked()) {
 	$lockingUser = $document->getLockingUser();
 	if (($lockingUser->getID() != $user->getID()) && ($document->getAccessMode($user) != M_ALL)) {
-		UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("no_update_cause_locked"));
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("no_update_cause_locked"));
 	}
 	else $document->setLocked(false);
 }
@@ -53,10 +53,10 @@ $comment  = $_POST["comment"];
 
 if ($_FILES['userfile']['error'] == 0) {
 	if(!is_uploaded_file($_FILES["userfile"]["tmp_name"]))
-		UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("error_occured"));
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("error_occured"));
 
 	if($_FILES["userfile"]["size"] == 0)
-		UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("uploading_zerosize"));
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("uploading_zerosize"));
 
 	$userfiletmp = $_FILES["userfile"]["tmp_name"];
 	$userfiletype = $_FILES["userfile"]["type"];
@@ -71,19 +71,19 @@ if ($_FILES['userfile']['error'] == 0) {
 			$userfiletype = $mimetype[0];
 			$userfilename= $_POST["dropfolderfileform1"];
 		} else {
-			UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("error_occured"));
+			(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("error_occured"));
 		}
 	} else {
-		UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("error_occured"));
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("error_occured"));
 	}
 } else {
-	UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("uploading_failed"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("uploading_failed"));
 }
 
 /* Check if the uploaded file is identical to last version */
 	$lc = $document->getLatestContent();
-	if($lc->getChecksum() == LetoDMS_Core_File::checksum($userfiletmp)) {
-		UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("identical_version"));
+	if($lc->getChecksum() == (new LetoDMS_Core_File())->checksum($userfiletmp)) {
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("identical_version"));
 	}
 
 	$lastDotIndex = strrpos(basename($userfilename), ".");
@@ -169,7 +169,7 @@ if ($_FILES['userfile']['error'] == 0) {
 
 	$contentResult=$document->addContent($comment, $user, $userfiletmp, basename($userfilename), $fileType, $userfiletype, $reviewers, $approvers, $version=0, $attributes);
 	if (is_bool($contentResult) && !$contentResult) {
-		UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("error_occured"));
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("error_occured"));
 	}
 	else {
 		// Send notification to subscribers.
@@ -178,7 +178,7 @@ if ($_FILES['userfile']['error'] == 0) {
 			$folder = $document->getFolder();
 			$subject = "###SITENAME###: ".$document->getName()." - ".getMLText("document_updated_email");
 			$message = getMLText("document_updated_email")."\r\n";
-			$message .= 
+			$message .=
 				getMLText("document").": ".$document->getName()."\r\n".
 				getMLText("folder").": ".$folder->getFolderPathPlain()."\r\n".
 				getMLText("comment").": ".$document->getComment()."\r\n".
@@ -215,7 +215,7 @@ if ($_FILES['userfile']['error'] == 0) {
 					// Send notification to subscribers.
 					$subject = "###SITENAME###: ".$document->getName()." - ".getMLText("expiry_changed_email");
 					$message = getMLText("expiry_changed_email")."\r\n";
-					$message .= 
+					$message .=
 						getMLText("document").": ".$document->getName()."\r\n".
 						getMLText("folder").": ".$folder->getFolderPathPlain()."\r\n".
 						getMLText("comment").": ".$document->getComment()."\r\n".
@@ -230,7 +230,7 @@ if ($_FILES['userfile']['error'] == 0) {
 					}
 				}
 			} else {
-				UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("error_occured"));
+				(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("error_occured"));
 			}
 		}
 	}

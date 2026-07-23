@@ -49,7 +49,7 @@ function addEvent($from, $to, $name, $comment ){
 	global $db,$user;
 
 	$queryStr = "INSERT INTO tblEvents (name, comment, start, stop, date, userID) VALUES ".
-		"(".$db->qstr($name).", ".$db->qstr($comment).", ".(int) $from.", ".(int) $to.", ".mktime().", ".$user->getID().")";
+		"(".$db->qstr($name).", ".$db->qstr($comment).", ".(int) $from.", ".(int) $to.", ".time().", ".$user->getID().")";
 	
 	$ret = $db->getResult($queryStr);
 	return $ret;
@@ -76,7 +76,7 @@ function editEvent($id, $from, $to, $name, $comment ){
 
 	global $db;
 	
-	$queryStr = "UPDATE tblEvents SET start = " . (int) $from . ", stop = " . (int) $to . ", name = " . $db->qstr($name) . ", comment = " . $db->qstr($comment) . ", date = " . mktime() . " WHERE id = ". (int) $id;
+	$queryStr = "UPDATE tblEvents SET start = " . (int) $from . ", stop = " . (int) $to . ", name = " . $db->qstr($name) . ", comment = " . $db->qstr($comment) . ", date = " . time() . " WHERE id = ". (int) $id;
 	$ret = $db->getResult($queryStr);	
 	return $ret;
 }

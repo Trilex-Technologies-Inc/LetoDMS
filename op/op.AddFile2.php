@@ -76,26 +76,26 @@ if( move_uploaded_file( $source_file_path, $target_file_path ) ) {
 		else
 			$fileType = substr($userfilename, $lastDotIndex);
 
-		$res = $document->addDocumentFile($name, $comment, $user, $userfiletmp, 
+		$res = $document->addDocumentFile($name, $comment, $user, $userfiletmp,
 																			basename($userfilename),$fileType, $userfiletype );
-																		
+
 		if (is_bool($res) && !$res) {
-			UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("error_occured"));
+			(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("error_occured"));
 		} else {
 			$document->getNotifyList();
 			// Send notification to subscribers.
 			if($notifier) {
 				$subject = "###SITENAME###: ".$document->getName()." - ".getMLText("new_file_email");
 				$message = getMLText("new_file_email")."\r\n";
-				$message .= 
+				$message .=
 					getMLText("name").": ".$name."\r\n".
 					getMLText("comment").": ".$comment."\r\n".
-					getMLText("user").": ".$user->getFullName()." <". $user->getEmail() .">\r\n".	
+					getMLText("user").": ".$user->getFullName()." <". $user->getEmail() .">\r\n".
 					"URL: ###URL_PREFIX###out/out.ViewDocument.php?documentid=".$document->getID()."\r\n";
 
 				$subject=$subject;
 				$message=$message;
-				
+
 				$notifier->toList($user, $document->_notifyList["users"], $subject, $message);
 				foreach ($document->_notifyList["groups"] as $grp) {
 					$notifier->toGroup($user, $grp, $subject, $message);

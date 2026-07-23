@@ -26,17 +26,17 @@ include("../inc/inc.ClassUI.php");
 include("../inc/inc.Authentication.php");
 
 if (!$user->isAdmin()) {
-	UI::exitError(getMLText("admin_tools"),getMLText("access_denied"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("access_denied"));
 }
 
 $workflows = $dms->getAllWorkflows();
 if (is_bool($workflows)) {
-	UI::exitError(getMLText("admin_tools"),getMLText("internal_error"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("internal_error"));
 }
 
 $workflowstates = $dms->getAllWorkflowStates();
 if (is_bool($workflowstates)) {
-	UI::exitError(getMLText("admin_tools"),getMLText("internal_error"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("internal_error"));
 }
 
 if(isset($_GET['workflowid']) && $_GET['workflowid']) {
@@ -46,7 +46,7 @@ if(isset($_GET['workflowid']) && $_GET['workflowid']) {
 }
 
 $tmp = explode('.', basename($_SERVER['SCRIPT_FILENAME']));
-$view = UI::factory($theme, $tmp[1], array('dms'=>$dms, 'user'=>$user, 'selworkflow'=>$selworkflow, 'allworkflows'=>$workflows, 'allworkflowstates'=>$workflowstates));
+$view = (new UI($GLOBALS['theme'] ?? 'bootstrap'))->factory($theme, $tmp[1], array('dms'=>$dms, 'user'=>$user, 'selworkflow'=>$selworkflow, 'allworkflows'=>$workflows, 'allworkflowstates'=>$workflowstates));
 if($view) {
 	$view->show();
 	exit;

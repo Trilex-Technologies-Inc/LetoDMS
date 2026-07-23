@@ -30,6 +30,22 @@ require_once("class.Bootstrap.php");
  * @version    Release: @package_version@
  */
 class LetoDMS_View_AdminTools extends LetoDMS_Bootstrap_Style {
+	private function adminCard($title, $icon, $items) { /* {{{ */
+		if (!$items) return;
+?>
+		<section class="span6 well admin-card">
+			<header class="admin-card-header">
+				<span class="admin-card-icon"><i class="<?php echo $icon; ?> icon-white"></i></span>
+				<h2><?php echo htmlspecialchars($title); ?></h2>
+			</header>
+			<ul class="nav nav-list admin-link-list">
+<?php foreach ($items as $item) { ?>
+				<li><a href="<?php echo htmlspecialchars($item[0]); ?>"><i class="<?php echo $item[2]; ?>"></i><span><?php echo htmlspecialchars($item[1]); ?></span><i class="icon-chevron-right admin-link-arrow"></i></a></li>
+<?php } ?>
+			</ul>
+		</section>
+<?php
+	} /* }}} */
 
 	function show() { /* {{{ */
 		$dms = $this->params['dms'];
@@ -40,36 +56,59 @@ class LetoDMS_View_AdminTools extends LetoDMS_Bootstrap_Style {
 		$this->htmlStartPage(getMLText("admin_tools"));
 		$this->globalNavigation();
 		$this->contentStart();
-		$this->pageNavigation(getMLText("admin_tools"), "admin_tools");
-//		$this->contentHeading(getMLText("admin_tools"));
-		$this->contentContainerStart();
+		$this->contentHeading(getMLText("admin_tools"));
+
+		$userItems = array(
+			array("../out/out.UsrMgr.php", getMLText("user_management"), "icon-user"),
+			array("../out/out.GroupMgr.php", getMLText("group_management"), "icon-th-large")
+		);
+		$definitionItems = array(
+			array("../out/out.DefaultKeywords.php", getMLText("global_default_keywords"), "icon-tags"),
+			array("../out/out.Categories.php", getMLText("global_document_categories"), "icon-folder-open"),
+			array("../out/out.AttributeMgr.php", getMLText("global_attributedefinitions"), "icon-list-alt")
+		);
+		if ($this->params['workflowmode'] != 'traditional') {
+			$definitionItems[] = array("../out/out.WorkflowMgr.php", getMLText("global_workflows"), "icon-random");
+			$definitionItems[] = array("../out/out.WorkflowStatesMgr.php", getMLText("global_workflow_states"), "icon-tasks");
+			$definitionItems[] = array("../out/out.WorkflowActionsMgr.php", getMLText("global_workflow_actions"), "icon-play");
+		}
+		$maintenanceItems = array(
+			array("../out/out.BackupTools.php", getMLText("backup_tools"), "icon-hdd")
+		);
+		if ($logfileenable)
+			$maintenanceItems[] = array("../out/out.LogManagement.php", getMLText("log_management"), "icon-list");
+		$systemItems = array(
+			array("../out/out.Settings.php", getMLText("settings"), "icon-cog"),
+			array("../out/out.ModuleManager.php", "Modules", "icon-th"),
+			array("../out/out.Statistic.php", getMLText("folders_and_documents_statistic"), "icon-signal"),
+			array("../out/out.ObjectCheck.php", getMLText("objectcheck"), "icon-check"),
+			array("../out/out.Info.php", getMLText("version_info"), "icon-info-sign")
+		);
 ?>
-	<ul class="unstyled">
-		<li class="first"><a href="../out/out.Statistic.php"><?php echo getMLText("folders_and_documents_statistic")?></a></li>
-		<li><a href="../out/out.BackupTools.php"><?php echo getMLText("backup_tools")?></a></li>
-<?php		
-		if ($logfileenable) echo "<li><a href=\"../out/out.LogManagement.php\">".getMLText("log_management")."</a></li>";
-?>
-		<li><a href="../out/out.UsrMgr.php"><?php echo getMLText("user_management")?></a></li>
-		<li><a href="../out/out.GroupMgr.php"><?php echo getMLText("group_management")?></a></li>
-		<li><a href="../out/out.DefaultKeywords.php"><?php echo getMLText("global_default_keywords")?></a></li>
-		<li><a href="../out/out.Categories.php"><?php echo getMLText("global_document_categories")?></a></li>
-		<li><a href="../out/out.AttributeMgr.php"><?php echo getMLText("global_attributedefinitions")?></a></li>
-		<li><a href="../out/out.Info.php"><?php echo getMLText("version_info")?></a></li>
+<div class="admin-dashboard">
+	<div class="row-fluid admin-grid-row">
+		<?php $this->adminCard(getMLText("user_group_management"), "icon-user", $userItems); ?>
+		<?php $this->adminCard(getMLText("definitions"), "icon-book", $definitionItems); ?>
+	</div>
+	<div class="row-fluid admin-grid-row">
+		<?php $this->adminCard(getMLText("backup_log_management"), "icon-hdd", $maintenanceItems); ?>
+		<?php $this->adminCard(getMLText("misc"), "icon-wrench", $systemItems); ?>
+	</div>
 <?php
 		if($enablefullsearch) {
-?>
-		<li><a href="../out/out.Indexer.php"><?php echo getMLText("update_fulltext_index")?></a></li>
-		<li><a href="../out/out.CreateIndex.php"><?php echo getMLText("create_fulltext_index")?></a></li>
-		<li><a href="../out/out.IndexInfo.php"><?php echo getMLText("fulltext_info")?></a></li>
-<?php
+			$searchItems = array(
+				array("../out/out.Indexer.php", getMLText("update_fulltext_index"), "icon-refresh"),
+				array("../out/out.CreateIndex.php", getMLText("create_fulltext_index"), "icon-plus-sign"),
+				array("../out/out.IndexInfo.php", getMLText("fulltext_info"), "icon-info-sign")
+			);
+			echo '<div class="row-fluid admin-grid-row">';
+			$this->adminCard(getMLText("fullsearch"), "icon-search", $searchItems);
+			echo '</div>';
 		}
 ?>
-	<li><a href="../out/out.ObjectCheck.php"><?php echo getMLText("objectcheck")?></a></li>
-	<li><a href="../out/out.Settings.php"><?php echo getMLText("settings")?></a></li>
-	</ul>
+</div>
 <?php
-		$this->contentContainerEnd();
+		$this->contentEnd();
 		$this->htmlEndPage();
 	} /* }}} */
 }

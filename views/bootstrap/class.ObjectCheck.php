@@ -48,7 +48,7 @@ class LetoDMS_View_ObjectCheck extends LetoDMS_Bootstrap_Style {
 				}
 				print $foldername;
 				print "</a></td>";
-				
+
 				$owner = $folder->getOwner();
 				print "<td>".htmlspecialchars($owner->getFullName())."</td>";
 				print "<td>Folderlist is '".$folderList."', should be '".$path."'</td>";
@@ -75,7 +75,7 @@ class LetoDMS_View_ObjectCheck extends LetoDMS_Bootstrap_Style {
 				print "<tr>\n";
 				$this->needsrepair = true;
 				$lc = $document->getLatestContent();
-				print "<td><a class=\"standardText\" href=\"../out/out.ViewDocument.php?documentid=".$document->getID()."\"><img class=\"mimeicon\" src=\"../out/images/icons/".UI::getMimeIcon($lc->getFileType())."\" title=\"".$lc->getMimeType()."\"></a></td>";
+				print "<td><a class=\"standardText\" href=\"../out/out.ViewDocument.php?documentid=".$document->getID()."\"><img class=\"mimeicon\" src=\"../out/images/icons/".(new UI($GLOBALS['theme'] ?? 'bootstrap'))->getMimeIcon($lc->getFileType())."\" title=\"".$lc->getMimeType()."\"></a></td>";
 				print "<td><a class=\"standardText\" href=\"../out/out.ViewDocument.php?documentid=".$document->getID()."\">/";
 				$folder = $document->getFolder();
 				$tmppath = $folder->getPath();
@@ -103,7 +103,7 @@ class LetoDMS_View_ObjectCheck extends LetoDMS_Bootstrap_Style {
 					$filepath = $dms->contentDir . $version->getPath();
 					if(!file_exists($filepath)) {
 					print "<tr>\n";
-					print "<td><a class=\"standardText\" href=\"../out/out.ViewDocument.php?documentid=".$document->getID()."\"><img class=\"mimeicon\" src=\"../out/images/icons/".UI::getMimeIcon($version->getFileType())."\" title=\"".$version->getMimeType()."\"></a></td>";
+					print "<td><a class=\"standardText\" href=\"../out/out.ViewDocument.php?documentid=".$document->getID()."\"><img class=\"mimeicon\" src=\"../out/images/icons/".(new UI($GLOBALS['theme'] ?? 'bootstrap'))->getMimeIcon($version->getFileType())."\" title=\"".$version->getMimeType()."\"></a></td>";
 					print "<td><a class=\"standardText\" href=\"../out/out.ViewDocument.php?documentid=".$document->getID()."\">/";
 					$folder = $document->getFolder();
 					$tmppath = $folder->getPath();

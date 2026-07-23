@@ -47,11 +47,11 @@ obj = -1;
 function showCategories(selectObj) {
 	if (obj != -1)
 		obj.style.display = "none";
-	
+
 	id = selectObj.options[selectObj.selectedIndex].value;
 	if (id == -1)
 		return;
-	
+
 	obj = document.getElementById("categories" + id);
 	obj.style.display = "";
 }
@@ -68,12 +68,12 @@ function showCategories(selectObj) {
 				<option value="0"><?php echo getMLText("new_document_category")?>
 
 				<?php
-				
+
 				$selected=0;
-				$count=2;				
+				$count=2;
 				foreach ($categories as $category) {
-				
-					if (isset($_GET["categoryid"]) && $category->getID()==$_GET["categoryid"]) $selected=$count;				
+
+					if (isset($_GET["categoryid"]) && $category->getID()==$_GET["categoryid"]) $selected=$count;
 					print "<option value=\"".$category->getID()."\">" . htmlspecialchars($category->getName());
 					$count++;
 				}
@@ -87,7 +87,7 @@ function showCategories(selectObj) {
 <div class="well">
 
 <table class="table-condensed"><tr>
-		<td id="categories0" style="display : none;">	
+		<td id="categories0" style="display : none;">
 			<form class="form-inline" action="../op/op.Categories.php" method="post">
   		<?php echo createHiddenFieldWithKey('addcategory'); ?>
 			<input type="Hidden" name="action" value="addcategory">
@@ -95,10 +95,10 @@ function showCategories(selectObj) {
 			<input type="submit" class="btn" value="<?php printMLText("new_document_category"); ?>">
 			</form>
 		</td>
-	
-<?php	
+
+<?php
 			foreach ($categories as $category) {
-				print "<td id=\"categories".$category->getID()."\" style=\"display : none;\">";	
+				print "<td id=\"categories".$category->getID()."\" style=\"display : none;\">";
 ?>
 			<table class="table-condensed">
 				<tr>
@@ -133,7 +133,7 @@ function showCategories(selectObj) {
 						</form>
 					</td>
 				</tr>
-				
+
 			</table>
 		</td>
 <?php } ?>
@@ -141,7 +141,7 @@ function showCategories(selectObj) {
 </div>
 </div>
 </div>
-	
+
 <script language="JavaScript">
 sel = document.getElementById("selector");
 sel.selectedIndex=<?php print $selected ?>;

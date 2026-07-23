@@ -26,31 +26,31 @@ include("../inc/inc.ClassEmail.php");
 include("../inc/inc.Authentication.php");
 
 if (!isset($_GET["documentid"]) || !is_numeric($_GET["documentid"]) || intval($_GET["documentid"])<1) {
-	UI::exitError(getMLText("document_title", array("documentname" => getMLText("invalid_doc_id"))),getMLText("invalid_doc_id"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => getMLText("invalid_doc_id"))),getMLText("invalid_doc_id"));
 }
 
 $documentid = $_GET["documentid"];
 $document = $dms->getDocument($documentid);
 
 if (!is_object($document)) {
-	UI::exitError(getMLText("document_title", array("documentname" => getMLText("invalid_doc_id"))),getMLText("invalid_doc_id"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => getMLText("invalid_doc_id"))),getMLText("invalid_doc_id"));
 }
 
 if (!isset($_GET["action"]) || (strcasecmp($_GET["action"], "delnotify") && strcasecmp($_GET["action"],"addnotify"))) {
-	UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("invalid_action"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("invalid_action"));
 }
 
 $action = $_GET["action"];
 
 if (isset($_GET["userid"]) && (!is_numeric($_GET["userid"]) || $_GET["userid"]<-1)) {
-	UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("unknown_user"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("unknown_user"));
 }
 
 if(isset($_GET["userid"]))
 	$userid = $_GET["userid"];
 
 if (isset($_GET["groupid"]) && (!is_numeric($_GET["groupid"]) || $_GET["groupid"]<-1)) {
-	UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("unknown_group"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("unknown_group"));
 }
 
 if(isset($_GET["groupid"]))
@@ -59,14 +59,14 @@ if(isset($_GET["groupid"]))
 if (isset($_GET["groupid"])&&$_GET["groupid"]!=-1){
 	$group=$dms->getGroup($groupid);
 	if (!$group->isMember($user,true) && !$user->isAdmin())
-		UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("access_denied"));
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("access_denied"));
 }
 
 $folder = $document->getFolder();
 $docPathHTML = getFolderPathHTML($folder, true). " / <a href=\"../out/out.ViewDocument.php?documentid=".$documentid."\">".$document->getName()."</a>";
 
 if ($document->getAccessMode($user) < M_READ) {
-	UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("access_denied"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("access_denied"));
 }
 
 // delete notification
@@ -83,16 +83,16 @@ if ($action == "delnotify"){
 	}
 	switch ($res) {
 		case -1:
-			UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),isset($userid) ? getMLText("unknown_user") : getMLText("unknown_group"));
+			(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => $document->getName())),isset($userid) ? getMLText("unknown_user") : getMLText("unknown_group"));
 			break;
 		case -2:
-			UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("access_denied"));
+			(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("access_denied"));
 			break;
 		case -3:
-			UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("already_subscribed"));
+			(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("already_subscribed"));
 			break;
 		case -4:
-			UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("internal_error"));
+			(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("internal_error"));
 			break;
 		case 0:
 			// Email user / group, informing them of subscription change.
@@ -107,7 +107,7 @@ if ($action == "delnotify"){
 				}
 				$subject = "###SITENAME###: ".$document->getName()." - ".getMLText("notify_deleted_email");
 				$message = getMLText("notify_deleted_email")."\r\n";
-				$message .= 
+				$message .=
 					getMLText("document").": ".$document->getName()."\r\n".
 					getMLText("folder").": ".$path."\r\n".
 					getMLText("comment").": ".$document->getComment()."\r\n".
@@ -115,7 +115,7 @@ if ($action == "delnotify"){
 
 //				$subject=mydmsDecodeString($subject);
 //				$message=mydmsDecodeString($message);
-		
+
 				if (isset($userid)) {
 					$obj = $dms->getUser($userid);
 					$notifier->toIndividual($user, $obj, $subject, $message);
@@ -136,16 +136,16 @@ else if ($action == "addnotify") {
 		$res = $document->addNotify($userid, true);
 		switch ($res) {
 			case -1:
-				UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("unknown_user"));
+				(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("unknown_user"));
 				break;
 			case -2:
-				UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("access_denied"));
+				(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("access_denied"));
 				break;
 			case -3:
-				UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("already_subscribed"));
+				(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("already_subscribed"));
 				break;
 			case -4:
-				UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("internal_error"));
+				(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("internal_error"));
 				break;
 			case 0:
 				// Email user / group, informing them of subscription.
@@ -161,7 +161,7 @@ else if ($action == "addnotify") {
 					$obj = $dms->getUser($userid);
 					$subject = "###SITENAME###: ".$document->getName()." - ".getMLText("notify_added_email");
 					$message = getMLText("notify_added_email")."\r\n";
-					$message .= 
+					$message .=
 						getMLText("document").": ".$document->getName()."\r\n".
 						getMLText("folder").": ".$path."\r\n".
 						getMLText("comment").": ".$document->getComment()."\r\n".
@@ -169,7 +169,7 @@ else if ($action == "addnotify") {
 
 //					$subject=mydmsDecodeString($subject);
 //					$message=mydmsDecodeString($message);
-					
+
 					$notifier->toIndividual($user, $obj, $subject, $message);
 				}
 
@@ -180,16 +180,16 @@ else if ($action == "addnotify") {
 		$res = $document->addNotify($groupid, false);
 		switch ($res) {
 			case -1:
-				UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("unknown_group"));
+				(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("unknown_group"));
 				break;
 			case -2:
-				UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("access_denied"));
+				(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("access_denied"));
 				break;
 			case -3:
-				UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("already_subscribed"));
+				(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("already_subscribed"));
 				break;
 			case -4:
-				UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("internal_error"));
+				(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("internal_error"));
 				break;
 			case 0:
 				if ($notifier){
@@ -204,7 +204,7 @@ else if ($action == "addnotify") {
 					$obj = $dms->getGroup($groupid);
 					$subject = "###SITENAME###: ".$document->getName()." - ".getMLText("notify_added_email");
 					$message = getMLText("notify_added_email")."\r\n";
-					$message .= 
+					$message .=
 						getMLText("document").": ".$document->getName()."\r\n".
 						getMLText("folder").": ".$path."\r\n".
 						getMLText("comment").": ".$document->getComment()."\r\n".
@@ -212,7 +212,7 @@ else if ($action == "addnotify") {
 
 //					$subject=mydmsDecodeString($subject);
 //					$message=mydmsDecodeString($message);
-					
+
 					$notifier->toGroup($user, $obj, $subject, $message);
 				}
 				break;

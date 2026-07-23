@@ -43,14 +43,14 @@ class LetoDMS_View_AddDocument extends LetoDMS_Blue_Style {
 		$this->htmlStartPage(getMLText("folder_title", array("foldername" => htmlspecialchars($folder->getName()))));
 		$this->globalNavigation($folder);
 		$this->pageNavigation(getFolderPathHTML($folder, true), "view_folder", $folder);
-		
+
 ?>
 		<script language="JavaScript">
 		function checkForm()
 		{
 			msg = "";
 			//if (document.form1.userfile[].value == "") msg += "<?php printMLText("js_no_file");?>\n";
-			
+
 <?php
 			if ($strictformcheck) {
 ?>
@@ -74,17 +74,17 @@ class LetoDMS_View_AddDocument extends LetoDMS_Blue_Style {
 		{
 			var li = document.createElement('li');
 			li.innerHTML = '<input type="File" name="userfile[]" size="60">';
-			document.getElementById('files').appendChild(li);	
-		//	document.getElementById("files").innerHTML += '<br><input type="File" name="userfile[]" size="60">'; 
+			document.getElementById('files').appendChild(li);
+		//	document.getElementById("files").innerHTML += '<br><input type="File" name="userfile[]" size="60">';
 			document.form1.name.disabled=true;
 		}
-		
+
 		</script>
 
 <?php
 		$this->contentHeading(getMLText("add_document"));
 		$this->contentContainerStart();
-		
+
 		// Retrieve a list of all users and groups that have review / approve
 		// privileges.
 		$docAccess = $folder->getApproversList();
@@ -104,7 +104,7 @@ class LetoDMS_View_AddDocument extends LetoDMS_Blue_Style {
 ?>
 		</table>
 		<?php $this->contentSubHeading(getMLText("document_infos")); ?>
-		
+
 		<form action="../op/op.AddDocument.php" enctype="multipart/form-data" method="post" name="form1" onsubmit="return checkForm();">
 		<?php echo createHiddenFieldWithKey('adddocument'); ?>
 		<input type="hidden" name="folderid" value="<?php print $folderid; ?>">
@@ -125,7 +125,7 @@ class LetoDMS_View_AddDocument extends LetoDMS_Blue_Style {
 			<a href="javascript:chooseKeywords('form1.keywords');"><?php printMLText("use_default_keywords");?></a>
 			<script language="JavaScript">
 			var openDlg;
-		
+
 			function chooseKeywords(target) {
 				openDlg = open("out.KeywordChooser.php?target="+target, "openDlg", "width=500,height=400,scrollbars=yes,resizable=yes");
 			}
@@ -204,21 +204,21 @@ class LetoDMS_View_AddDocument extends LetoDMS_Blue_Style {
 		</table>
 
 		<?php $this->contentSubHeading(getMLText("assign_reviewers")); ?>
-		
+
 			<div class="cbSelectTitle"><?php printMLText("individuals");?>:</div>
 			<div class="cbSelectContainer">
 			<ul class="cbSelectList">
 <?php
 
 			$res=$user->getMandatoryReviewers();
-		
+
 			foreach ($docAccess["users"] as $usr) {
-			
-				if ($usr->getID()==$user->getID()) continue; 
+
+				if ($usr->getID()==$user->getID()) continue;
 
 				$mandatory=false;
 				foreach ($res as $r) if ($r['reviewerUserID']==$usr->getID()) $mandatory=true;
-		
+
 				if ($mandatory) print "<li class=\"cbSelectItem\"><input type='checkbox' checked='checked' disabled='disabled'>". htmlspecialchars($usr->getLogin() . " - ". $usr->getFullName())."</li>";
 				else print "<li class=\"cbSelectItem\"><input id='revInd".$usr->getID()."' type='checkbox' name='indReviewers[]' value='". $usr->getID() ."'>". htmlspecialchars($usr->getLogin() . " - ". $usr->getFullName())."</li>";
 			}
@@ -230,32 +230,32 @@ class LetoDMS_View_AddDocument extends LetoDMS_Blue_Style {
 			<ul class="cbSelectList">
 <?php
 			foreach ($docAccess["groups"] as $grp) {
-			
+
 				$mandatory=false;
-				foreach ($res as $r) if ($r['reviewerGroupID']==$grp->getID()) $mandatory=true;	
-		
+				foreach ($res as $r) if ($r['reviewerGroupID']==$grp->getID()) $mandatory=true;
+
 				if ($mandatory) print "<li class=\"cbSelectItem\"><input type='checkbox' checked='checked' disabled='disabled'>".htmlspecialchars($grp->getName())."</li>";
 				else print "<li class=\"cbSelectItem\"><input id='revGrp".$grp->getID()."' type='checkbox' name='grpReviewers[]' value='". $grp->getID() ."'>".htmlspecialchars($grp->getName())."</li>";
 			}
 		?>
 			</ul>
 			</div>
-			
+
 		<?php $this->contentSubHeading(getMLText("assign_approvers")); ?>
-		
+
 			<div class="cbSelectTitle"><?php printMLText("individuals");?>:</div>
 			<div class="cbSelectContainer">
 			<ul class="cbSelectList">
 <?php
 			$res=$user->getMandatoryApprovers();
-		
+
 			foreach ($docAccess["users"] as $usr) {
-			
-				if ($usr->getID()==$user->getID()) continue; 
+
+				if ($usr->getID()==$user->getID()) continue;
 
 				$mandatory=false;
 				foreach ($res as $r) if ($r['approverUserID']==$usr->getID()) $mandatory=true;
-				
+
 				if ($mandatory) print "<li class=\"cbSelectItem\"><input type='checkbox' checked='checked' disabled='disabled'>". htmlspecialchars($usr->getLogin() . " - ". $usr->getFullName());
 				else print "<li class=\"cbSelectItem\"><input id='appInd".$usr->getID()."' type='checkbox' name='indApprovers[]' value='". $usr->getID() ."'>". htmlspecialchars($usr->getLogin() . " - ". $usr->getFullName());
 			}
@@ -267,10 +267,10 @@ class LetoDMS_View_AddDocument extends LetoDMS_Blue_Style {
 			<ul class="cbSelectList">
 <?php
 			foreach ($docAccess["groups"] as $grp) {
-			
+
 				$mandatory=false;
-				foreach ($res as $r) if ($r['approverGroupID']==$grp->getID()) $mandatory=true;	
-		
+				foreach ($res as $r) if ($r['approverGroupID']==$grp->getID()) $mandatory=true;
+
 				if ($mandatory) print "<li class=\"cbSelectItem\"><input type='checkbox' checked='checked' disabled='disabled'>".htmlspecialchars($grp->getName());
 				else print "<li class=\"cbSelectItem\"><input id='appGrp".$grp->getID()."' type='checkbox' name='grpApprovers[]' value='". $grp->getID() ."'>".htmlspecialchars($grp->getName());
 

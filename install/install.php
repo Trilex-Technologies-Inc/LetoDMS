@@ -61,17 +61,21 @@ function openDBConnection($settings) { /* {{{ */
 } /* }}} */
 
 function printError($error) { /* {{{ */
-	print "<div class=\"install_error\">";
-	print "Error<br />";
+	print "<div class=\"alert alert-error\">";
+	print "<strong>Error</strong><br />";
 	print $error;
 	print "</div>";
 } /* }}} */
 
 function printWarning($error) { /* {{{ */
-	print "<div class=\"install_warning\">";
-	print "Warning<br />";
+	print "<div class=\"alert\">";
+	print "<strong>Warning</strong><br />";
 	print $error;
 	print "</div>";
+} /* }}} */
+
+function installEscape($value) { /* {{{ */
+	return htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8');
 } /* }}} */
 
 function printCheckError($resCheck) { /* {{{ */
@@ -120,7 +124,7 @@ define("LETODMS_VERSION", "4.0.0");
 
 require_once('../inc/inc.ClassSettings.php');
 
-$configDir = Settings::getConfigDir();
+$configDir = (new Settings())->getConfigDir();
 
 /**
  * Check if ENABLE_INSTALL_TOOL exists in config dir
@@ -159,10 +163,8 @@ do {
 if(!$settings->_rootDir)
 	$settings->_rootDir = $rootDir;
 //$settings->_coreDir = $settings->_rootDir;
-//$settings->_luceneClassDir = $settings->_rootDir;
 if(!$settings->_contentDir) {
 	$settings->_contentDir = $settings->_rootDir . 'data/';
-	$settings->_luceneDir = $settings->_rootDir . 'data/lucene/';
 	$settings->_stagingDir = $settings->_rootDir . 'data/staging/';
 }
 $settings->_httpRoot = $httpRoot;
@@ -178,10 +180,38 @@ include "../languages/English/lang.inc";
 include("../inc/inc.ClassUI.php");
 
 
-UI::htmlStartPage("INSTALL");
-UI::contentHeading("letoDMS Installation for version ".LETODMS_VERSION);
-UI::contentContainerStart();
-
+(new UI($GLOBALS['theme'] ?? 'bootstrap'))->htmlStartPage("INSTALL");
+(new UI($GLOBALS['theme'] ?? 'bootstrap'))->contentContainerStart();
+?>
+<style type="text/css">
+	.install-shell { max-width: 1080px; margin: 24px auto 48px; }
+	.install-hero { padding: 28px 32px; margin-bottom: 24px; color: #fff; background: #24445f; background: linear-gradient(135deg, #24445f, #3276b1); border-radius: 8px; box-shadow: 0 8px 24px rgba(36, 68, 95, .18); }
+	.install-hero h1 { margin: 0 0 8px; color: #fff; font-size: 30px; line-height: 1.2; }
+	.install-hero p { margin: 0; color: rgba(255, 255, 255, .85); font-size: 15px; }
+	.install-panel { margin-bottom: 24px; overflow: hidden; background: #fff; border: 1px solid #dfe5ea; border-radius: 8px; box-shadow: 0 3px 12px rgba(30, 50, 70, .07); }
+	.install-panel-header { padding: 18px 22px; background: #f7f9fb; border-bottom: 1px solid #dfe5ea; }
+	.install-panel-header h2 { margin: 0; font-size: 20px; line-height: 1.3; }
+	.install-panel-body { padding: 22px; }
+	.install-form .control-group { margin-bottom: 18px; }
+	.install-form label { font-weight: 600; color: #34495e; }
+	.install-form .input-block-level { box-sizing: border-box; min-height: 38px; }
+	.install-form .help-block { margin: 5px 0 0; color: #6f7d89; font-size: 12px; line-height: 1.4; }
+	.install-form .recommended { border-color: #e3b341; background-color: #fffdf5; }
+	.install-checkbox { padding: 14px 16px; background: #f7f9fb; border: 1px solid #dfe5ea; border-radius: 5px; }
+	.install-checkbox label { margin: 0; }
+	.install-actions { display: flex; align-items: center; justify-content: flex-end; padding: 18px 22px; background: #f7f9fb; border-top: 1px solid #dfe5ea; }
+	.install-actions .btn { min-width: 150px; }
+	@media (max-width: 767px) {
+		.install-shell { margin: 12px; }
+		.install-hero, .install-panel-body { padding: 20px; }
+	}
+</style>
+<main class="install-shell">
+	<header class="install-hero">
+		<h1>letoDMS Installation</h1>
+		<p>Configure version <?php echo installEscape(LETODMS_VERSION); ?> and verify the server and database settings.</p>
+	</header>
+<?php
 
 /**
  * Show phpinfo
@@ -189,8 +219,8 @@ UI::contentContainerStart();
 if (isset($_GET['phpinfo'])) {
 	echo '<a href="install.php">' . getMLText("back") . '</a>';
   phpinfo();
-	UI::contentContainerEnd();
-	UI::htmlEndPage();
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->contentContainerEnd();
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->htmlEndPage();
   exit();
 }
 
@@ -213,8 +243,8 @@ if (isset($_GET['disableinstall'])) { /* {{{ */
 		echo "<br/><br/>";
 		echo '<a href="install.php">' . getMLText("back") . '</a>';
 	}
-	UI::contentContainerEnd();
-	UI::htmlEndPage();
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->contentContainerEnd();
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->htmlEndPage();
   exit();
 } /* }}} */
 
@@ -251,7 +281,6 @@ if ($action=="setSettings") {
 	$settings->_rootDir = $_POST["rootDir"];
 	$settings->_httpRoot = $_POST["httpRoot"];
 	$settings->_contentDir = $_POST["contentDir"];
-	$settings->_luceneDir = $_POST["luceneDir"];
 	$settings->_stagingDir = $_POST["stagingDir"];
 	$settings->_extraPath = $_POST["extraPath"];
 	$settings->_dbDriver = $_POST["dbDriver"];
@@ -260,7 +289,6 @@ if ($action=="setSettings") {
 	$settings->_dbUser = $_POST["dbUser"];
 	$settings->_dbPass = $_POST["dbPass"];
 	$settings->_coreDir = $_POST["coreDir"];
-	$settings->_luceneClassDir = $_POST["luceneClassDir"];
 
 	/**
 	 * Check Parameters, require version 3.3.x
@@ -384,75 +412,96 @@ if ($action=="setSettings") {
 	 * Set parameters
 	 */
 	?>
-	<form action="install.php" method="post" enctype="multipart/form-data">
-	<input type="Hidden" name="action" value="setSettings">
-	    <table>
-	      <!-- SETTINGS - SYSTEM - SERVER -->
-	      <tr ><td><b> <?php printMLText("settings_Server");?></b></td> </tr>
-	      <tr title="<?php printMLText("settings_rootDir_desc");?>">
-	        <td><?php printMLText("settings_rootDir");?>:</td>
-	        <td><input name="rootDir" value="<?php echo $settings->_rootDir ?>" size="100" /></td>
-	      </tr>
-	      <tr title="<?php printMLText("settings_httpRoot_desc");?>">
-	        <td><?php printMLText("settings_httpRoot");?>:</td>
-	        <td><input name="httpRoot" value="<?php echo $settings->_httpRoot ?>" size="100" /></td>
-	      </tr>
-	      <tr title="<?php printMLText("settings_contentDir_desc");?>">
-	        <td><?php printMLText("settings_contentDir");?>:</td>
-	        <td><input name="contentDir" value="<?php echo $settings->_contentDir ?>" size="100" style="background:yellow" /></td>
-	      </tr>
-	      <tr title="<?php printMLText("settings_luceneDir_desc");?>">
-	        <td><?php printMLText("settings_luceneDir");?>:</td>
-	        <td><input name="luceneDir" value="<?php echo $settings->_luceneDir ?>" size="100" style="background:yellow" /></td>
-	      </tr>
-	      <tr title="<?php printMLText("settings_stagingDir_desc");?>">
-	        <td><?php printMLText("settings_stagingDir");?>:</td>
-	        <td><input name="stagingDir" value="<?php echo $settings->_stagingDir ?>" size="100" style="background:yellow" /></td>
-	      </tr>
-	      <tr title="<?php printMLText("settings_coreDir_desc");?>">
-	        <td><?php printMLText("settings_coreDir");?>:</td>
-	        <td><input name="coreDir" value="<?php echo $settings->_coreDir ?>" size="100" /></td>
-	      </tr>
-	      <tr title="<?php printMLText("settings_luceneClassDir_desc");?>">
-	        <td><?php printMLText("settings_luceneClassDir");?>:</td>
-	        <td><input name="luceneClassDir" value="<?php echo $settings->_luceneClassDir ?>" size="100" /></td>
-	      </tr>
-	      <tr title="<?php printMLText("settings_extraPath_desc");?>">
-	        <td><?php printMLText("settings_extraPath");?>:</td>
-	        <td><input name="extraPath" value="<?php echo $settings->_extraPath ?>" size="100" /></td>
-	      </tr>
+	<form class="install-form" action="install.php" method="post">
+		<input type="hidden" name="action" value="setSettings">
 
-	 	    <!-- SETTINGS - SYSTEM - DATABASE -->
-	      <tr ><td><b> <?php printMLText("settings_Database");?></b></td> </tr>
-	      <tr title="<?php printMLText("settings_dbDriver_desc");?>">
-	        <td><?php printMLText("settings_dbDriver");?>:</td>
-	        <td><input name="dbDriver" value="<?php echo $settings->_dbDriver ?>" /></td>
-	      </tr>
-	      <tr title="<?php printMLText("settings_dbHostname_desc");?>">
-	        <td><?php printMLText("settings_dbHostname");?>:</td>
-	        <td><input name="dbHostname" value="<?php echo $settings->_dbHostname ?>" /></td>
-	      </tr>
-	      <tr title="<?php printMLText("settings_dbDatabase_desc");?>">
-	        <td><?php printMLText("settings_dbDatabase");?>:</td>
-	        <td><input name="dbDatabase" value="<?php echo $settings->_dbDatabase ?>" style="background:yellow" /></td>
-	      </tr>
-	      <tr title="<?php printMLText("settings_dbUser_desc");?>">
-	        <td><?php printMLText("settings_dbUser");?>:</td>
-	        <td><input name="dbUser" value="<?php echo $settings->_dbUser ?>" style="background:yellow" /></td>
-	      </tr>
-	      <tr title="<?php printMLText("settings_dbPass_desc");?>">
-	        <td><?php printMLText("settings_dbPass");?>:</td>
-	        <td><input name="dbPass" value="<?php echo $settings->_dbPass ?>" type="password" style="background:yellow" /></td>
-	      </tr>
-	      <tr><td></td></tr>
-	      <tr><td></td></tr>
-	      <tr>
-	        <td><?php printMLText("settings_createdatabase");?>:</td>
-	        <td><input name="createDatabase" type="checkbox" style="background:yellow"/></td>
-	      </tr>
-	    </table>
+		<section class="install-panel">
+			<div class="install-panel-header"><h2><?php printMLText("settings_Server");?></h2></div>
+			<div class="install-panel-body">
+				<div class="row-fluid">
+					<div class="span6">
+						<div class="control-group">
+							<label for="rootDir"><?php printMLText("settings_rootDir");?>:</label>
+							<input class="input-block-level" id="rootDir" name="rootDir" value="<?php echo installEscape($settings->_rootDir); ?>">
+							<span class="help-block"><?php printMLText("settings_rootDir_desc");?></span>
+						</div>
+						<div class="control-group">
+							<label for="httpRoot"><?php printMLText("settings_httpRoot");?>:</label>
+							<input class="input-block-level" id="httpRoot" name="httpRoot" value="<?php echo installEscape($settings->_httpRoot); ?>">
+							<span class="help-block"><?php printMLText("settings_httpRoot_desc");?></span>
+						</div>
+						<div class="control-group">
+							<label for="contentDir"><?php printMLText("settings_contentDir");?>:</label>
+							<input class="input-block-level recommended" id="contentDir" name="contentDir" value="<?php echo installEscape($settings->_contentDir); ?>">
+							<span class="help-block"><?php printMLText("settings_contentDir_desc");?></span>
+						</div>
+						<div class="control-group">
+							<label for="stagingDir"><?php printMLText("settings_stagingDir");?>:</label>
+							<input class="input-block-level recommended" id="stagingDir" name="stagingDir" value="<?php echo installEscape($settings->_stagingDir); ?>">
+							<span class="help-block"><?php printMLText("settings_stagingDir_desc");?></span>
+						</div>
+					</div>
+					<div class="span6">
+						<div class="control-group">
+							<label for="coreDir"><?php printMLText("settings_coreDir");?>:</label>
+							<input class="input-block-level" id="coreDir" name="coreDir" value="<?php echo installEscape($settings->_coreDir); ?>">
+							<span class="help-block"><?php printMLText("settings_coreDir_desc");?></span>
+						</div>
+						<div class="control-group">
+							<label for="extraPath"><?php printMLText("settings_extraPath");?>:</label>
+							<input class="input-block-level" id="extraPath" name="extraPath" value="<?php echo installEscape($settings->_extraPath); ?>">
+							<span class="help-block"><?php printMLText("settings_extraPath_desc");?></span>
+						</div>
+					</div>
+				</div>
+			</div>
+		</section>
 
-	   <input type="Submit" value="<?php printMLText("apply");?>" />
+		<section class="install-panel">
+			<div class="install-panel-header"><h2><?php printMLText("settings_Database");?></h2></div>
+			<div class="install-panel-body">
+				<div class="row-fluid">
+					<div class="span6">
+						<div class="control-group">
+							<label for="dbDriver"><?php printMLText("settings_dbDriver");?>:</label>
+							<input class="input-block-level" id="dbDriver" name="dbDriver" value="<?php echo installEscape($settings->_dbDriver); ?>">
+							<span class="help-block"><?php printMLText("settings_dbDriver_desc");?></span>
+						</div>
+						<div class="control-group">
+							<label for="dbHostname"><?php printMLText("settings_dbHostname");?>:</label>
+							<input class="input-block-level" id="dbHostname" name="dbHostname" value="<?php echo installEscape($settings->_dbHostname); ?>">
+							<span class="help-block"><?php printMLText("settings_dbHostname_desc");?></span>
+						</div>
+						<div class="control-group">
+							<label for="dbDatabase"><?php printMLText("settings_dbDatabase");?>:</label>
+							<input class="input-block-level recommended" id="dbDatabase" name="dbDatabase" value="<?php echo installEscape($settings->_dbDatabase); ?>">
+							<span class="help-block"><?php printMLText("settings_dbDatabase_desc");?></span>
+						</div>
+					</div>
+					<div class="span6">
+						<div class="control-group">
+							<label for="dbUser"><?php printMLText("settings_dbUser");?>:</label>
+							<input class="input-block-level recommended" id="dbUser" name="dbUser" value="<?php echo installEscape($settings->_dbUser); ?>" autocomplete="username">
+							<span class="help-block"><?php printMLText("settings_dbUser_desc");?></span>
+						</div>
+						<div class="control-group">
+							<label for="dbPass"><?php printMLText("settings_dbPass");?>:</label>
+							<input class="input-block-level recommended" id="dbPass" name="dbPass" value="<?php echo installEscape($settings->_dbPass); ?>" type="password" autocomplete="new-password">
+							<span class="help-block"><?php printMLText("settings_dbPass_desc");?></span>
+						</div>
+						<div class="install-checkbox">
+							<label class="checkbox" for="createDatabase">
+								<input id="createDatabase" name="createDatabase" type="checkbox">
+								<?php printMLText("settings_createdatabase");?>
+							</label>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="install-actions">
+				<button class="btn btn-primary btn-large" type="submit"><?php printMLText("apply");?></button>
+			</div>
+		</section>
 	</form>
 	<?php
 
@@ -466,6 +515,7 @@ if ($action=="setSettings") {
 $settings->_printDisclaimer = false;
 $settings->_footNote = false;
 // end of the page
-UI::contentContainerEnd();
-UI::htmlEndPage();
+echo '</main>';
+(new UI($GLOBALS['theme'] ?? 'bootstrap'))->contentContainerEnd();
+(new UI($GLOBALS['theme'] ?? 'bootstrap'))->htmlEndPage();
 ?>

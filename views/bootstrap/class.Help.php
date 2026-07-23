@@ -47,7 +47,7 @@ class LetoDMS_View_Help extends LetoDMS_Bootstrap_Style {
 			// Fallback to English if help file doesn't exist for user's language
 			$helpFile = "../languages/English/help.htm";
 		}
-		
+
 		if (file_exists($helpFile)) {
 			readfile($helpFile);
 		} else {

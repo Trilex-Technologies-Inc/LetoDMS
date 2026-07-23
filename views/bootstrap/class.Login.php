@@ -36,101 +36,123 @@ class LetoDMS_View_Login extends LetoDMS_Bootstrap_Style {
 		$enablepasswordforgotten = $this->params['enablepasswordforgotten'];
 		$refer = $this->params['referrer'];
 		$themes = !empty($this->params['themes']) ? $this->params['themes'] : array('blue', 'bootstrap');
+		$siteName = strlen($this->params['sitename']) > 0 ? $this->params['sitename'] : "LetoDMS";
 
 		$this->htmlStartPage(getMLText("sign_in"), "login");
 		$this->globalBanner();
 		$this->contentStart();
-		$this->pageNavigation(getMLText("sign_in"));
 ?>
-<script language="JavaScript">
+<script type="text/javascript">
 function checkForm()
 {
-	msg = "";
+	var msg = "";
 	if (document.form1.login.value == "") msg += "<?php printMLText("js_no_login");?>\n";
 	if (document.form1.pwd.value == "") msg += "<?php printMLText("js_no_pwd");?>\n";
-	if (msg != "")
-	{
+	if (msg != "") {
 		alert(msg);
 		return false;
 	}
-	else
-		return true;
+	return true;
 }
 
 function guestLogin()
 {
-	url = "../op/op.Login.php?login=guest" + 
-		"&sesstheme=" + document.form1.sesstheme.options[document.form1.sesstheme.options.selectedIndex].value +
-		"&lang=" + document.form1.lang.options[document.form1.lang.options.selectedIndex].value;
+	var url = "../op/op.Login.php?login=guest" +
+		"&sesstheme=" + encodeURIComponent(document.form1.sesstheme.value) +
+		"&lang=" + encodeURIComponent(document.form1.lang.value);
 	if (document.form1.referuri) {
-		url += "&referuri=" + escape(document.form1.referuri.value);
+		url += "&referuri=" + encodeURIComponent(document.form1.referuri.value);
 	}
 	document.location.href = url;
 }
-
 </script>
-<?php $this->contentContainerStart(); ?>
-<form action="../op/op.Login.php" method="post" name="form1" onsubmit="return checkForm();" class="mx-auto" style="max-width: 520px;">
+
+<main class="login-shell">
+	<section class="login-intro" aria-label="<?php printMLText("sign_in");?>">
+		<div class="login-brand">
+			<img src="../styles/logo.png" alt="">
+			<span><?php echo htmlspecialchars($siteName); ?></span>
+		</div>
+		<h1><?php printMLText("sign_in");?></h1>
+		<p class="login-lead">Secure access to your documents, workflows, and shared knowledge.</p>
+		<ul class="login-benefits" aria-hidden="true">
+			<li><span>✓</span> Organize documents in one place</li>
+			<li><span>✓</span> Keep reviews and approvals moving</li>
+			<li><span>✓</span> Work securely with your team</li>
+		</ul>
+	</section>
+
+	<section class="login-panel">
+		<div class="login-panel-heading">
+			<span class="login-mobile-mark"><img src="../styles/logo.png" alt=""></span>
+			<div>
+				<h2><?php printMLText("sign_in");?></h2>
+				<p>Enter your account details to continue.</p>
+			</div>
+		</div>
+
+		<form action="../op/op.Login.php" method="post" name="form1" onsubmit="return checkForm();" class="login-form">
 <?php
 		if ($refer) {
 			echo "<input type='hidden' name='referuri' value='".sanitizeString($refer)."'/>";
 		}
 ?>
-	<div class="card shadow-sm">
-		<div class="card-body">
-			<div class="mb-3">
-				<label class="form-label" for="login"><?php printMLText("user_login");?>:</label>
-				<input class="form-control" type="text" name="login" id="login">
+			<div class="login-field">
+				<label for="login"><?php printMLText("user_login");?></label>
+				<input type="text" name="login" id="login" autocomplete="username" required>
 			</div>
-			<div class="mb-3">
-				<label class="form-label" for="pwd"><?php printMLText("password");?>:</label>
-				<input class="form-control" name="pwd" id="pwd" type="password">
+			<div class="login-field">
+				<label for="pwd"><?php printMLText("password");?></label>
+				<input name="pwd" id="pwd" type="password" autocomplete="current-password" required>
 			</div>
-			<div class="mb-3">
-				<label class="form-label" for="lang"><?php printMLText("language");?>:</label>
+			<div class="login-options">
+				<div class="login-field">
+					<label for="lang"><?php printMLText("language");?></label>
 <?php
-			print "<select class=\"form-select\" name=\"lang\" id=\"lang\">";
-			print "<option value=\"\">-";
+			print "<select name=\"lang\" id=\"lang\">";
+			print "<option value=\"\">—</option>";
 			$languages = getLanguages();
 			foreach ($languages??[] as $currLang) {
 				$selected = ($currLang === "English") ? " selected" : "";
-				print "<option value=\"".$currLang."\"".$selected.">".$currLang;
+				print "<option value=\"".htmlspecialchars($currLang)."\"".$selected.">".htmlspecialchars($currLang)."</option>";
 			}
 			print "</select>";
 ?>
-			</div>
-			<div class="mb-4">
-				<label class="form-label" for="sesstheme"><?php printMLText("theme");?>:</label>
+				</div>
+				<div class="login-field">
+					<label for="sesstheme"><?php printMLText("theme");?></label>
 <?php
-			print "<select class=\"form-select\" name=\"sesstheme\" id=\"sesstheme\">";
-			print "<option value=\"\">-";
+			print "<select name=\"sesstheme\" id=\"sesstheme\">";
+			print "<option value=\"\">—</option>";
 			foreach ($themes??[] as $currTheme) {
 				$selected = ($currTheme === "bootstrap") ? " selected" : "";
-				print "<option value=\"".$currTheme."\"".$selected.">".$currTheme;
+				print "<option value=\"".htmlspecialchars($currTheme)."\"".$selected.">".htmlspecialchars(ucfirst($currTheme))."</option>";
 			}
 			print "</select>";
 ?>
+				</div>
 			</div>
-			<div class="d-grid">
-				<input class="btn btn-primary" type="submit" value="<?php printMLText("submit_login") ?>">
-			</div>
-		</div>
-	</div>
-</form>
+			<button class="login-submit" type="submit">
+				<span><?php printMLText("submit_login") ?></span>
+				<span aria-hidden="true">→</span>
+			</button>
+		</form>
 <?php
-		$this->contentContainerEnd();
 		$tmpfoot = array();
 		if ($enableguestlogin)
 			$tmpfoot[] = "<a href=\"javascript:guestLogin()\">" . getMLText("guest_login") . "</a>\n";
 		if ($enablepasswordforgotten)
 			$tmpfoot[] = "<a href=\"../out/out.PasswordForgotten.php\">" . getMLText("password_forgotten") . "</a>\n";
-		if($tmpfoot) {
-			print "<p>";
-			print implode(' | ', $tmpfoot);
-			print "</p>\n";
+		if ($tmpfoot) {
+			print "<nav class=\"login-links\" aria-label=\"Account help\">";
+			print implode('<span aria-hidden="true"></span>', $tmpfoot);
+			print "</nav>\n";
 		}
 ?>
-<script language="JavaScript">document.form1.login.focus();</script>
+	</section>
+</main>
+<?php $this->contentEnd(); ?>
+<script type="text/javascript">document.form1.login.focus();</script>
 <?php
 		$this->htmlEndPage();
 	} /* }}} */

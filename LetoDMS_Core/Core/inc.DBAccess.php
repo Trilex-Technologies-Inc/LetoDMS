@@ -67,7 +67,7 @@ class LetoDMS_Core_DatabaseAccess {
 	 * @param string $passw password of user
 	 * @param string $database name of database
 	 */
-	function LetoDMS_Core_DatabaseAccess($driver, $hostname, $user, $passw, $database = false) {
+	function __construct($driver, $hostname, $user, $passw, $database = false) {
 		$this->_driver = $driver;
 		$this->_hostname = $hostname;
 		$this->_database = $database;

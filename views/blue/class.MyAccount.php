@@ -74,11 +74,11 @@ class LetoDMS_View_MyAccount extends LetoDMS_Blue_Style {
 		}
 		print "<tr>\n";
 		print "<td>".getMLText("quota")." : </td>\n";
-		print "<td>".LetoDMS_Core_File::format_filesize($user->getQuota())."</td>\n";
+		print "<td>".(new LetoDMS_Core_File())->format_filesize($user->getQuota())."</td>\n";
 		print "</tr>\n";
 		print "<tr>\n";
 		print "<td>".getMLText("used_discspace")." : </td>\n";
-		print "<td>".LetoDMS_Core_File::format_filesize($user->getUsedDiskSpace())."</td>\n";
+		print "<td>".(new LetoDMS_Core_File())->format_filesize($user->getUsedDiskSpace())."</td>\n";
 		print "</tr>\n";
 		print "</table>\n";
 

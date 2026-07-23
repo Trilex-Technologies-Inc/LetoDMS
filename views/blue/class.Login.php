@@ -58,7 +58,7 @@ function checkForm()
 
 function guestLogin()
 {
-	url = "../op/op.Login.php?login=guest" + 
+	url = "../op/op.Login.php?login=guest" +
 		"&sesstheme=" + document.form1.sesstheme.options[document.form1.sesstheme.options.selectedIndex].value +
 		"&lang=" + document.form1.lang.options[document.form1.lang.options.selectedIndex].value;
 	if (document.form1.referuri) {

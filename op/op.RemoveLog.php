@@ -25,23 +25,23 @@ include("../inc/inc.Authentication.php");
 
 /* Check if the form data comes for a trusted request */
 if(!checkFormKey('removelog')) {
-	UI::exitError(getMLText("admin_tools"),getMLText("invalid_request_token"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("invalid_request_token"));
 }
 
 if (!$user->isAdmin()) {
-	UI::exitError(getMLText("admin_tools"),getMLText("access_denied"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("access_denied"));
 }
 
 if (!isset($_POST["logname"]) || !file_exists($settings->_contentDir.$_POST["logname"]) ) {
-	UI::exitError(getMLText("admin_tools"),getMLText("unknown_id"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("unknown_id"));
 }
 
 if (@readlink($settings->_contentDir."current.log")==$settings->_contentDir.$_POST["logname"]){
-	UI::exitError(getMLText("admin_tools"),getMLText("access_denied"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("access_denied"));
 }
 
-if (!LetoDMS_Core_File::removeFile($settings->_contentDir.$_POST["logname"])) {
-	UI::exitError(getMLText("admin_tools"),getMLText("error_occured"));
+if (!(new LetoDMS_Core_File())->removeFile($settings->_contentDir.$_POST["logname"])) {
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("error_occured"));
 }
 
 add_log_line("?logname=".$_POST["logname"]);

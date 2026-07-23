@@ -40,33 +40,33 @@ function update_content()
 {
 
 	GLOBAL $db,$settings;
-	
+
 	// create temp folder
 	if (!makedir($settings->_contentDir."/temp")) return false;
-	
+
 	// for all contents
 	$queryStr = "SELECT * FROM tblDocumentContent";
 	$contents = $db->getResultArray($queryStr);
-	
+
 	if (is_bool($contents)&&!$contents) return false;
-	
+
 	for ($i=0;$i<count($contents);$i++){
-	
+
 		// create temp/documentID folder
 		if (!makedir($settings->_contentDir."/temp/".$contents[$i]["document"])) return false;
-		
+
 		// move every content in temp/documentID/version.fileType
 		$source = $settings->_contentDir."/".$contents[$i]["dir"]."/data".$contents[$i]["fileType"];
 
-		$target = $settings->_contentDir."/temp/".$contents[$i]["document"]."/".$contents[$i]["version"].$contents[$i]["fileType"];		
+		$target = $settings->_contentDir."/temp/".$contents[$i]["document"]."/".$contents[$i]["version"].$contents[$i]["fileType"];
 		if (!copyFile($source, $target)) return false;
 	}
-	
-	
+
+
 	// change directory
 	if (!renameDir($settings->_contentDir."/".$settings->_contentOffsetDir,$settings->_contentDir."/old")) return false;
 	if (!renameDir($settings->_contentDir."/temp",$settings->_contentDir."/".$settings->_contentOffsetDir)) return false;
-	
+
 	return true;
 }
 
@@ -77,28 +77,28 @@ function update_db()
 	// for all contents
 	$queryStr = "SELECT * FROM tblDocumentContent";
 	$contents = $db->getResultArray($queryStr);
-	
+
 	if (is_bool($contents)&&!$contents) return false;
-	
+
 	for ($i=0;$i<count($contents);$i++){
-	
+
 		$queryStr = "UPDATE tblDocumentContent set dir = '". $settings->_contentOffsetDir."/".$contents[$i]["document"]."/' WHERE document = ".$contents[$i]["document"];
 		if (!$db->getResult($queryStr)) return false;
-	
+
 	}
 
 	// run the update-2.0.sql
 	$fd = fopen ("update.sql", "r");
-	
+
 	if (is_bool($fd)&&!$fd) return false;
-	
+
 	$queryStr = fread($fd, filesize("update.sql"));
-	
+
 	if (is_bool($queryStr)&&!$queryStr) return false;
-	
+
 	fclose ($fd);
 	if (!$db->getResult($queryStr)) return false;
-	
+
 	return true;
 }
 

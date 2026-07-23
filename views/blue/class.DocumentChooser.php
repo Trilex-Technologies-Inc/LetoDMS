@@ -37,7 +37,7 @@ class LetoDMS_View_DocumentChooser extends LetoDMS_Blue_Style {
 		$folder = $path[$level];
 		$subFolders = LetoDMS_Core_DMS::filterAccess($folder->getSubFolders(), $this->user, M_READ);
 		$documents  = LetoDMS_Core_DMS::filterAccess($folder->getDocuments(), $this->user, M_READ);
-		
+
 		if ($level+1 < count($path))
 			$nextFolderID = $path[$level+1]->getID();
 		else
@@ -68,7 +68,7 @@ class LetoDMS_View_DocumentChooser extends LetoDMS_Blue_Style {
 				print "<li>\n";
 				$subFolders_ = LetoDMS_Core_DMS::filterAccess($subFolders[$i]->getSubFolders(), $this->user, M_READ);
 				$documents_  = LetoDMS_Core_DMS::filterAccess($subFolders[$i]->getDocuments(), $this->user, M_READ);
-				
+
 				if (count($subFolders_) + count($documents_) > 0)
 					print "<a href=\"out.DocumentChooser.php?form=".$this->form."&folderid=".$subFolders[$i]->getID()."\"><img class='treeicon' src=\"".$this->getImgPath("plus.png")."\" border=0></a>";
 				else
@@ -88,7 +88,7 @@ class LetoDMS_View_DocumentChooser extends LetoDMS_Blue_Style {
 		if ($level == 0) {
 			print "</ul>\n";
 		}
-		
+
 	} /* }}} */
 
 	function show() { /* {{{ */

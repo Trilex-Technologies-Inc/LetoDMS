@@ -119,7 +119,7 @@ if(!is_writeable($settings->_configFilePath)) {
         <td>
          <SELECT name="theme">
             <?php
-              $themes = UI::getStyles();
+              $themes = (new UI($this->theme))->getStyles();
               foreach($themes as $theme)
               {
                 echo '<option value="' . $theme . '" ';
@@ -156,10 +156,10 @@ if(!is_writeable($settings->_configFilePath)) {
         <td><?php printMLText("settings_enableUsersView");?>:</td>
         <td>  <input name="enableFullSearch" type="hidden" value="false" /><input name="enableUsersView" type="checkbox" <?php if ($settings->_enableUsersView) echo "checked" ?> /></td>
       </tr>
-      
-       
-        
-        
+
+
+
+
       </tr>
       <tr title="<?php printMLText("settings_stopWordsFile_desc");?>">
         <td><?php printMLText("settings_stopWordsFile");?>:</td>

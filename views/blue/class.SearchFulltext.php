@@ -105,13 +105,13 @@ class LetoDMS_View_SearchFulltext extends LetoDMS_Blue_Style {
 				}
 				print $docName;
 				print "</a></td>";
-				
+
 				$owner = $document->getOwner();
 				print "<td>".htmlspecialchars($owner->getFullName())."</td>";
 				print "<td>".getOverallStatusText($lc->getStatus()). "</td>";
 
 				print "<td class=\"center\">".$lc->getVersion()."</td>";
-				
+
 				$comment = htmlspecialchars($document->getComment());
 				if (strlen($comment) > 50) $comment = substr($comment, 0, 47) . "...";
 				print "<td>".$comment."</td>";

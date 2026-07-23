@@ -26,32 +26,32 @@ include("../inc/inc.ClassEmail.php");
 include("../inc/inc.Authentication.php");
 
 if (!isset($_GET["folderid"]) || !is_numeric($_GET["folderid"]) || intval($_GET["folderid"])<1) {
-	UI::exitError(getMLText("folder_title", array("foldername" => getMLText("invalid_folder_id"))),getMLText("invalid_folder_id"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("folder_title", array("foldername" => getMLText("invalid_folder_id"))),getMLText("invalid_folder_id"));
 }
 $folderid = $_GET["folderid"];
 $folder = $dms->getFolder($folderid);
 
 if (!is_object($folder)) {
-	UI::exitError(getMLText("folder_title", array("foldername" => getMLText("invalid_folder_id"))),getMLText("invalid_folder_id"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("folder_title", array("foldername" => getMLText("invalid_folder_id"))),getMLText("invalid_folder_id"));
 }
 
 if ($folderid == $settings->_rootFolderID || !$folder->getParent()) {
-	UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("cannot_move_root"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("cannot_move_root"));
 }
 
 if (!isset($_GET["targetidform1"]) || !is_numeric($_GET["targetidform1"]) || intval($_GET["targetidform1"])<1) {
-	UI::exitError(getMLText("folder_title", array("foldername" => getMLText("invalid_folder_id"))),getMLText("invalid_folder_id"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("folder_title", array("foldername" => getMLText("invalid_folder_id"))),getMLText("invalid_folder_id"));
 }
 
 $targetid = $_GET["targetidform1"];
 $targetFolder = $dms->getFolder($targetid);
 
 if (!is_object($targetFolder)) {
-	UI::exitError(getMLText("folder_title", array("foldername" => getMLText("invalid_folder_id"))),getMLText("invalid_folder_id"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("folder_title", array("foldername" => getMLText("invalid_folder_id"))),getMLText("invalid_folder_id"));
 }
 
 if ($folder->getAccessMode($user) < M_READWRITE || $targetFolder->getAccessMode($user) < M_READWRITE) {
-	UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("access_denied"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("access_denied"));
 }
 
 if ($folder->setParent($targetFolder)) {
@@ -60,7 +60,7 @@ if ($folder->setParent($targetFolder)) {
 		$folder->getNotifyList();
 		$subject = "###SITENAME###: ".$folder->getName()." - ".getMLText("folder_moved_email");
 		$message = getMLText("folder_moved_email")."\r\n";
-		$message .= 
+		$message .=
 			getMLText("name").": ".$folder->getName()."\r\n".
 			getMLText("folder").": ".$folder->getFolderPathPlain()."\r\n".
 			getMLText("comment").": ".$folder->getComment()."\r\n".
@@ -68,14 +68,14 @@ if ($folder->setParent($targetFolder)) {
 
 //		$subject=mydmsDecodeString($subject);
 //		$message=mydmsDecodeString($message);
-		
+
 		$notifier->toList($user, $folder->_notifyList["users"], $subject, $message);
 		foreach ($folder->_notifyList["groups"] as $grp) {
 			$notifier->toGroup($user, $grp, $subject, $message);
 		}
 	}
 } else {
-	UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("error_occured"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("error_occured"));
 }
 
 add_log_line();

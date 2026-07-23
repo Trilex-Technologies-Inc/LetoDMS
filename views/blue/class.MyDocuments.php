@@ -55,7 +55,7 @@ class LetoDMS_View_MyDocuments extends LetoDMS_Blue_Style {
 			// Get document list for the current user.
 			$reviewStatus = $user->getReviewStatus();
 			$approvalStatus = $user->getApprovalStatus();
-			
+
 			// Create a comma separated list of all the documentIDs whose information is
 			// required.
 			$dList = array();
@@ -83,7 +83,7 @@ class LetoDMS_View_MyDocuments extends LetoDMS_Blue_Style {
 			foreach ($dList as $d) {
 				$docCSV .= (strlen($docCSV)==0 ? "" : ", ")."'".$d."'";
 			}
-			
+
 			if (strlen($docCSV)>0) {
 				// Get the document information.
 				$queryStr = "SELECT `tblDocuments`.*, `tblDocumentLocks`.`userID` as `lockUser`, ".
@@ -112,14 +112,14 @@ class LetoDMS_View_MyDocuments extends LetoDMS_Blue_Style {
 					$this->htmlEndPage();
 					exit;
 				}
-				
+
 				// Create an array to hold all of these results, and index the array by
 				// document id. This makes it easier to retrieve document ID information
 				// later on and saves us having to repeatedly poll the database every time
 				// new document information is required.
 				$docIdx = array();
 				foreach ($resArr as $res) {
-					
+
 					// verify expiry
 					if ( $res["expires"] && time()>$res["expires"]+24*60*60 ){
 						if  ( $res["status"]==S_DRAFT_APP || $res["status"]==S_DRAFT_REV ){
@@ -137,10 +137,10 @@ class LetoDMS_View_MyDocuments extends LetoDMS_Blue_Style {
 				$iRev = array();
 				$dList = array();
 				foreach ($reviewStatus["indstatus"] as $st) {
-				
+
 					if ( $st["status"]==0 && isset($docIdx[$st["documentID"]][$st["version"]]) && !in_array($st["documentID"], $dList) ) {
 						$dList[] = $st["documentID"];
-					
+
 						if ($printheader){
 							print "<table class=\"folderView\">";
 							print "<thead>\n<tr>\n";
@@ -152,18 +152,18 @@ class LetoDMS_View_MyDocuments extends LetoDMS_Blue_Style {
 							print "</tr>\n</thead>\n<tbody>\n";
 							$printheader=false;
 						}
-					
+
 						print "<tr>\n";
 						print "<td><a href=\"out.ViewDocument.php?documentid=".$st["documentID"]."\">".htmlspecialchars($docIdx[$st["documentID"]][$st["version"]]["name"])."</a></td>";
 						print "<td>".htmlspecialchars($docIdx[$st["documentID"]][$st["version"]]["ownerName"])."</td>";
 						print "<td>".$st["version"]."</td>";
 						print "<td>".$st["date"]." ". htmlspecialchars($docIdx[$st["documentID"]][$st["version"]]["statusName"]) ."</td>";
-						print "<td".($docIdx[$st["documentID"]][$st["version"]]['status']!=S_EXPIRED?"":" class=\"warning\"").">".(!$docIdx[$st["documentID"]][$st["version"]]["expires"] ? "-":getReadableDate($docIdx[$st["documentID"]][$st["version"]]["expires"]))."</td>";				
+						print "<td".($docIdx[$st["documentID"]][$st["version"]]['status']!=S_EXPIRED?"":" class=\"warning\"").">".(!$docIdx[$st["documentID"]][$st["version"]]["expires"] ? "-":getReadableDate($docIdx[$st["documentID"]][$st["version"]]["expires"]))."</td>";
 						print "</tr>\n";
 					}
 				}
 				foreach ($reviewStatus["grpstatus"] as $st) {
-				
+
 					if (!in_array($st["documentID"], $iRev) && $st["status"]==0 && isset($docIdx[$st["documentID"]][$st["version"]]) && !in_array($st["documentID"], $dList) && $docIdx[$st["documentID"]][$st["version"]]['owner'] != $user->getId()) {
 						$dList[] = $st["documentID"];
 
@@ -184,7 +184,7 @@ class LetoDMS_View_MyDocuments extends LetoDMS_Blue_Style {
 						print "<td>".htmlspecialchars($docIdx[$st["documentID"]][$st["version"]]["ownerName"])."</td>";
 						print "<td>".$st["version"]."</td>";
 						print "<td>".$st["date"]." ". htmlspecialchars($docIdx[$st["documentID"]][$st["version"]]["statusName"])."</td>";
-						print "<td".($docIdx[$st["documentID"]][$st["version"]]['status']!=S_EXPIRED?"":" class=\"warning\"").">".(!$docIdx[$st["documentID"]][$st["version"]]["expires"] ? "-":getReadableDate($docIdx[$st["documentID"]][$st["version"]]["expires"]))."</td>";				
+						print "<td".($docIdx[$st["documentID"]][$st["version"]]['status']!=S_EXPIRED?"":" class=\"warning\"").">".(!$docIdx[$st["documentID"]][$st["version"]]["expires"] ? "-":getReadableDate($docIdx[$st["documentID"]][$st["version"]]["expires"]))."</td>";
 						print "</tr>\n";
 					}
 				}
@@ -199,11 +199,11 @@ class LetoDMS_View_MyDocuments extends LetoDMS_Blue_Style {
 				$this->contentHeading(getMLText("documents_to_approve"));
 				$this->contentContainerStart();
 				$printheader=true;
-				
+
 				foreach ($approvalStatus["indstatus"] as $st) {
-				
+
 					if ( $st["status"]==0 && isset($docIdx[$st["documentID"]][$st["version"]])) {
-					
+
 						if ($printheader){
 							print "<table class=\"folderView\">";
 							print "<thead>\n<tr>\n";
@@ -220,12 +220,12 @@ class LetoDMS_View_MyDocuments extends LetoDMS_Blue_Style {
 						print "<td>".htmlspecialchars($docIdx[$st["documentID"]][$st["version"]]["ownerName"])."</td>";
 						print "<td>".$st["version"]."</td>";
 						print "<td>".$st["date"]." ". htmlspecialchars($docIdx[$st["documentID"]][$st["version"]]["statusName"])."</td>";
-						print "<td".($docIdx[$st["documentID"]][$st["version"]]['status']!=S_EXPIRED?"":" class=\"warning\"").">".(!$docIdx[$st["documentID"]][$st["version"]]["expires"] ? "-":getReadableDate($docIdx[$st["documentID"]][$st["version"]]["expires"]))."</td>";					
+						print "<td".($docIdx[$st["documentID"]][$st["version"]]['status']!=S_EXPIRED?"":" class=\"warning\"").">".(!$docIdx[$st["documentID"]][$st["version"]]["expires"] ? "-":getReadableDate($docIdx[$st["documentID"]][$st["version"]]["expires"]))."</td>";
 						print "</tr>\n";
 					}
 				}
 				foreach ($approvalStatus["grpstatus"] as $st) {
-				
+
 					if (!in_array($st["documentID"], $iRev) && $st["status"]==0 && isset($docIdx[$st["documentID"]][$st["version"]]) && $docIdx[$st["documentID"]][$st["version"]]['owner'] != $user->getId()) {
 						if ($printheader){
 							print "<table class=\"folderView\">";
@@ -241,9 +241,9 @@ class LetoDMS_View_MyDocuments extends LetoDMS_Blue_Style {
 						print "<tr>\n";
 						print "<td><a href=\"out.ViewDocument.php?documentid=".$st["documentID"]."\">".htmlspecialchars($docIdx[$st["documentID"]][$st["version"]]["name"])."</a></td>";
 						print "<td>".htmlspecialchars($docIdx[$st["documentID"]][$st["version"]]["ownerName"])."</td>";
-						print "<td>".$st["version"]."</td>";				
+						print "<td>".$st["version"]."</td>";
 						print "<td>".$st["date"]." ". htmlspecialchars($docIdx[$st["documentID"]][$st["version"]]["statusName"])."</td>";
-						print "<td".($docIdx[$st["documentID"]][$st["version"]]['status']!=S_EXPIRED?"":" class=\"warning\"").">".(!$docIdx[$st["documentID"]][$st["version"]]["expires"] ? "-":getReadableDate($docIdx[$st["documentID"]][$st["version"]]["expires"]))."</td>";				
+						print "<td".($docIdx[$st["documentID"]][$st["version"]]['status']!=S_EXPIRED?"":" class=\"warning\"").">".(!$docIdx[$st["documentID"]][$st["version"]]["expires"] ? "-":getReadableDate($docIdx[$st["documentID"]][$st["version"]]["expires"]))."</td>";
 						print "</tr>\n";
 					}
 				}
@@ -255,7 +255,7 @@ class LetoDMS_View_MyDocuments extends LetoDMS_Blue_Style {
 				$this->contentContainerEnd();
 			}
 			else {
-			
+
 				$this->contentHeading(getMLText("documents_to_review"));
 				$this->contentContainerStart();
 				printMLText("no_review_needed");
@@ -309,31 +309,31 @@ class LetoDMS_View_MyDocuments extends LetoDMS_Blue_Style {
 				print "</tr>\n</thead>\n<tbody>\n";
 
 				foreach ($resArr as $res) {
-				
+
 					// verify expiry
 					if ( $res["expires"] && time()>$res["expires"]+24*60*60 ){
 						if  ( $res["status"]==S_DRAFT_APP || $res["status"]==S_DRAFT_REV ){
 							$res["status"]=S_EXPIRED;
 						}
 					}
-				
+
 					print "<tr>\n";
 					print "<td><a href=\"out.ViewDocument.php?documentid=".$res["documentID"]."\">" . htmlspecialchars($res["name"]) . "</a></td>\n";
 					print "<td>".getOverallStatusText($res["status"])."</td>";
 					print "<td>".$res["version"]."</td>";
 					print "<td>".$res["statusDate"]." ".htmlspecialchars($res["statusName"])."</td>";
-					print "<td>".(!$res["expires"] ? "-":getReadableDate($res["expires"]))."</td>";				
+					print "<td>".(!$res["expires"] ? "-":getReadableDate($res["expires"]))."</td>";
 					print "</tr>\n";
-				}		
-				print "</tbody></table>";	
-				
+				}
+				print "</tbody></table>";
+
 			}
 			else printMLText("no_docs_to_look_at");
-			
+
 			$this->contentContainerEnd();
-			
-			
-			// Get list of documents locked by current user 
+
+
+			// Get list of documents locked by current user
 			$queryStr = "SELECT `tblDocuments`.*, `tblDocumentLocks`.`userID` as `lockUser`, ".
 				"`tblDocumentContent`.`version`, `tblDocumentStatus`.*, `tblDocumentStatusLog`.`status`, ".
 				"`tblDocumentStatusLog`.`comment` AS `statusComment`, `tblDocumentStatusLog`.`date` as `statusDate`, ".
@@ -374,29 +374,29 @@ class LetoDMS_View_MyDocuments extends LetoDMS_Blue_Style {
 				print "</tr>\n</thead>\n<tbody>\n";
 
 				foreach ($resArr as $res) {
-				
+
 					// verify expiry
 					if ( $res["expires"] && time()>$res["expires"]+24*60*60 ){
 						if  ( $res["status"]==S_DRAFT_APP || $res["status"]==S_DRAFT_REV ){
 							$res["status"]=S_EXPIRED;
 						}
 					}
-				
+
 					print "<tr>\n";
 					print "<td><a href=\"out.ViewDocument.php?documentid=".$res["documentID"]."\">" . htmlspecialchars($res["name"]) . "</a></td>\n";
 					print "<td>".getOverallStatusText($res["status"])."</td>";
 					print "<td>".$res["version"]."</td>";
 					print "<td>".$res["statusDate"]." ".htmlspecialchars($res["statusName"])."</td>";
-					print "<td>".(!$res["expires"] ? "-":getReadableDate($res["expires"]))."</td>";				
+					print "<td>".(!$res["expires"] ? "-":getReadableDate($res["expires"]))."</td>";
 					print "</tr>\n";
-				}		
-				print "</tbody></table>";	
-				
+				}
+				print "</tbody></table>";
+
 			}
 			else printMLText("no_docs_locked");
-			
+
 			$this->contentContainerEnd();
-			
+
 		}
 		else {
 
@@ -430,7 +430,7 @@ class LetoDMS_View_MyDocuments extends LetoDMS_Blue_Style {
 				"WHERE `ttstatid`.`maxLogID`=`tblDocumentStatusLog`.`statusLogID` ".
 				"AND `ttcontentid`.`maxVersion` = `tblDocumentContent`.`version` ".
 				"AND `tblDocuments`.`owner` = '".$user->getID()."' ";
-				
+
 			if ($orderby=='e') $queryStr .= "ORDER BY `expires`";
 			else if ($orderby=='u') $queryStr .= "ORDER BY `statusDate`";
 			else if ($orderby=='s') $queryStr .= "ORDER BY `status`";
@@ -443,7 +443,7 @@ class LetoDMS_View_MyDocuments extends LetoDMS_Blue_Style {
 				$this->htmlEndPage();
 				exit;
 			}
-			
+
 			$this->contentHeading(getMLText("all_documents"));
 			$this->contentContainerStart();
 
@@ -459,27 +459,27 @@ class LetoDMS_View_MyDocuments extends LetoDMS_Blue_Style {
 				print "</tr>\n</thead>\n<tbody>\n";
 
 				foreach ($resArr as $res) {
-				
+
 					// verify expiry
 					if ( $res["expires"] && time()>$res["expires"]+24*60*60 ){
 						if  ( $res["status"]==S_DRAFT_APP || $res["status"]==S_DRAFT_REV ){
 							$res["status"]=S_EXPIRED;
 						}
 					}
-				
+
 					print "<tr>\n";
 					print "<td><a href=\"out.ViewDocument.php?documentid=".$res["documentID"]."\">" . htmlspecialchars($res["name"]) . "</a></td>\n";
 					print "<td>".getOverallStatusText($res["status"])."</td>";
 					print "<td>".$res["version"]."</td>";
 					print "<td>".$res["statusDate"]." ". htmlspecialchars($res["statusName"])."</td>";
-					//print "<td>".(!$res["expires"] ? getMLText("does_not_expire"):getReadableDate($res["expires"]))."</td>";				
-					print "<td>".(!$res["expires"] ? "-":getReadableDate($res["expires"]))."</td>";				
+					//print "<td>".(!$res["expires"] ? getMLText("does_not_expire"):getReadableDate($res["expires"]))."</td>";
+					print "<td>".(!$res["expires"] ? "-":getReadableDate($res["expires"]))."</td>";
 					print "</tr>\n";
 				}
 				print "</tbody></table>";
 			}
 			else printMLText("empty_notify_list");
-			
+
 			$this->contentContainerEnd();
 		}
 

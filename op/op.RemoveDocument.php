@@ -27,21 +27,21 @@ include("../inc/inc.Authentication.php");
 
 /* Check if the form data comes for a trusted request */
 if(!checkFormKey('removedocument')) {
-	UI::exitError(getMLText("document_title", array("documentname" => getMLText("invalid_request_token"))),getMLText("invalid_request_token"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => getMLText("invalid_request_token"))),getMLText("invalid_request_token"));
 }
 
 if (!isset($_POST["documentid"]) || !is_numeric($_POST["documentid"]) || intval($_POST["documentid"])<1) {
-	UI::exitError(getMLText("document_title", array("documentname" => getMLText("invalid_doc_id"))),getMLText("invalid_doc_id"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => getMLText("invalid_doc_id"))),getMLText("invalid_doc_id"));
 }
 $documentid = $_POST["documentid"];
 $document = $dms->getDocument($documentid);
 
 if (!is_object($document)) {
-	UI::exitError(getMLText("document_title", array("documentname" => getMLText("invalid_doc_id"))),getMLText("invalid_doc_id"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => getMLText("invalid_doc_id"))),getMLText("invalid_doc_id"));
 }
 
 if ($document->getAccessMode($user) < M_ALL) {
-	UI::exitError(getMLText("document_title", array("documentname" => getMLText("invalid_doc_id"))),getMLText("access_denied"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => getMLText("invalid_doc_id"))),getMLText("access_denied"));
 }
 
 $folder = $document->getFolder();
@@ -49,11 +49,11 @@ $folder = $document->getFolder();
 /* Get the notify list before removing the document */
 $nl =	$document->getNotifyList();
 if (!$document->remove()) {
-	UI::exitError(getMLText("document_title", array("documentname" => getMLText("invalid_doc_id"))),getMLText("error_occured"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => getMLText("invalid_doc_id"))),getMLText("error_occured"));
 } else {
 
 	/* Remove the document from the fulltext index */
-	
+
 
 	if ($notifier){
 		$path = "";
@@ -63,10 +63,10 @@ if (!$document->remove()) {
 			if ($i +1 < count($folderPath))
 				$path .= " / ";
 		}
-	
+
 		$subject = "###SITENAME###: ".$document->getName()." - ".getMLText("document_deleted_email");
 		$message = getMLText("document_deleted_email")."\r\n";
-		$message .= 
+		$message .=
 			getMLText("document").": ".$document->getName()."\r\n".
 			getMLText("folder").": ".$path."\r\n".
 			getMLText("comment").": ".$document->getComment()."\r\n".
@@ -74,7 +74,7 @@ if (!$document->remove()) {
 
 //		$subject=mydmsDecodeString($subject);
 //		$message=mydmsDecodeString($message);
-		
+
 		// Send notification to subscribers.
 		$notifier->toList($user, $nl["users"], $subject, $message);
 		foreach ($nl["groups"] as $grp) {

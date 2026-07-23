@@ -104,7 +104,7 @@ class LetoDMS_View_Search extends LetoDMS_Blue_Style {
 					print "<td>".getOverallStatusText($display_status["status"]). "</td>";
 
 					print "<td class=\"center\">".$lc->getVersion()."</td>";
-					
+
 					if (in_array(3, $searchin)) $comment = markQuery(htmlspecialchars($document->getComment()));
 					else $comment = htmlspecialchars($document->getComment());
 					if (strlen($comment) > 50) $comment = substr($comment, 0, 47) . "...";
@@ -128,7 +128,7 @@ class LetoDMS_View_Search extends LetoDMS_Blue_Style {
 					print $folderName;
 					print "</a></td>";
 					print "<td></td>";
-					
+
 					$owner = $folder->getOwner();
 					print "<td>".htmlspecialchars($owner->getFullName())."</td>";
 					print "<td></td>";

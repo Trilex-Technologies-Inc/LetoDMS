@@ -26,53 +26,53 @@ include("../inc/inc.Authentication.php");
 
 /* Check if the form data comes for a trusted request */
 if(!checkFormKey('removedocumentfile')) {
-	UI::exitError(getMLText("document_title", array("documentname" => getMLText("invalid_request_token"))),getMLText("invalid_request_token"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => getMLText("invalid_request_token"))),getMLText("invalid_request_token"));
 }
 
 if (!isset($_POST["documentid"]) || !is_numeric($_POST["documentid"]) || intval($_POST["documentid"])<1) {
-	UI::exitError(getMLText("document_title", array("documentname" => getMLText("invalid_doc_id"))),getMLText("invalid_doc_id"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => getMLText("invalid_doc_id"))),getMLText("invalid_doc_id"));
 }
 
 $documentid = $_POST["documentid"];
 $document = $dms->getDocument($documentid);
 
 if (!is_object($document)) {
-	UI::exitError(getMLText("document_title", array("documentname" => getMLText("invalid_doc_id"))),getMLText("invalid_doc_id"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => getMLText("invalid_doc_id"))),getMLText("invalid_doc_id"));
 }
 
 if (!isset($_POST["fileid"]) || !is_numeric($_POST["fileid"]) || intval($_POST["fileid"])<1) {
-	UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("invalid_file_id"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("invalid_file_id"));
 }
 
 $fileid = $_POST["fileid"];
 $file = $document->getDocumentFile($fileid);
 
 if (!is_object($file)) {
-	UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("invalid_file_id"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("invalid_file_id"));
 }
 
 
 if (($document->getAccessMode($user) < M_ALL)&&($user->getID()!=$file->getUserID())) {
-	UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("access_denied"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("access_denied"));
 }
 
 if (!$document->removeDocumentFile($fileid)) {
-	UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("error_occured"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("error_occured"));
 } else {
 	// Send notification to subscribers.
 	$document->getNotifyList();
 	if($notifier) {
 		$subject = "###SITENAME###: ".$document->getName()." - ".getMLText("removed_file_email");
 		$message = getMLText("removed_file_email")."\r\n";
-		$message .= 
+		$message .=
 			getMLText("name").": ".$document->getName()."\r\n".
 			getMLText("file").": ".$file->getOriginalFileName()."\r\n".
-			getMLText("user").": ".$user->getFullName()." <". $user->getEmail() .">\r\n".	
+			getMLText("user").": ".$user->getFullName()." <". $user->getEmail() .">\r\n".
 			"URL: ###URL_PREFIX###out/out.ViewDocument.php?documentid=".$document->getID()."\r\n";
 
 //		$subject=mydmsDecodeString($subject);
 //		$message=mydmsDecodeString($message);
-		
+
 		$notifier->toList($user, $document->_notifyList["users"], $subject, $message);
 		foreach ($document->_notifyList["groups"] as $grp) {
 			$notifier->toGroup($user, $grp, $subject, $message);

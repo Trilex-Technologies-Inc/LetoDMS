@@ -27,11 +27,11 @@ include("../inc/inc.ClassUI.php");
 include("../inc/inc.Authentication.php");
 
 if (!$user->isAdmin()) {
-	UI::exitError(getMLText("admin_tools"),getMLText("access_denied"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("access_denied"));
 }
 
 if(!$settings->_enableFullSearch) {
-	UI::exitError(getMLText("admin_tools"),getMLText("fulltextsearch_disabled"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("fulltextsearch_disabled"));
 }
 
 if(!empty($settings->_luceneClassDir))
@@ -41,11 +41,11 @@ else
 
 $index = LetoDMS_Lucene_Indexer::open($settings->_luceneDir);
 if(!$index) {
-	UI::exitError(getMLText("admin_tools"),getMLText("no_fulltextindex"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("no_fulltextindex"));
 }
 
 $tmp = explode('.', basename($_SERVER['SCRIPT_FILENAME']));
-$view = UI::factory($theme, $tmp[1], array('dms'=>$dms, 'user'=>$user, 'luceneclassdir'=>$settings->_luceneClassDir, 'lucenedir'=>$settings->_luceneDir, 'index'=>$index));
+$view = (new UI($GLOBALS['theme'] ?? 'bootstrap'))->factory($theme, $tmp[1], array('dms'=>$dms, 'user'=>$user, 'luceneclassdir'=>$settings->_luceneClassDir, 'lucenedir'=>$settings->_luceneDir, 'index'=>$index));
 if($view) {
 	$view->show();
 	exit;

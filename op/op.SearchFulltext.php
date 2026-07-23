@@ -42,7 +42,7 @@ if (!isset($_GET["folderid"]) || !is_numeric($_GET["folderid"]) || intval($_GET[
 
 $folder = $dms->getFolder($folderid);
 if (!is_object($folder)) {
-	UI::exitError(getMLText("search_results"),getMLText("invalid_folder_id"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("search_results"),getMLText("invalid_folder_id"));
 }
 
 // Create the keyword search string. This search spans up to three columns
@@ -93,7 +93,7 @@ $owner = null;
 if (isset($_GET["ownerid"]) && is_numeric($_GET["ownerid"]) && $_GET["ownerid"]!=-1) {
 	$owner = $dms->getUser($_GET["ownerid"]);
 	if (!is_object($owner)) {
-		UI::exitError(getMLText("search_results"),getMLText("unknown_owner"));
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("search_results"),getMLText("unknown_owner"));
 	}
 }
 
@@ -145,18 +145,18 @@ $searchTime = round($searchTime, 2);
 // -------------- Output results --------------------------------------------
 
 $tmp = explode('.', basename($_SERVER['SCRIPT_FILENAME']));
-$view = UI::factory($theme, $tmp[1], array('dms'=>$dms, 'user'=>$user, 'folder'=>$folder, 'searchhits'=>$resArr['docs'], 'totalpages'=>$resArr['totalPages'], 'totaldocs'=>$totalDocs, 'pagenumber'=>$pageNumber, 'searchtime'=>$searchTime, 'urlparams'=>$_GET));
+$view = (new UI($GLOBALS['theme'] ?? 'bootstrap'))->factory($theme, $tmp[1], array('dms'=>$dms, 'user'=>$user, 'folder'=>$folder, 'searchhits'=>$resArr['docs'], 'totalpages'=>$resArr['totalPages'], 'totaldocs'=>$totalDocs, 'pagenumber'=>$pageNumber, 'searchtime'=>$searchTime, 'urlparams'=>$_GET));
 if($view) {
 	$view->show();
 	exit;
 }
 
-UI::htmlStartPage(getMLText("search_results"));
-UI::globalNavigation($folder);
-UI::pageNavigation(getFolderPathHTML($folder, true), "", $folder);
-UI::contentHeading(getMLText("search_results"));
+(new UI($GLOBALS['theme'] ?? 'bootstrap'))->htmlStartPage(getMLText("search_results"));
+(new UI($GLOBALS['theme'] ?? 'bootstrap'))->globalNavigation($folder);
+(new UI($GLOBALS['theme'] ?? 'bootstrap'))->pageNavigation(getFolderPathHTML($folder, true), "", $folder);
+(new UI($GLOBALS['theme'] ?? 'bootstrap'))->contentHeading(getMLText("search_results"));
 
-UI::contentContainerStart();
+(new UI($GLOBALS['theme'] ?? 'bootstrap'))->contentContainerStart();
 ?>
 <table width="100%" style="border-collapse: collapse;">
 <tr>
@@ -177,12 +177,12 @@ else {
 
 <?php
 if ($numResults == 0) {
-	UI::contentContainerEnd();
-	UI::htmlEndPage();
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->contentContainerEnd();
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->htmlEndPage();
 	exit;
 }
 
-UI::pageList($pageNumber, $resArr['totalPages'], "../op/op.SearchFulltext.php", $_GET);
+(new UI($GLOBALS['theme'] ?? 'bootstrap'))->pageList($pageNumber, $resArr['totalPages'], "../op/op.SearchFulltext.php", $_GET);
 
 print "<table class=\"folderView\">";
 print "<thead>\n<tr>\n";
@@ -213,14 +213,14 @@ foreach ($resArr['docs'] as $document) {
 		}
 		print $docName;
 		print "</a></td>";
-		
+
 		$owner = $document->getOwner();
 		print "<td>".htmlspecialchars($owner->getFullName())."</td>";
 		$display_status=$lc->getStatus();
 		print "<td>".getOverallStatusText($display_status["status"]). "</td>";
 
 		print "<td class=\"center\">".$lc->getVersion()."</td>";
-		
+
 		$comment = htmlspecialchars($document->getComment());
 		if (strlen($comment) > 50) $comment = substr($comment, 0, 47) . "...";
 		print "<td>".$comment."</td>";
@@ -232,8 +232,8 @@ if ($resultsFilteredByAccess) {
 }
 print "</tbody></table>\n";
 
-UI::pageList($pageNumber, $resArr['totalPages'], "../op/op.Search.php", $_GET);
+(new UI($GLOBALS['theme'] ?? 'bootstrap'))->pageList($pageNumber, $resArr['totalPages'], "../op/op.Search.php", $_GET);
 
-UI::contentContainerEnd();
-UI::htmlEndPage();
+(new UI($GLOBALS['theme'] ?? 'bootstrap'))->contentContainerEnd();
+(new UI($GLOBALS['theme'] ?? 'bootstrap'))->htmlEndPage();
 ?>

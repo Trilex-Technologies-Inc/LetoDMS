@@ -77,7 +77,7 @@ class LetoDMS_View_Statistic extends LetoDMS_Bootstrap_Style {
 
 		print "</ul>";
 
-		print "<small>".LetoDMS_Core_File::format_filesize($folder_size).", ".$doc_count." ".getMLText("documents")."</small>\n";
+		print "<small>".(new LetoDMS_Core_File())->format_filesize($folder_size).", ".$doc_count." ".getMLText("documents")."</small>\n";
 
 		print "</li>";
 
@@ -114,7 +114,7 @@ class LetoDMS_View_Statistic extends LetoDMS_Bootstrap_Style {
 
 		if (! $document->inheritsAccess()) $this->printAccessList($document);
 
-		print "<small>".LetoDMS_Core_File::format_filesize($folder_size).", ".$local_file_count." ".getMLText("files")."</small>\n";
+		print "<small>".(new LetoDMS_Core_File())->format_filesize($folder_size).", ".$local_file_count." ".getMLText("files")."</small>\n";
 
 		print "</li>";
 
@@ -162,79 +162,57 @@ class LetoDMS_View_Statistic extends LetoDMS_Bootstrap_Style {
 		$this->document_count=0;
 		$this->file_count=0;
 		$this->storage_size=0;
-?>
-<style type="text/css">
-.folderClass {
-	list-style-image : url(<?php $this->printImgPath("folder_closed.gif");?>);
-	list-style : url(<?php $this->printImgPath("folder_closed.gif");?>);
-}
 
-.documentClass {
-	list-style-image : url(<?php $this->printImgPath("file.gif");?>);
-	list-style : url(<?php $this->printImgPath("file.gif");?>);
-}
-</style>
+		ob_start();
+		echo '<ul class="statistic-tree-root">';
+		$this->printFolder($rootfolder);
+		echo '</ul>';
+		$treeHtml = ob_get_clean();
+		$storageSize = (new LetoDMS_Core_File())->format_filesize($this->storage_size);
 
-<script language="JavaScript">
+		$this->contentHeading(getMLText("folders_and_documents_statistic"));
+		echo '<p class="statistics-intro">A live overview of folders, documents, files, storage usage, ownership, and access rules.</p>';
+		echo '<div class="statistics-summary">';
+		$this->statisticCard('&#128193;', getMLText("folders"), $this->folder_count, 'blue');
+		$this->statisticCard('&#128196;', getMLText("documents"), $this->document_count, 'green');
+		$this->statisticCard('&#128206;', getMLText("files"), $this->file_count, 'orange');
+		$this->statisticCard('&#128190;', getMLText("storage_size"), $storageSize, 'purple');
+		echo '</div>';
 
-function showDocument(id) {
-	url = "out.DetailedStatistic.php?documentid=" + id;
-	alert(url);
-}
+		echo '<div class="statistics-layout">';
+		echo '<section class="well statistics-tree-panel">';
+		echo '<div class="statistics-panel-heading"><div><span class="statistics-eyebrow">Repository</span><h2>Folder structure</h2></div></div>';
+		echo '<div class="statistics-tree">' . $treeHtml . '</div>';
+		echo '</section>';
 
-function showFolder(id) {
-	url = "out.DetailedStatistic.php?folderid=" + id;
-	alert(url);
-}
+		echo '<aside class="well statistics-legend-panel">';
+		echo '<span class="statistics-eyebrow">' . getMLText("legend") . '</span>';
+		echo '<h2>Access levels</h2>';
+		echo '<ul class="statistics-access-list">';
+		$this->accessLegendItem('inherit', getMLText("access_inheritance"));
+		$this->accessLegendItem('all', getMLText("access_mode_all"));
+		$this->accessLegendItem('write', getMLText("access_mode_readwrite"));
+		$this->accessLegendItem('read', getMLText("access_mode_read"));
+		$this->accessLegendItem('none', getMLText("access_mode_none"));
+		echo '</ul>';
+		echo '<p class="statistics-note">Colors in the hierarchy indicate the effective access configuration.</p>';
+		echo '</aside>';
+		echo '</div>';
 
-</script>
+		$this->contentEnd();
+		$this->htmlEndPage();
+	} /* }}} */
 
-<?php
+	private function statisticCard($icon, $label, $value, $color) { /* {{{ */
+		echo '<div class="statistics-card statistics-card-' . $color . '">';
+		echo '<div><span class="statistics-card-label">' . htmlspecialchars($label) . '</span>';
+		echo '<strong>' . htmlspecialchars((string)$value) . '</strong></div>';
+		echo '<span class="statistics-card-icon" aria-hidden="true">' . $icon . '</span>';
+		echo '</div>';
+	} /* }}} */
 
-$this->contentHeading(getMLText("folders_and_documents_statistic"));
-echo "<div class=\"row-fluid\">\n";
-echo "<div class=\"span8\">\n";
-echo "<div class=\"well\">\n";
-
-print "<table class=\"table-condensed\"><tr><td>\n";
-
-print "<ul>\n";
-$this->printFolder($rootfolder);
-print "</ul>\n";
-
-print "</td></tr>";
-
-print "</table>\n";
-echo "</div>\n";
-echo "</div>\n";
-
-echo "<div class=\"span4\">\n";
-echo "<div class=\"well\">\n";
-print "<legend>".getMLText("legend")."</legend>\n";
-print "<ul class=\"unstyled\">\n";
-print "<li><span style=\"color:black\">".getMLText("access_inheritance")." </span></li>";
-print "<li><span style=\"color:".$this->getAccessColor(M_ALL)."\">".getMLText("access_mode_all")." </span></li>";
-print "<li><span style=\"color:".$this->getAccessColor(M_READWRITE)."\">".getMLText("access_mode_readwrite")." </span></li>";
-print "<li><span style=\"color:".$this->getAccessColor(M_READ)."\">".getMLText("access_mode_read")." </span></li>";
-print "<li><span style=\"color:".$this->getAccessColor(M_NONE)."\">".getMLText("access_mode_none")." </span></li>";
-print "</ul>\n";
-
-print "<legend>Statistic</legend>\n";
-print "<ul class=\"unstyled\">\n";
-print "<li>".getMLText("folders").": ".$this->folder_count."</li>\n";
-print "<li>".getMLText("documents").": ".$this->document_count."</li>\n";
-print "<li>".getMLText("files").": ".$this->file_count."</li>\n";
-print "<li>".getMLText("storage_size").": ".LetoDMS_Core_File::format_filesize($this->storage_size)."</li>\n";
-
-print "</ul>\n";
-
-echo "</div>\n";
-echo "</div>\n";
-echo "</div>\n";
-
-
-$this->contentContainerEnd();
-$this->htmlEndPage();
+	private function accessLegendItem($class, $label) { /* {{{ */
+		echo '<li><span class="statistics-access-dot access-' . $class . '"></span>' . htmlspecialchars($label) . '</li>';
 	} /* }}} */
 }
 ?>

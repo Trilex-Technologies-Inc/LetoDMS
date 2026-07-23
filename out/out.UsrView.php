@@ -23,20 +23,20 @@ include("../inc/inc.ClassUI.php");
 include("../inc/inc.Authentication.php");
 
 if ($user->isGuest()) {
-	UI::exitError(getMLText("my_account"),getMLText("access_denied"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("my_account"),getMLText("access_denied"));
 }
 
 if (!$settings->_enableUsersView) {
-	UI::exitError(getMLText("my_account"),getMLText("access_denied"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("my_account"),getMLText("access_denied"));
 }
 
 $users = $dms->getAllUsers();
 if (is_bool($users)) {
-	UI::exitError(getMLText("my_account"),getMLText("internal_error"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("my_account"),getMLText("internal_error"));
 }
 
 $tmp = explode('.', basename($_SERVER['SCRIPT_FILENAME']));
-$view = UI::factory($theme, $tmp[1], array('dms'=>$dms, 'user'=>$user, 'allusers'=>$users, 'enableuserimage'=>$settings->_enableUserImage, 'httproot'=>$settings->_httpRoot));
+$view = (new UI($GLOBALS['theme'] ?? 'bootstrap'))->factory($theme, $tmp[1], array('dms'=>$dms, 'user'=>$user, 'allusers'=>$users, 'enableuserimage'=>$settings->_enableUserImage, 'httproot'=>$settings->_httpRoot));
 if($view) {
 	$view->show();
 	exit;

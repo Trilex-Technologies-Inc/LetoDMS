@@ -81,9 +81,9 @@ function checkForm()
 			$lockingUser = $document->getLockingUser();
 
 			print "<table><tr><td class=\"warning\">";
-			
+
 			printMLText("update_locked_msg", array("username" => htmlspecialchars($lockingUser->getFullName()), "email" => $lockingUser->getEmail()));
-			
+
 			if ($lockingUser->getID() == $user->getID())
 				printMLText("unlock_cause_locking_user");
 			else if ($document->getAccessMode($user) == M_ALL)
@@ -124,7 +124,7 @@ function checkForm()
 <form action="../op/op.UpdateDocument.php" enctype="multipart/form-data" method="post" name="form1" onsubmit="return checkForm();">
 	<input type="Hidden" name="documentid" value="<?php print $document->getID(); ?>">
 	<table>
-	
+
 		<tr>
 			<td><?php printMLText("local_file");?>:</td>
 			<td><input type="File" name="userfile" size="60"></td>
@@ -163,7 +163,7 @@ function checkForm()
 ?>
 		<tr>
 			<td colspan=2>
-			
+
 				<?php $this->contentSubHeading(getMLText("assign_reviewers")); ?>
 
 				<div class="cbSelectTitle"><?php printMLText("individuals");?>:</div>
@@ -174,7 +174,7 @@ function checkForm()
 
 				foreach ($docAccess["users"] as $usr) {
 
-					if ($usr->getID()==$user->getID()) continue; 
+					if ($usr->getID()==$user->getID()) continue;
 
 					$mandatory=false;
 					foreach ($res as $r) if ($r['reviewerUserID']==$usr->getID()) $mandatory=true;
@@ -190,9 +190,9 @@ function checkForm()
 				<ul class="cbSelectList">
 <?php
 				foreach ($docAccess["groups"] as $grp) {
-				
+
 					$mandatory=false;
-					foreach ($res as $r) if ($r['reviewerGroupID']==$grp->getID()) $mandatory=true;	
+					foreach ($res as $r) if ($r['reviewerGroupID']==$grp->getID()) $mandatory=true;
 
 					if ($mandatory) print "<li class=\"cbSelectItem\"><input type='checkbox' checked='checked' disabled='disabled'>".htmlspecialchars($grp->getName())."</li>";
 					else print "<li class=\"cbSelectItem\"><input id='revGrp".$grp->getID()."' type='checkbox' name='grpReviewers[]' value='". $grp->getID() ."'>".htmlspecialchars($grp->getName())."</li>";
@@ -200,9 +200,9 @@ function checkForm()
 ?>
 				</ul>
 				</div>
-					
-				<?php $this->contentSubHeading(getMLText("assign_approvers")); ?>	
-				
+
+				<?php $this->contentSubHeading(getMLText("assign_approvers")); ?>
+
 				<div class="cbSelectTitle"><?php printMLText("individuals");?>:</div>
 				<div class="cbSelectContainer cbSelectMargin">
 				<ul class="cbSelectList">
@@ -210,12 +210,12 @@ function checkForm()
 				$res=$user->getMandatoryApprovers();
 
 				foreach ($docAccess["users"] as $usr) {
-				
-					if ($usr->getID()==$user->getID()) continue; 
+
+					if ($usr->getID()==$user->getID()) continue;
 
 					$mandatory=false;
 					foreach ($res as $r) if ($r['approverUserID']==$usr->getID()) $mandatory=true;
-					
+
 					if ($mandatory) print "<li class=\"cbSelectItem\"><input type='checkbox' checked='checked' disabled='disabled'>". htmlspecialchars($usr->getFullName())."</li>";
 					else print "<li class=\"cbSelectItem\"><input id='appInd".$usr->getID()."' type='checkbox' name='indApprovers[]' value='". $usr->getID() ."'>". htmlspecialchars($usr->getFullName())."</li>";
 				}
@@ -227,9 +227,9 @@ function checkForm()
 				<ul class="cbSelectList">
 <?php
 				foreach ($docAccess["groups"] as $grp) {
-				
+
 					$mandatory=false;
-					foreach ($res as $r) if ($r['approverGroupID']==$grp->getID()) $mandatory=true;	
+					foreach ($res as $r) if ($r['approverGroupID']==$grp->getID()) $mandatory=true;
 
 					if ($mandatory) print "<li class=\"cbSelectItem\"><input type='checkbox' checked='checked' disabled='disabled'>".htmlspecialchars($grp->getName());
 					else print "<li class=\"cbSelectItem\"><input id='appGrp".$grp->getID()."' type='checkbox' name='grpApprovers[]' value='". $grp->getID() ."'>".htmlspecialchars($grp->getName());

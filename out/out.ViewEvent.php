@@ -24,16 +24,16 @@ include("../inc/inc.Calendar.php");
 include("../inc/inc.Authentication.php");
 
 if (!isset($_GET["id"])){
-	UI::exitError(getMLText("event_details"),getMLText("error_occured"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("event_details"),getMLText("error_occured"));
 }
 
 $event=getEvent(intval($_GET["id"]));
 if (is_bool($event)&&!$event){
-	UI::exitError(getMLText("event_details"),getMLText("error_occured"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("event_details"),getMLText("error_occured"));
 }
 
 $tmp = explode('.', basename($_SERVER['SCRIPT_FILENAME']));
-$view = UI::factory($theme, $tmp[1], array('dms'=>$dms, 'user'=>$user, 'event'=>$event));
+$view = (new UI($GLOBALS['theme'] ?? 'bootstrap'))->factory($theme, $tmp[1], array('dms'=>$dms, 'user'=>$user, 'event'=>$event));
 if($view) {
 	$view->show();
 	exit;

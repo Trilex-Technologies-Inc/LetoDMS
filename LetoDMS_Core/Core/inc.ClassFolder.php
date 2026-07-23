@@ -73,7 +73,7 @@ class LetoDMS_Core_Folder extends LetoDMS_Core_Object {
 	 */
 	protected $_sequence;
 
-	function LetoDMS_Core_Folder($id, $name, $parentID, $comment, $date, $ownerID, $inheritAccess, $defaultAccess, $sequence) { /* {{{ */
+	function __construct($id, $name, $parentID, $comment, $date, $ownerID, $inheritAccess, $defaultAccess, $sequence) { /* {{{ */
 		parent::__construct($id);
 		$this->_id = $id;
 		$this->_name = $name;

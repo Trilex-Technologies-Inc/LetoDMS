@@ -69,15 +69,15 @@ function showKeywords(selectObj) {
 		<option value="-1"><?php echo getMLText("choose_category")?>
 		<option value="0"><?php echo getMLText("new_default_keyword_category")?>
 <?php
-				
+
 		$selected=0;
-		$count=2;				
+		$count=2;
 		foreach ($categories as $category) {
-		
+
 			$owner = $category->getOwner();
 			if ((!$user->isAdmin()) && ($owner->getID() != $user->getID())) continue;
 
-			if ($selcategoryid && $category->getID()==$selcategoryid) $selected=$count;				
+			if ($selcategoryid && $category->getID()==$selcategoryid) $selected=$count;
 			print "<option value=\"".$category->getID()."\">" . htmlspecialchars($category->getName());
 			$count++;
 		}
@@ -90,7 +90,7 @@ function showKeywords(selectObj) {
 <div class="well">
 
 <table class="table-condensed"><tr>
-		<td id="keywords0" style="display : none;">	
+		<td id="keywords0" style="display : none;">
 			<form class="form-inline" action="../op/op.DefaultKeywords.php" method="post">
   		<?php echo createHiddenFieldWithKey('addcategory'); ?>
 			<input type="Hidden" name="action" value="addcategory">
@@ -104,7 +104,7 @@ function showKeywords(selectObj) {
 			$owner = $category->getOwner();
 			if ((!$user->isAdmin()) && ($owner->getID() != $user->getID())) continue;
 
-			print "<td id=\"keywords".$category->getID()."\" style=\"display : none;\">";	
+			print "<td id=\"keywords".$category->getID()."\" style=\"display : none;\">";
 ?>
 			<table class="table-condensed">
 				<tr>
@@ -168,7 +168,7 @@ function showKeywords(selectObj) {
 						<input type="Hidden" name="action" value="newkeywords">
 						<input type="Hidden" name="categoryid" value="<?php echo $category->getID()?>">
 						<input type="text" name="keywords">
-					
+
 					  <input type="submit" class="btn" value="<?php printMLText("new_default_keywords");?>">
 						</form>
 					</td>

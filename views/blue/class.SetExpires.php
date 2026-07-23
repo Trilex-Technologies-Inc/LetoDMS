@@ -46,7 +46,7 @@ class LetoDMS_View_SetExpires extends LetoDMS_Blue_Style {
 
 <form action="../op/op.SetExpires.php" method="post">
 <input type="hidden" name="documentid" value="<?php print $document->getID();?>">
-	
+
 <table>
 <tr>
 	<td><?php printMLText("expires");?>:</td>
@@ -60,7 +60,7 @@ class LetoDMS_View_SetExpires extends LetoDMS_Blue_Style {
 <p>
 <input type="submit" value="<?php printMLText("update");?>">
 </p>
-	
+
 </form>
 <?php
 		$this->contentContainerEnd();

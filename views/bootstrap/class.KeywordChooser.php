@@ -37,7 +37,7 @@ class LetoDMS_View_KeywordChooser extends LetoDMS_Bootstrap_Style {
 		$categories = $this->params['categories'];
 		$form = $this->params['form'];
 
-		$this->htmlStartPage(getMLText("use_default_keywords"));
+		$this->htmlStartPage(getMLText("use_default_keywords"), "keyword-chooser-frame");
 ?>
 <script language="JavaScript">
 var targetObj = document.<?php echo $form ?>.keywords;
@@ -51,14 +51,14 @@ function insertKeywords(keywords) {
 	//assuming Mozilla
 	else {
 		selStart = myTA.selectionStart;
-		
-		myTA.value = myTA.value.substring(0,myTA.selectionStart) + " " 
+
+		myTA.value = myTA.value.substring(0,myTA.selectionStart) + " "
 			+ keywords
 			+ myTA.value.substring(myTA.selectionStart,myTA.value.length);
-		
+
 		myTA.selectionStart = selStart + keywords.length+1;
 		myTA.selectionEnd = selStart + keywords.length+1;
-	}				  
+	}
 	myTA.focus();
 }
 
@@ -79,41 +79,37 @@ obj[1] = -1;
 function showKeywords(which) {
 	if (obj[which] != -1)
 		obj[which].style.display = "none";
-	
+
 	list = document.getElementById("categories" + which);
-	
+
 	id = list.options[list.selectedIndex].value;
 	if (id == -1)
 		return;
-	
+
 	obj[which] = document.getElementById("keywords" + id);
 	obj[which].style.display = "";
 }
 </script>
 
-<div>
-<?php
-		$this->contentContainerStart();
-?>
-
-<table>
+<div class="keyword-chooser-content">
+<table class="table keyword-chooser-table">
 
 	<tr>
-		<td valign="top" class="inputDescription"><?php echo getMLText("keywords")?>:</td>
-		<td><textarea id="keywordta" rows="5" cols="30"></textarea></td>
+		<th scope="row"><label for="keywordta"><?php echo getMLText("keywords")?>:</label></th>
+		<td><textarea id="keywordta" class="input-block-level" rows="4" cols="30" dir="auto"></textarea></td>
 	</tr>
-	
+
 	<tr>
-		<td class="inputDescription"><?php echo getMLText("global_default_keywords")?>:</td>
+		<th scope="row"><label for="categories0"><?php echo getMLText("global_default_keywords")?>:</label></th>
 		<td>
-			<select onchange="showKeywords(0)" id="categories0">
+			<select class="input-block-level" onchange="showKeywords(0)" id="categories0">
 				<option value="-1"><?php echo getMLText("choose_category")?>
 <?php
 				foreach ($categories as $category) {
 					$owner = $category->getOwner();
 					if (!$owner->isAdmin())
 						continue;
-					
+
 					print "<option value=\"".$category->getID()."\">" . htmlspecialchars($category->getName());
 				}
 ?>
@@ -127,16 +123,16 @@ function showKeywords(which) {
 			continue;
 ?>
 	<tr id="keywords<?php echo $category->getID()?>" style="display : none;">
-		<td valign="top" class="inputDescription"><?php echo getMLText("default_keywords")?>:</td>
-		<td>
+		<th scope="row"><?php echo getMLText("default_keywords")?>:</th>
+		<td class="keyword-suggestions">
 			<?php
 				$lists = $category->getKeywordLists();
-				
+
 				if (count($lists) == 0) print getMLText("no_default_keywords");
-				else {	
-					print "<ul>";
+				else {
+					print "<ul class=\"unstyled keyword-chip-list\">";
 					foreach ($lists as $list) {
-						print "<li><a href='javascript:insertKeywords(\"".htmlspecialchars($list["keywords"])."\");'>".htmlspecialchars($list["keywords"])."</a></li>";
+						print "<li><a class=\"keyword-chip\" href=\"javascript:insertKeywords(".htmlspecialchars(json_encode($list["keywords"]), ENT_QUOTES).")\"><i class=\"icon-plus\"></i> ".htmlspecialchars($list["keywords"])."</a></li>";
 					}
 					print "</ul>";
 				}
@@ -145,16 +141,16 @@ function showKeywords(which) {
 	</tr>
 <?php } ?>
 	<tr>
-		<td class="inputDescription"><?php echo getMLText("personal_default_keywords")?>:</td>
+		<th scope="row"><label for="categories1"><?php echo getMLText("personal_default_keywords")?>:</label></th>
 		<td>
-			<select onchange="showKeywords(1)" id="categories1">
+			<select class="input-block-level" onchange="showKeywords(1)" id="categories1">
 				<option value="-1"><?php echo getMLText("choose_category")?>
 <?php
 				foreach ($categories as $category) {
 					$owner = $category->getOwner();
 					if ($owner->isAdmin())
 						continue;
-					
+
 					print "<option value=\"".$category->getID()."\">" . htmlspecialchars($category->getName());
 				}
 ?>
@@ -168,15 +164,15 @@ function showKeywords(which) {
 				continue;
 ?>
 		<tr id="keywords<?php echo $category->getID()?>" style="display : none;">
-			<td valign="top" class="inputDescription"><?php echo getMLText("default_keywords")?>:</td>
-			<td class="standardText">
+		<th scope="row"><?php echo getMLText("default_keywords")?>:</th>
+		<td class="standardText keyword-suggestions">
 <?php
-					$lists = $category->getKeywordLists();				
+					$lists = $category->getKeywordLists();
 					if (count($lists) == 0) print getMLText("no_default_keywords");
-					else {	
-						print "<ul>";
+					else {
+						print "<ul class=\"unstyled keyword-chip-list\">";
 						foreach ($lists as $list) {
-							print "<li><a href='javascript:insertKeywords(\"".htmlspecialchars($list["keywords"])."\");'>".htmlspecialchars($list["keywords"])."</a></li>";
+							print "<li><a class=\"keyword-chip\" href=\"javascript:insertKeywords(".htmlspecialchars(json_encode($list["keywords"]), ENT_QUOTES).")\"><i class=\"icon-plus\"></i> ".htmlspecialchars($list["keywords"])."</a></li>";
 						}
 						print "</ul>";
 					}
@@ -185,10 +181,7 @@ function showKeywords(which) {
 	</tr>
 <?php } ?>
 </table>
-
-<?php
-		$this->contentContainerEnd();
-?>
+</div>
 <script language="JavaScript">
 myTA = document.getElementById("keywordta");
 myTA.value = targetObj.value;

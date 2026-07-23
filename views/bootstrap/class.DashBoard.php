@@ -112,8 +112,8 @@ class LetoDMS_View_DashBoard extends LetoDMS_Bootstrap_Style {
 			</div>
 		</div>
 		</div>
-		
-<?
+
+<?php
 
 		$this->htmlEndPage();
 	} /* }}} */

@@ -44,7 +44,7 @@ class LetoDMS_View_MyAccount extends LetoDMS_Bootstrap_Style {
 		$this->pageNavigation(getMLText("my_account"), "my_account");
 
 		if(($remain = checkQuota()) < 0) {
-			$this->warningMsg(getMLText('quota_warning', array('bytes'=>LetoDMS_Core_File::format_filesize(abs($remain)))));
+			$this->warningMsg(getMLText('quota_warning', array('bytes'=>(new LetoDMS_Core_File())->format_filesize(abs($remain)))));
 		}
 		$this->contentHeading(getMLText("user_info"));
 		$this->contentContainerStart();
@@ -82,11 +82,11 @@ class LetoDMS_View_MyAccount extends LetoDMS_Bootstrap_Style {
 		}
 		print "<tr>\n";
 		print "<td>".getMLText("quota")." : </td>\n";
-		print "<td>".LetoDMS_Core_File::format_filesize($user->getQuota())."</td>\n";
+		print "<td>".(new LetoDMS_Core_File())->format_filesize($user->getQuota())."</td>\n";
 		print "</tr>\n";
 		print "<tr>\n";
 		print "<td>".getMLText("used_discspace")." : </td>\n";
-		print "<td>".LetoDMS_Core_File::format_filesize($user->getUsedDiskSpace())."</td>\n";
+		print "<td>".(new LetoDMS_Core_File())->format_filesize($user->getUsedDiskSpace())."</td>\n";
 		print "</tr>\n";
 		print "</table>\n";
 		print "</div>\n";

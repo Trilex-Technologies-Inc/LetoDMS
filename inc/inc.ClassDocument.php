@@ -150,7 +150,7 @@ class LetoDMS_Core_Document extends LetoDMS_Core_Object { /* {{{ */
 	 */
 	protected $_sequence;
 
-	function LetoDMS_Core_Document($id, $name, $comment, $date, $expires, $ownerID, $folderID, $inheritAccess, $defaultAccess, $locked, $keywords, $sequence) { /* {{{ */
+	function __construct($id, $name, $comment, $date, $expires, $ownerID, $folderID, $inheritAccess, $defaultAccess, $locked, $keywords, $sequence) { /* {{{ */
 		parent::__construct($id);
 		$this->_name = $name;
 		$this->_comment = $comment;
@@ -1124,8 +1124,8 @@ class LetoDMS_Core_Document extends LetoDMS_Core_Object { /* {{{ */
 			$version = $resArr[0]['m']+1;
 		}
 
-		$filesize = LetoDMS_Core_File::fileSize($tmpFile);
-		$checksum = LetoDMS_Core_File::checksum($tmpFile);
+		$filesize = (new LetoDMS_Core_File())->fileSize($tmpFile);
+		$checksum = (new LetoDMS_Core_File())->checksum($tmpFile);
 
 		$db->startTransaction();
 		$queryStr = "INSERT INTO tblDocumentContent (document, version, comment, date, createdBy, dir, orgFileName, fileType, mimeType, fileSize, checksum) VALUES ".
@@ -1138,11 +1138,11 @@ class LetoDMS_Core_Document extends LetoDMS_Core_Object { /* {{{ */
 		$contentID = $db->getInsertID();
 
 		// copy file
-		if (!LetoDMS_Core_File::makeDir($this->_dms->contentDir . $dir)) {
+		if (!(new LetoDMS_Core_File())->makeDir($this->_dms->contentDir . $dir)) {
 			$db->rollbackTransaction();
 			return false;
 		}
-		if (!LetoDMS_Core_File::copyFile($tmpFile, $this->_dms->contentDir . $dir . $version . $fileType)) {
+		if (!(new LetoDMS_Core_File())->copyFile($tmpFile, $this->_dms->contentDir . $dir . $version . $fileType)) {
 			$db->rollbackTransaction();
 			return false;
 		}
@@ -1321,7 +1321,7 @@ class LetoDMS_Core_Document extends LetoDMS_Core_Object { /* {{{ */
 		$emailList[] = $version->_userID;
 
 		if (file_exists( $this->_dms->contentDir.$version->getPath() ))
-			if (!LetoDMS_Core_File::removeFile( $this->_dms->contentDir.$version->getPath() ))
+			if (!(new LetoDMS_Core_File())->removeFile( $this->_dms->contentDir.$version->getPath() ))
 				return false;
 
 		$db->startTransaction();
@@ -1508,8 +1508,8 @@ class LetoDMS_Core_Document extends LetoDMS_Core_Object { /* {{{ */
 		if (is_bool($file) && !$file) return false;
 
 		// copy file
-		if (!LetoDMS_Core_File::makeDir($this->_dms->contentDir . $dir)) return false;
-		if (!LetoDMS_Core_File::copyFile($tmpFile, $this->_dms->contentDir . $file->getPath() )) return false;
+		if (!(new LetoDMS_Core_File())->makeDir($this->_dms->contentDir . $dir)) return false;
+		if (!(new LetoDMS_Core_File())->copyFile($tmpFile, $this->_dms->contentDir . $file->getPath() )) return false;
 
 		return true;
 	} /* }}} */
@@ -1523,7 +1523,7 @@ class LetoDMS_Core_Document extends LetoDMS_Core_Object { /* {{{ */
 		if (is_bool($file) && !$file) return false;
 
 		if (file_exists( $this->_dms->contentDir . $file->getPath() )){
-			if (!LetoDMS_Core_File::removeFile( $this->_dms->contentDir . $file->getPath() ))
+			if (!(new LetoDMS_Core_File())->removeFile( $this->_dms->contentDir . $file->getPath() ))
 				return false;
 		}
 
@@ -1592,7 +1592,7 @@ class LetoDMS_Core_Document extends LetoDMS_Core_Object { /* {{{ */
 		// TODO: versioning file?
 
 		if (file_exists( $this->_dms->contentDir . $this->getDir() ))
-			if (!LetoDMS_Core_File::removeDir( $this->_dms->contentDir . $this->getDir() )) {
+			if (!(new LetoDMS_Core_File())->removeDir( $this->_dms->contentDir . $this->getDir() )) {
 				$db->rollbackTransaction();
 				return false;
 			}
@@ -1920,7 +1920,7 @@ class LetoDMS_Core_DocumentContent extends LetoDMS_Core_Object { /* {{{ */
 		else $this->setStatus(S_RELEASED,"",$user);
 	} /* }}} */
 
-	function LetoDMS_Core_DocumentContent($id, $document, $version, $comment, $date, $userID, $dir, $orgFileName, $fileType, $mimeType, $fileSize=0, $checksum='') { /* {{{ */
+	function __construct($id, $document, $version, $comment, $date, $userID, $dir, $orgFileName, $fileType, $mimeType, $fileSize=0, $checksum='') { /* {{{ */
 		parent::__construct($id);
 		$this->_document = $document;
 		$this->_version = (int) $version;
@@ -1933,7 +1933,7 @@ class LetoDMS_Core_DocumentContent extends LetoDMS_Core_Object { /* {{{ */
 		$this->_mimeType = $mimeType;
 		$this->_dms = $document->_dms;
 		if(!$fileSize) {
-			$this->_fileSize = LetoDMS_Core_File::fileSize($this->_dms->contentDir . $this->getPath());
+			$this->_fileSize = (new LetoDMS_Core_File())->fileSize($this->_dms->contentDir . $this->getPath());
 		} else {
 			$this->_fileSize = $fileSize;
 		}
@@ -1983,7 +1983,7 @@ class LetoDMS_Core_DocumentContent extends LetoDMS_Core_Object { /* {{{ */
 	 * Set file size by reading the file
 	 */
 	function setFileSize() { /* {{{ */
-		$filesize = LetoDMS_Core_File::fileSize($this->_dms->contentDir . $this->_document->getDir() . $this->getFileName());
+		$filesize = (new LetoDMS_Core_File())->fileSize($this->_dms->contentDir . $this->_document->getDir() . $this->getFileName());
 		if($filesize === false)
 			return false;
 
@@ -2004,7 +2004,7 @@ class LetoDMS_Core_DocumentContent extends LetoDMS_Core_Object { /* {{{ */
 	 * Set checksum by reading the file
 	 */
 	function setChecksum() { /* {{{ */
-		$checksum = LetoDMS_Core_File::checksum($this->_dms->contentDir . $this->_document->getDir() . $this->getFileName());
+		$checksum = (new LetoDMS_Core_File())->checksum($this->_dms->contentDir . $this->_document->getDir() . $this->getFileName());
 		if($checksum === false)
 			return false;
 
@@ -3623,7 +3623,7 @@ class LetoDMS_Core_DocumentLink { /* {{{ */
 	 */
 	protected $_public;
 
-	function LetoDMS_Core_DocumentLink($id, $document, $target, $userID, $public) {
+	function __construct($id, $document, $target, $userID, $public) {
 		$this->_id = $id;
 		$this->_document = $document;
 		$this->_target = $target;
@@ -3722,7 +3722,7 @@ class LetoDMS_Core_DocumentFile { /* {{{ */
 	 */
 	protected $_name;
 
-	function LetoDMS_Core_DocumentFile($id, $document, $userID, $comment, $date, $dir, $fileType, $mimeType, $orgFileName,$name) {
+	function __construct($id, $document, $userID, $comment, $date, $dir, $fileType, $mimeType, $orgFileName,$name) {
 		$this->_id = $id;
 		$this->_document = $document;
 		$this->_userID = $userID;
@@ -3785,7 +3785,7 @@ class LetoDMS_Core_AddContentResultSet { /* {{{ */
 	protected $_content;
 	protected $_status;
 
-	function LetoDMS_Core_AddContentResultSet($content) { /* {{{ */
+	function __construct($content) { /* {{{ */
 		$this->_content = $content;
 		$this->_indReviewers = null;
 		$this->_grpReviewers = null;

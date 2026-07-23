@@ -44,15 +44,21 @@ class UI extends UI_Default {
 	 * @param array $params parameter passed to constructor of view class
 	 * @return object an object of a class implementing the view
 	 */
-	function factory($theme="blue", $class, $params=array()) { /* {{{ */
-		global $settings, $session;
+	static function factory($theme, $class, $params=array()) { /* {{{ */
 $theme="bootstrap";
 		if(file_exists("../views/".$theme."/class.".$class.".php")) {
        
 			require("../views/".$theme."/class.".$class.".php");
 			$classname = "LetoDMS_View_".$class;
 			$view = new $classname($params, $theme);
-			/* Set some configuration parameters */
+			return self::configureView($view);
+		}
+		return null;
+	} /* }}} */
+
+	/** Apply normal application settings to a core or module-provided view. */
+	static function configureView($view) { /* {{{ */
+		global $settings, $session, $db;
 			$view->setParam('session', $session);
 			$view->setParam('sitename', $settings->_siteName);
 			$view->setParam('rootfolderid', $settings->_rootFolderID);
@@ -70,12 +76,20 @@ $theme="bootstrap";
 			$view->setParam('enablelanguageselector', $settings->_enableLanguageSelector);
 			$view->setParam('workflowmode', $settings->_workflowMode);
 			$view->setParam('partitionsize', $settings->_partitionSize);
+			$moduleNavigation = array();
+			if (isset($db)) {
+				require_once('inc.ClassModuleManager.php');
+				$moduleManager = new LetoDMS_ModuleManager($db, $settings->_rootDir.'modules', $settings->_dbDriver);
+				foreach ($moduleManager->all() as $module) {
+					if ($module['installed'] && $module['enabled'] && !empty($module['navigation']) && !empty($module['url']))
+						$moduleNavigation[] = array('title'=>$module['title'], 'url'=>$module['url']);
+				}
+			}
+			$view->setParam('modulenavigation', $moduleNavigation);
 			return $view;
-		}
-		return null;
 	} /* }}} */
 
-	function getStyles() { /* {{{ */
+	static function getStyles() { /* {{{ */
 		global $settings;
 
 		$themes = array();
@@ -92,7 +106,7 @@ $theme="bootstrap";
 		return $themes;
 	} /* }}} */
 
-	function exitError($pagetitle, $error) {
+	static function exitError($pagetitle, $error) {
 		global $theme;
 		$tmp = 'ErrorDlg';
    

@@ -27,7 +27,7 @@ include("../inc/inc.ClassUI.php");
 include("../inc/inc.Authentication.php");
 
 if (!$user->isAdmin()) {
-	UI::exitError(getMLText("admin_tools"),getMLText("access_denied"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("access_denied"));
 }
 
 if(isset($_GET['repair']) && $_GET['repair'] == 1) {
@@ -60,7 +60,7 @@ $nofilesizeversions = $dms->getNoFileSizeDocumentContent();
 $nochecksumversions = $dms->getNoChecksumDocumentContent();
 
 $tmp = explode('.', basename($_SERVER['SCRIPT_FILENAME']));
-$view = UI::factory($theme, $tmp[1], array('dms'=>$dms, 'user'=>$user, 'folder'=>$folder, 'unlinkedcontent'=>$unlinkedversions, 'nofilesizeversions'=>$nofilesizeversions, 'nochecksumversions'=>$nochecksumversions, 'unlink'=>$unlink, 'setfilesize'=>$setfilesize, 'setchecksum'=>$setchecksum, 'repair'=>$repair));
+$view = (new UI($GLOBALS['theme'] ?? 'bootstrap'))->factory($theme, $tmp[1], array('dms'=>$dms, 'user'=>$user, 'folder'=>$folder, 'unlinkedcontent'=>$unlinkedversions, 'nofilesizeversions'=>$nofilesizeversions, 'nochecksumversions'=>$nochecksumversions, 'unlink'=>$unlink, 'setfilesize'=>$setfilesize, 'setchecksum'=>$setchecksum, 'repair'=>$repair));
 if($view) {
 	$view->show();
 	exit;

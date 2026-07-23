@@ -29,24 +29,24 @@ include("../inc/inc.Authentication.php");
 
 /* Check if the form data comes for a trusted request */
 if(!checkFormKey('adddocument')) {
-	UI::exitError(getMLText("folder_title", array("foldername" => getMLText("invalid_request_token"))),getMLText("invalid_request_token"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("folder_title", array("foldername" => getMLText("invalid_request_token"))),getMLText("invalid_request_token"));
 }
 
 if (!isset($_POST["folderid"]) || !is_numeric($_POST["folderid"]) || intval($_POST["folderid"])<1) {
-	UI::exitError(getMLText("folder_title", array("foldername" => getMLText("invalid_folder_id"))),getMLText("invalid_folder_id"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("folder_title", array("foldername" => getMLText("invalid_folder_id"))),getMLText("invalid_folder_id"));
 }
 
 $folderid = $_POST["folderid"];
 $folder = $dms->getFolder($folderid);
 
 if (!is_object($folder)) {
-	UI::exitError(getMLText("folder_title", array("foldername" => getMLText("invalid_folder_id"))),getMLText("invalid_folder_id"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("folder_title", array("foldername" => getMLText("invalid_folder_id"))),getMLText("invalid_folder_id"));
 }
 
 $folderPathHTML = getFolderPathHTML($folder, true);
 
 if ($folder->getAccessMode($user) < M_READWRITE) {
-	UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("access_denied"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("access_denied"));
 }
 
 $comment  = $_POST["comment"];
@@ -73,7 +73,7 @@ if ($reqversion<1) $reqversion=1;
 
 $sequence = $_POST["sequence"];
 if (!is_numeric($sequence)) {
-	UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("invalid_sequence"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("invalid_sequence"));
 }
 
 $expires = ($_POST["expires"] == "true") ? mktime(0,0,0, intval($_POST["expmonth"]), intval($_POST["expday"]), intval($_POST["expyear"])) : false;
@@ -174,10 +174,10 @@ if($settings->_dropFolderDir) {
 /* Check files for Errors first */
 for ($file_num=0;$file_num<count($_FILES["userfile"]["tmp_name"]);$file_num++){
 	if ($_FILES["userfile"]["size"][$file_num]==0) {
-		UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("uploading_zerosize"));
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("uploading_zerosize"));
 	}
 	if (is_uploaded_file($_FILES["userfile"]["tmp_name"][$file_num]) && $_FILES['userfile']['error'][$file_num]!=0){
-		UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("uploading_failed"));
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("uploading_failed"));
 	}
 }
 
@@ -185,7 +185,7 @@ for ($file_num=0;$file_num<count($_FILES["userfile"]["tmp_name"]);$file_num++){
 	$userfiletmp = $_FILES["userfile"]["tmp_name"][$file_num];
 	$userfiletype = $_FILES["userfile"]["type"][$file_num];
 	$userfilename = $_FILES["userfile"]["name"][$file_num];
-	
+
 	$lastDotIndex = strrpos(basename($userfilename), ".");
 	if (is_bool($lastDotIndex) && !$lastDotIndex) $fileType = ".";
 	else $fileType = substr($userfilename, $lastDotIndex);
@@ -197,7 +197,7 @@ for ($file_num=0;$file_num<count($_FILES["userfile"]["tmp_name"]);$file_num++){
 	/* Check if name already exists in the folder */
 	if(!$settings->_enableDuplicateDocNames) {
 		if($folder->hasDocumentByName($name)) {
-			UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("document_duplicate_name"));
+			(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("document_duplicate_name"));
 		}
 	}
 
@@ -215,7 +215,7 @@ for ($file_num=0;$file_num<count($_FILES["userfile"]["tmp_name"]);$file_num++){
 	                            $version_comment, $attributes, $attributes_version, $workflow);
 
 	if (is_bool($res) && !$res) {
-		UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("error_occured"));
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("error_occured"));
 	} else {
 		$document = $res[0];
 		if(isset($GLOBALS['LETODMS_HOOKS']['postAddDocument'])) {
@@ -225,7 +225,7 @@ for ($file_num=0;$file_num<count($_FILES["userfile"]["tmp_name"]);$file_num++){
 				}
 			}
 		}
-		
+
 
 		/* Add a default notification for the owner of the document */
 		if($settings->_enableOwnerNotification) {
@@ -251,21 +251,21 @@ for ($file_num=0;$file_num<count($_FILES["userfile"]["tmp_name"]);$file_num++){
 			}
 			$subject = "###SITENAME###: ".$folder->getName()." - ".getMLText("new_document_email");
 			$message = getMLText("new_document_email")."\r\n";
-			$message .= 
+			$message .=
 				getMLText("name").": ".$name."\r\n".
 				getMLText("folder").": ".$folder->getFolderPathPlain()."\r\n".
 				getMLText("comment").": ".$comment."\r\n".
 				getMLText("comment_for_current_version").": ".$version_comment."\r\n".
 				"URL: ###URL_PREFIX###out/out.ViewDocument.php?documentid=".$document->getID()."\r\n";
 
-			
+
 			$notifier->toList($user, $notifyList["users"], $subject, $message);
 			foreach ($notifyList["groups"] as $grp) {
 				$notifier->toGroup($user, $grp, $subject, $message);
 			}
 		}
 	}
-	
+
 	add_log_line("?name=".$name."&folderid=".$folderid);
 }
 

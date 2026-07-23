@@ -25,7 +25,7 @@ include("../inc/inc.ClassUI.php");
 include("../inc/inc.Authentication.php");
 
 if (!$user->isAdmin()) {
-	UI::exitError(getMLText("admin_tools"),getMLText("access_denied"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("access_denied"));
 }
 
 /**
@@ -158,13 +158,13 @@ function createFolderTar($folder,$ark) { /* {{{ */
 } /* }}} */
 
 if (!isset($_GET["targetidform2"]) || !is_numeric($_GET["targetidform2"]) || intval($_GET["targetidform2"])<1) {
-	UI::exitError(getMLText("admin_tools"),getMLText("invalid_folder_id"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("invalid_folder_id"));
 }
 $folderid = $_GET["targetidform2"];
 $folder = $dms->getFolder($folderid);
 
 if (!is_object($folder)) {
-	UI::exitError(getMLText("admin_tools"),getMLText("invalid_folder_id"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("invalid_folder_id"));
 }
 
 $human_readable = (isset($_GET["human_readable"]) && $_GET["human_readable"]==1 ? true : false);
@@ -177,14 +177,14 @@ $ark = fopen($ark_name,"w");
 if (!createFolderTar($folder,$ark)) {
 	fclose($ark);
 	unlink($ark_name);
-	UI::exitError(getMLText("admin_tools"),getMLText("error_occured"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("error_occured"));
 }
 
 TarAddFooter($ark);
 fclose($ark);
 
-if (LetoDMS_Core_File::gzcompressfile($ark_name,9)) unlink($ark_name);
-else UI::exitError(getMLText("admin_tools"),getMLText("error_occured"));
+if ((new LetoDMS_Core_File())->gzcompressfile($ark_name,9)) unlink($ark_name);
+else (new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("error_occured"));
 
 add_log_line();
 

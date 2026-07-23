@@ -32,11 +32,11 @@ require_once("../LetoDMS_Preview/Preview.php");
 
 
 if ($user->isGuest()) {
-	UI::exitError(getMLText("my_documents"),getMLText("access_denied"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("my_documents"),getMLText("access_denied"));
 }
 
 $tmp = explode('.', basename($_SERVER['SCRIPT_FILENAME']));
-$view = UI::factory($theme, $tmp[1], array('dms'=>$dms, 'user'=>$user, 'cachedir'=>$settings->_cacheDir, 'workflowmode'=>$settings->_workflowMode));
+$view = (new UI($GLOBALS['theme'] ?? 'bootstrap'))->factory($theme, $tmp[1], array('dms'=>$dms, 'user'=>$user, 'cachedir'=>$settings->_cacheDir, 'workflowmode'=>$settings->_workflowMode));
 if($view) {
 	$view->show();
 	exit;

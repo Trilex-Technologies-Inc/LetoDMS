@@ -48,11 +48,11 @@ obj = -1;
 function showKeywords(selectObj) {
 	if (obj != -1)
 		obj.style.display = "none";
-	
+
 	id = selectObj.options[selectObj.selectedIndex].value;
 	if (id == -1)
 		return;
-	
+
 	obj = document.getElementById("keywords" + id);
 	obj.style.display = "";
 }
@@ -71,15 +71,15 @@ function showKeywords(selectObj) {
 				<option value="0"><?php echo getMLText("new_default_keyword_category")?>
 
 <?php
-				
+
 		$selected=0;
-		$count=2;				
+		$count=2;
 		foreach ($categories as $category) {
-		
+
 			$owner = $category->getOwner();
 			if ((!$user->isAdmin()) && ($owner->getID() != $user->getID())) continue;
-			
-			if ($categoryid && $category->getID()==$selcategoryid) $selected=$count;				
+
+			if ($categoryid && $category->getID()==$selcategoryid) $selected=$count;
 			print "<option value=\"".$category->getID()."\">" . htmlspecialchars($category->getName());
 			$count++;
 		}
@@ -88,7 +88,7 @@ function showKeywords(selectObj) {
 			&nbsp;&nbsp;
 		</td>
 
-		<td id="keywords0" style="display : none;">	
+		<td id="keywords0" style="display : none;">
 			<form action="../op/op.DefaultKeywords.php" method="post">
   		<?php echo createHiddenFieldWithKey('addcategory'); ?>
 			<input type="Hidden" name="action" value="addcategory">
@@ -96,15 +96,15 @@ function showKeywords(selectObj) {
 			<input type="Submit" value="<?php printMLText("new_default_keyword_category"); ?>">
 			</form>
 		</td>
-	
-<?php	
-	
+
+<?php
+
 		foreach ($categories as $category) {
-		
+
 			$owner = $category->getOwner();
 			if ((!$user->isAdmin()) && ($owner->getID() != $user->getID())) continue;
-			
-			print "<td id=\"keywords".$category->getID()."\" style=\"display : none;\">";	
+
+			print "<td id=\"keywords".$category->getID()."\" style=\"display : none;\">";
 ?>
 			<table>
 				<tr>
@@ -121,7 +121,7 @@ function showKeywords(selectObj) {
 					<td colspan="2">
 						<?php $this->contentSubHeading("");?>
 					</td>
-				</tr>				
+				</tr>
 				<tr>
 					<td><?php echo getMLText("name")?>:</td>
 					<td>
@@ -139,7 +139,7 @@ function showKeywords(selectObj) {
 						<?php $this->contentSubHeading("");?>
 					</td>
 				</tr>
-				
+
 				<tr>
 					<td><?php echo getMLText("default_keywords")?>:</td>
 					<td>
@@ -169,7 +169,7 @@ function showKeywords(selectObj) {
 									<br>
 						<?php }  ?>
 					</td>
-				</tr>			
+				</tr>
 				<tr>
 					<form action="../op/op.DefaultKeywords.php" method="post">
   				<?php echo createHiddenFieldWithKey('newkeywords'); ?>
@@ -181,12 +181,12 @@ function showKeywords(selectObj) {
 					</td>
 					</form>
 				</tr>
-				
+
 			</table>
 		</td>
 <?php } ?>
 	</tr></table>
-	
+
 <script language="JavaScript">
 
 sel = document.getElementById("selector");
@@ -195,7 +195,7 @@ showKeywords(sel);
 
 </script>
 
-	
+
 <?php
 		$this->contentContainerEnd();
 		$this->htmlEndPage();

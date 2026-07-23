@@ -26,48 +26,48 @@ include("../inc/inc.ClassUI.php");
 include("../inc/inc.Authentication.php");
 
 if (!$user->isAdmin()) {
-	UI::exitError(getMLText("admin_tools"),getMLText("access_denied"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("access_denied"));
 }
 
 /* Check if the form data comes for a trusted request */
 if(!checkFormKey('addtransitiontoworkflow')) {
-	UI::exitError(getMLText("workflow_title"),getMLText("invalid_request_token"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("workflow_title"),getMLText("invalid_request_token"));
 }
 
 if (!isset($_POST["workflow"]) || !is_numeric($_POST["workflow"])) {
-	UI::exitError(getMLText("workflow_title"),getMLText("invalid_workflow_id"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("workflow_title"),getMLText("invalid_workflow_id"));
 }
 $workflow = $dms->getWorkflow($_POST["workflow"]);
 if (!is_object($workflow)) {
-	UI::exitError(getMLText("workflow_title"),getMLText("invalid_workflow_id"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("workflow_title"),getMLText("invalid_workflow_id"));
 }
 
 if (!isset($_POST["state"]) || !is_numeric($_POST["state"])) {
-	UI::exitError(getMLText("workflow_title"),getMLText("invalid_workflow_state_id"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("workflow_title"),getMLText("invalid_workflow_state_id"));
 }
 $state = $dms->getWorkflowState($_POST['state']);
 if (!is_object($state)) {
-	UI::exitError(getMLText("workflow_title"),getMLText("invalid_workflow_state_id"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("workflow_title"),getMLText("invalid_workflow_state_id"));
 }
 
 if (!isset($_POST["nextstate"]) || !is_numeric($_POST["nextstate"])) {
-	UI::exitError(getMLText("workflow_title"),getMLText("invalid_workflow_state_id"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("workflow_title"),getMLText("invalid_workflow_state_id"));
 }
 $nextstate = $dms->getWorkflowState($_POST['nextstate']);
 if (!is_object($nextstate)) {
-	UI::exitError(getMLText("workflow_title"),getMLText("invalid_workflow_state_id"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("workflow_title"),getMLText("invalid_workflow_state_id"));
 }
 
 if($state->getID() == $nextstate->getID()) {
-	UI::exitError(getMLText("workflow_title"),getMLText("equal_transition_states"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("workflow_title"),getMLText("equal_transition_states"));
 }
 
 if (!isset($_POST["action"]) || !is_numeric($_POST["action"])) {
-	UI::exitError(getMLText("workflow_title"),getMLText("invalid_workflow_action_id"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("workflow_title"),getMLText("invalid_workflow_action_id"));
 }
 $action = $dms->getWorkflowAction($_POST['action']);
 if (!is_object($action)) {
-	UI::exitError(getMLText("workflow_title"),getMLText("invalid_workflow_action_id"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("workflow_title"),getMLText("invalid_workflow_action_id"));
 }
 
 $users = array();
@@ -85,7 +85,7 @@ if (isset($_POST["groups"]) && is_array($_POST["groups"])) {
 }
 
 if(!$users && !$groups) {
-	UI::exitError(getMLText("workflow_title"),getMLText("missing_transition_user_group"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("workflow_title"),getMLText("missing_transition_user_group"));
 }
 
 if($transition = $workflow->addTransition($state, $action, $nextstate, $users, $groups)) {

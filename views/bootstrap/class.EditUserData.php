@@ -107,9 +107,9 @@ function checkForm()
 		<td><textarea name="comment" rows="4" cols="80"><?php print htmlspecialchars($user->getComment());?></textarea></td>
 	</tr>
 
-<?php	
-		if ($enableuserimage){	
-?>	
+<?php
+		if ($enableuserimage){
+?>
 	<tr>
 		<td><?php printMLText("user_image");?>:</td>
 		<td>
@@ -143,7 +143,7 @@ function checkForm()
 			<select name="theme">
 <?php
 			$languages = getLanguages();
-			$themes = UI::getStyles();
+			$themes = (new UI($this->theme))->getStyles();
 			foreach ($themes as $currTheme) {
 				print "<option value=\"".$currTheme."\" ".(($user->getTheme()==$currTheme) ? "selected" : "").">".$currTheme."</option>";
 			}

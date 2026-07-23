@@ -206,7 +206,7 @@ class LetoDMS_View_ViewDocument extends LetoDMS_Blue_Style {
 			print "<li><a href=\"out.EditAttributes.php?documentid=".$documentid."&version=".$latestContent->getVersion()."\">".getMLText("edit_attributes")."</a></li>";
 		}
 
-		print "<li><a href=\"../op/op.Download.php?documentid=".$documentid."&vfile=1\">".getMLText("versioning_info")."</a></li>";	
+		print "<li><a href=\"../op/op.Download.php?documentid=".$documentid."&vfile=1\">".getMLText("versioning_info")."</a></li>";
 
 		print "</ul>";
 		echo "</td>";
@@ -219,7 +219,7 @@ class LetoDMS_View_ViewDocument extends LetoDMS_Blue_Style {
 			print "<tr><td colspan=5>\n";
 			$this->contentSubHeading(getMLText("reviewers"));
 			print "</tr>";
-			
+
 			print "<tr>\n";
 			print "<td width='20%'><b>".getMLText("name")."</b></td>\n";
 			print "<td width='20%'><b>".getMLText("last_update")."</b></td>\n";
@@ -272,8 +272,8 @@ class LetoDMS_View_ViewDocument extends LetoDMS_Blue_Style {
 						print "<li><a href=\"../out/out.ReviewDocument.php?documentid=".$documentid."&version=".$latestContent->getVersion()."&reviewid=".$r['reviewID']."\">".getMLText("edit")."</a></li>";
 					}
 				}
-				
-				print "</ul></td>\n";	
+
+				print "</ul></td>\n";
 				print "</td>\n</tr>\n";
 			}
 		}
@@ -286,7 +286,7 @@ class LetoDMS_View_ViewDocument extends LetoDMS_Blue_Style {
 
 			print "<tr>\n";
 			print "<td width='20%'><b>".getMLText("name")."</b></td>\n";
-			print "<td width='20%'><b>".getMLText("last_update")."</b></td>\n";	
+			print "<td width='20%'><b>".getMLText("last_update")."</b></td>\n";
 			print "<td width='25%'><b>".getMLText("comment")."</b></td>";
 			print "<td width='15%'><b>".getMLText("status")."</b></td>\n";
 			print "<td width='20%'></td>\n";
@@ -324,11 +324,11 @@ class LetoDMS_View_ViewDocument extends LetoDMS_Blue_Style {
 				print "<td><ul class=\"documentDetail\"><li>".$a["date"]."</li>";
 				/* $updateUser is the user who has done the approval */
 				$updateUser = $dms->getUser($a["userID"]);
-				print "<li>".(is_object($updateUser) ? htmlspecialchars($updateUser->getFullName()) : "unknown user id '".$a["userID"]."'")."</li></ul></td>";	
+				print "<li>".(is_object($updateUser) ? htmlspecialchars($updateUser->getFullName()) : "unknown user id '".$a["userID"]."'")."</li></ul></td>";
 				print "<td>".htmlspecialchars($a["comment"])."</td>\n";
 				print "<td>".getApprovalStatusText($a["status"])."</td>\n";
 				print "<td><ul class=\"actions\">";
-			
+
 				if($accessop->mayApprove()) {
 					if ($is_approver && $status["status"]==S_DRAFT_APP) {
 						print "<li><a href=\"../out/out.ApproveDocument.php?documentid=".$documentid."&version=".$latestContent->getVersion()."&approveid=".$a['approveID']."\">".getMLText("submit_approval")."</a></li>";
@@ -336,8 +336,8 @@ class LetoDMS_View_ViewDocument extends LetoDMS_Blue_Style {
 						print "<li><a href=\"../out/out.ApproveDocument.php?documentid=".$documentid."&version=".$latestContent->getVersion()."&approveid=".$a['approveID']."\">".getMLText("edit")."</a></li>";
 					}
 				}
-				
-				print "</ul></td>\n";	
+
+				print "</ul></td>\n";
 				print "</td>\n</tr>\n";
 			}
 		}
@@ -364,10 +364,10 @@ class LetoDMS_View_ViewDocument extends LetoDMS_Blue_Style {
 			for ($i = count($versions)-2; $i >= 0; $i--) {
 				$version = $versions[$i];
 				$vstat = $version->getStatus();
-				
+
 				// verify if file exists
 				$file_exists=file_exists($dms->contentDir . $version->getPath());
-				
+
 				print "<tr>\n";
 				print "<td><ul class=\"actions\">";
 				if ($file_exists){
@@ -375,7 +375,7 @@ class LetoDMS_View_ViewDocument extends LetoDMS_Blue_Style {
 					if ($viewonlinefiletypes && in_array(strtolower($latestContent->getFileType()), $viewonlinefiletypes))
 						print "<li><a target=\"_blank\" href=\"../op/op.ViewOnline.php?documentid=".$documentid."&version=".$version->getVersion()."\"><img src=\"images/view.gif\" class=\"mimeicon\">" . getMLText("view_online") . "</a>";
 				}else print "<li><img class=\"mimeicon\" src=\"images/icons/".$this->getMimeIcon($version->getFileType())."\" title=\"".htmlspecialchars($version->getMimeType())."\">";
-				
+
 				print "</ul></td>\n";
 				print "<td>".$version->getVersion()."</td>\n";
 				print "<td><ul class=\"documentDetail\">\n";
@@ -433,7 +433,7 @@ class LetoDMS_View_ViewDocument extends LetoDMS_Blue_Style {
 			foreach($files as $file) {
 
 				$file_exists=file_exists($dms->contentDir . $file->getPath());
-				
+
 				$responsibleUser = $file->getUser();
 
 				print "<tr>";
@@ -444,7 +444,7 @@ class LetoDMS_View_ViewDocument extends LetoDMS_Blue_Style {
 						print "<li><a target=\"_blank\" href=\"../op/op.ViewOnline.php?documentid=".$documentid."&file=". $file->getID()."\"><img class=\"mimeicon\" src=\"images/icons/".$this->getMimeIcon($file->getFileType())."\" title=\"".htmlspecialchars($file->getMimeType())."\">" . getMLText("view_online") . "</a></li>";
 				} else print "<li><img class=\"mimeicon\" src=\"images/icons/".$this->getMimeIcon($file->getFileType())."\" title=\"".htmlspecialchars($file->getMimeType())."\">";
 				print "</ul></td>";
-				
+
 				print "<td><ul class=\"documentDetail\">\n";
 				print "<li>".$file->getOriginalFileName() ."</li>\n";
 				if ($file_exists)
@@ -455,15 +455,15 @@ class LetoDMS_View_ViewDocument extends LetoDMS_Blue_Style {
 				print "<li>".getLongReadableDate($file->getDate())."</li>";
 
 				print "<td>".htmlspecialchars($file->getComment())."</td>";
-			
+
 				print "<td><span class=\"actions\">";
 				if (($document->getAccessMode($user) == M_ALL)||($file->getUserID()==$user->getID()))
 					print "<form action=\"../out/out.RemoveDocumentFile.php\" method=\"get\"><input type=\"hidden\" name=\"documentid\" value=\"".$documentid."\" /><input type=\"hidden\" name=\"fileid\" value=\"".$file->getID()."\" /><input type=\"submit\" value=\"".getMLText("delete")."\" /></form>";
-				print "</span></td>";		
-				
+				print "</span></td>";
+
 				print "</tr>";
 			}
-			print "</tbody>\n</table>\n";	
+			print "</tbody>\n</table>\n";
 
 		}
 		else printMLText("no_attached_files");

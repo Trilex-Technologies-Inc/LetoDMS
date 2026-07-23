@@ -35,6 +35,8 @@ class LetoDMS_Bootstrap_Style extends LetoDMS_View_Common
 
 	function htmlStartPage($title = "", $bodyClass = "")
 	{ /* {{{ */
+		$applicationCss = dirname(__FILE__) . '/../../styles/' . $this->theme . '/application.css';
+		$applicationCssVersion = @filemtime($applicationCss);
 		echo "<!DOCTYPE html>\n";
 		echo "<html lang=\"en\">\n<head>\n";
 		echo "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" />\n";
@@ -43,7 +45,7 @@ class LetoDMS_Bootstrap_Style extends LetoDMS_View_Common
 		echo '<link href="../styles/' . $this->theme . '/bootstrap/css/bootstrap-responsive.css" rel="stylesheet">' . "\n";
 		echo '<link href="../styles/' . $this->theme . '/datepicker/css/datepicker.css" rel="stylesheet">' . "\n";
 		echo '<link href="../styles/' . $this->theme . '/chosen/css/chosen.css" rel="stylesheet">' . "\n";
-		echo '<link href="../styles/' . $this->theme . '/application.css" rel="stylesheet">' . "\n";
+		echo '<link href="../styles/' . $this->theme . '/application.css?v=' . ($applicationCssVersion ? $applicationCssVersion : '1') . '" rel="stylesheet">' . "\n";
 		if ($this->extraheader)
 			echo $this->extraheader;
 		echo '<script type="text/javascript" src="../styles/' . $this->theme . '/jquery/jquery-1.8.2.min.js"></script>' . "\n";
@@ -62,19 +64,22 @@ class LetoDMS_Bootstrap_Style extends LetoDMS_View_Common
 
 	function htmlEndPage()
 	{ /* {{{ */
+		$applicationJs = dirname(__FILE__) . '/../../styles/' . $this->theme . '/application.js';
+		$applicationJsVersion = @filemtime($applicationJs);
 		$this->footNote();
 		echo '<script src="../styles/' . $this->theme . '/bootstrap/js/bootstrap.min.js"></script>' . "\n";
 		echo '<script src="../styles/' . $this->theme . '/datepicker/js/bootstrap-datepicker.js"></script>' . "\n";
 		echo '<script src="../styles/' . $this->theme . '/chosen/js/chosen.jquery.min.js"></script>' . "\n";
-		echo '<script src="../styles/' . $this->theme . '/application.js"></script>' . "\n";
+		echo '<script src="../styles/' . $this->theme . '/application.js?v=' . ($applicationJsVersion ? $applicationJsVersion : '1') . '"></script>' . "\n";
 		echo "</body>\n</html>\n";
 	} /* }}} */
 
 	function footNote()
 	{ /* {{{ */
-		echo '<div class="row-fluid" style="padding-top: 20px;">' . "\n";
+		$siteName = !empty($this->params['sitename']) ? $this->params['sitename'] : "LetoDMS";
+		echo '<footer class="row-fluid app-footer" role="contentinfo">' . "\n";
 		echo '<div class="span12">' . "\n";
-		echo '<div class="alert alert-info">' . "\n";
+		echo '<div class="app-footer-content">' . "\n";
 		if ($this->params['printdisclaimer']) {
 			echo "<div class=\"disclaimer\">" . getMLText("disclaimer") . "</div>";
 		}
@@ -82,9 +87,10 @@ class LetoDMS_Bootstrap_Style extends LetoDMS_View_Common
 		if (isset($this->params['footnote']) && strlen((string)$this->params['footnote']) > 0) {
 			echo "<div class=\"footNote\">" . (string)$this->params['footnote'] . "</div>";
 		}
+		echo '<div class="app-copyright">&copy; ' . date('Y') . ' ' . htmlspecialchars($siteName) . '<span class="app-footer-separator" aria-hidden="true">&bull;</span>Open source under the GNU GPL v2</div>' . "\n";
 		echo "</div>\n";
 		echo "</div>\n";
-		echo "</div>\n";
+		echo "</footer>\n";
 
 		return;
 	} /* }}} */
@@ -128,14 +134,54 @@ class LetoDMS_Bootstrap_Style extends LetoDMS_View_Common
 	function globalNavigation($folder = null)
 	{ /* {{{ */
 		$siteName = (strlen($this->params['sitename']) > 0 ? $this->params['sitename'] : "LetoDMS");
-		echo "<div style=\"padding-top: 60px;\"></div>\n";
-		echo "<div class=\"navbar navbar-inverse navbar-fixed-top\">\n";
+		echo "<button class=\"sb-sidebar-toggle\" type=\"button\" aria-label=\"Collapse navigation\" aria-controls=\"sb-sidebar\" aria-expanded=\"true\"><span></span><span></span><span></span></button>\n";
+		echo "<aside class=\"sb-sidebar\" id=\"sb-sidebar\">\n";
+		echo " <a class=\"sb-sidebar-brand\" href=\"../out/out.ViewFolder.php?folderid=" . $this->params['rootfolderid'] . "\"><span class=\"sb-brand-mark\"><img src=\"../styles/logo.png\" alt=\"\"></span><span>" . htmlspecialchars($siteName) . "</span></a>\n";
+		echo " <div class=\"sb-sidebar-divider\"></div>\n";
+		echo " <div class=\"sb-sidebar-label\">Workspace</div>\n";
+		echo " <nav class=\"sb-sidebar-nav\" aria-label=\"Primary navigation\">\n";
+		echo "  <a href=\"../out/out.ViewFolder.php?folderid=" . $this->params['rootfolderid'] . "\"><span class=\"sb-nav-icon\">&#9638;</span><span>" . getMLText("content") . "</span></a>\n";
+		if (isset($this->params['user']) && $this->params['user']) {
+			echo "  <a href=\"../out/out.MyDocuments.php?inProcess=1\"><span class=\"sb-nav-icon\">&#128196;</span><span>" . getMLText("my_documents") . "</span></a>\n";
+			if (!empty($this->params['modulenavigation'])) foreach ($this->params['modulenavigation'] as $moduleLink)
+				echo "  <a href=\"".htmlspecialchars($moduleLink['url'])."\"><span class=\"sb-nav-icon\">&#9745;</span><span>".htmlspecialchars($moduleLink['title'])."</span></a>\n";
+			if ($this->params['enablecalendar']) echo "  <a href=\"../out/out.Calendar.php?mode=" . $this->params['calendardefaultview'] . "\"><span class=\"sb-nav-icon\">&#9635;</span><span>" . getMLText("calendar") . "</span></a>\n";
+			if ($this->params['user']->isAdmin()) {
+				echo " <div class=\"sb-sidebar-divider\"></div><div class=\"sb-sidebar-label\">Management</div>\n";
+				echo "  <a href=\"../out/out.AdminTools.php\"><span class=\"sb-nav-icon\">&#9881;</span><span>" . getMLText("admin_tools") . "</span></a>\n";
+				echo "  <a href=\"../out/out.Statistic.php\"><span class=\"sb-nav-icon\">&#9638;</span><span>" . getMLText("folders_and_documents_statistic") . "</span></a>\n";
+			}
+			echo "  <a href=\"../out/out.Help.php\"><span class=\"sb-nav-icon\">?</span><span>" . getMLText("help") . "</span></a>\n";
+		}
+		echo " </nav>\n";
+		echo "</aside>\n";
+		echo "<div class=\"navbar navbar-inverse navbar-fixed-top sb-topbar\">\n";
 		echo " <div class=\"navbar-inner\">\n";
 		echo "  <div class=\"container\">\n";
-		echo "   <a class=\"brand\" href=\"../out/out.ViewFolder.php?folderid=" . $this->params['rootfolderid'] . "\"><img src=\"../styles/logo.png\" alt=\"" . $siteName . "\" style=\"height: 30px; margin-right: 8px; vertical-align: middle;\">" . $siteName . "</a>\n";
 		if (isset($this->params['user']) && $this->params['user']) {
 			echo "   <div class=\"nav-collapse collapse\">\n";
 			echo "   <ul class=\"nav pull-right\">\n";
+			if ($this->params['user']->isAdmin()) {
+				echo "    <li class=\"dropdown sb-admin-menu\">\n";
+				echo "     <a href=\"#\" class=\"dropdown-toggle sb-admin-trigger\" data-toggle=\"dropdown\" title=\"" . getMLText("admin_tools") . "\" aria-label=\"" . getMLText("admin_tools") . "\"><span class=\"sb-gear\">&#9881;</span><b class=\"caret\"></b></a>\n";
+				echo "     <ul class=\"dropdown-menu sb-admin-dropdown\" role=\"menu\">\n";
+				echo "      <li><a href=\"../out/out.AdminTools.php\"><span class=\"sb-menu-icon\">&#9776;</span>" . getMLText("admin_tools") . "</a></li>\n";
+				echo "      <li><a href=\"../out/out.Settings.php\"><span class=\"sb-menu-icon\">&#9881;</span>" . getMLText("settings") . "</a></li>\n";
+				echo "      <li><a href=\"../out/out.UsrMgr.php\"><span class=\"sb-menu-icon\">&#9786;</span>" . getMLText("user_management") . "</a></li>\n";
+				echo "      <li><a href=\"../out/out.GroupMgr.php\"><span class=\"sb-menu-icon\">&#9783;</span>" . getMLText("group_management") . "</a></li>\n";
+				echo "      <li class=\"divider\"></li>\n";
+				echo "      <li><a href=\"../out/out.Categories.php\"><span class=\"sb-menu-icon\">&#9671;</span>" . getMLText("global_document_categories") . "</a></li>\n";
+				echo "      <li><a href=\"../out/out.AttributeMgr.php\"><span class=\"sb-menu-icon\">&#9678;</span>" . getMLText("global_attributedefinitions") . "</a></li>\n";
+				if ($this->params['workflowmode'] != 'traditional')
+					echo "      <li><a href=\"../out/out.WorkflowMgr.php\"><span class=\"sb-menu-icon\">&#8635;</span>" . getMLText("global_workflows") . "</a></li>\n";
+				echo "      <li><a href=\"../out/out.BackupTools.php\"><span class=\"sb-menu-icon\">&#128190;</span>" . getMLText("backup_tools") . "</a></li>\n";
+				echo "      <li><a href=\"../out/out.Statistic.php\"><span class=\"sb-menu-icon\">&#9638;</span>" . getMLText("folders_and_documents_statistic") . "</a></li>\n";
+				if (!empty($this->params['logfileenable']))
+					echo "      <li><a href=\"../out/out.LogManagement.php\"><span class=\"sb-menu-icon\">&#9776;</span>" . getMLText("log_management") . "</a></li>\n";
+				echo "      <li><a href=\"../out/out.Info.php\"><span class=\"sb-menu-icon\">i</span>" . getMLText("version_info") . "</a></li>\n";
+				echo "     </ul>\n";
+				echo "    </li>\n";
+			}
 			echo "    <li class=\"dropdown\">\n";
 			echo "     <a href=\"#\" class=\"dropdown-toggle\" data-toggle=\"dropdown\">" . getMLText("signed_in_as") . " " . htmlspecialchars($this->params['user']->getFullName()) . "<b class=\"caret\"></b></a>\n";
 			echo "     <ul class=\"dropdown-menu\" role=\"menu\">\n";
@@ -166,14 +212,7 @@ class LetoDMS_Bootstrap_Style extends LetoDMS_View_Common
 			echo "    </li>\n";
 			echo "   </ul>\n";
 
-			echo "   <ul class=\"nav\">\n";
-			//		echo "    <li id=\"first\"><a href=\"../out/out.ViewFolder.php?folderid=".$this->params['rootfolderid']."\">".getMLText("content")."</a></li>\n";
-			//		echo "    <li><a href=\"../out/out.SearchForm.php?folderid=".$this->params['rootfolderid']."\">".getMLText("search")."</a></li>\n";
-			if ($this->params['enablecalendar']) echo "    <li><a href=\"../out/out.Calendar.php?mode=" . $this->params['calendardefaultview'] . "\">" . getMLText("calendar") . "</a></li>\n";
-			if ($this->params['user']->isAdmin()) echo "    <li><a href=\"../out/out.AdminTools.php\">" . getMLText("admin_tools") . "</a></li>\n";
-			echo "    <li><a href=\"../out/out.Help.php\">" . getMLText("help") . "</a></li>\n";
-			echo "   </ul>\n";
-			echo "     <form action=\"../op/op.Search.php\" class=\"form-inline navbar-search pull-left\" autocomplete=\"off\">";
+			echo "     <form action=\"../op/op.Search.php\" class=\"form-inline navbar-search pull-left\" autocomplete=\"off\"><span class=\"sb-search-icon\">&#128269;</span>";
 			if ($folder != null && is_object($folder) && !strcasecmp(get_class($folder), "LetoDMS_Core_Folder")) {
 				echo "      <input type=\"hidden\" name=\"folderid\" value=\"" . $folder->getID() . "\" />";
 			}
@@ -218,9 +257,10 @@ class LetoDMS_Bootstrap_Style extends LetoDMS_View_Common
 	{ /* {{{ */
 
 		if ($pageType != null && strcasecmp($pageType, "noNav")) {
-			if ($pageType == "view_folder" || $pageType == "view_document")
-				echo $pageTitle . "\n";
-			echo "<div class=\"navbar\">\n";
+			if ($pageType == "view_folder" || $pageType == "view_document") {
+				echo "<div class=\"object-page-heading\">" . $pageTitle . "</div>\n";
+			}
+			echo "<div class=\"navbar page-navigation\">\n";
 			echo " <div class=\"navbar-inner\">\n";
 			switch ($pageType) {
 				case "view_folder":
@@ -452,7 +492,7 @@ class LetoDMS_Bootstrap_Style extends LetoDMS_View_Common
 		return;
 	} /* }}} */
 
-	function pageList($pageNumber, $totalPages, $baseURI, $params)
+	static function pageList($pageNumber, $totalPages, $baseURI, $params)
 	{ /* {{{ */
 
 		if (!is_numeric($pageNumber) || !is_numeric($totalPages) || $totalPages < 2) {
@@ -617,11 +657,11 @@ class LetoDMS_Bootstrap_Style extends LetoDMS_View_Common
 		}
 	} /* }}} */
 
-	function printDateChooser($defDate = -1, $varName)
+	function printDateChooser($defDate, $varName)
 	{ /* {{{ */
 
 		if ($defDate == -1)
-			$defDate = mktime();
+			$defDate = time();
 		$day   = date("d", $defDate);
 		$month = date("m", $defDate);
 		$year  = date("Y", $defDate);
@@ -803,17 +843,17 @@ class LetoDMS_Bootstrap_Style extends LetoDMS_View_Common
 			<input type="text" id="<?php echo $fieldname; ?>" name="<?php echo $fieldname; ?>" value="<?php print htmlspecialchars($keywords); ?>" />
 			<a data-target="#keywordChooser" role="button" class="btn" data-toggle="modal" href="out.KeywordChooser.php?target=<?php echo $formName; ?>"><?php printMLText("keywords"); ?>…</a>
 		</div>
-		<div class="modal hide" id="keywordChooser" tabindex="-1" role="dialog" aria-labelledby="keywordChooserLabel" aria-hidden="true">
+		<div class="modal hide keyword-chooser-modal" id="keywordChooser" tabindex="-1" role="dialog" aria-labelledby="keywordChooserLabel" aria-hidden="true">
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-				<h3 id="keywordChooserLabel"><?php printMLText("use_default_keywords") ?></h3>
+				<h3 id="keywordChooserLabel"><i class="icon-tags"></i> <?php printMLText("use_default_keywords") ?></h3>
 			</div>
 			<div class="modal-body">
-				<p>Please wait, until keyword list is loaded …</p>
+				<p class="muted keyword-loading"><i class="icon-refresh"></i> Please wait, until keyword list is loaded …</p>
 			</div>
 			<div class="modal-footer">
-				<button class="btn btn-primary" data-dismiss="modal" aria-hidden="true">Close</button>
-				<button class="btn" data-dismiss="modal" aria-hidden="true" onClick="acceptKeywords();">Save</button>
+				<button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
+				<button class="btn btn-primary" data-dismiss="modal" aria-hidden="true" onClick="acceptKeywords();"><i class="icon-ok icon-white"></i> Save</button>
 			</div>
 		</div>
 	<?php
@@ -1040,13 +1080,13 @@ class LetoDMS_Bootstrap_Style extends LetoDMS_View_Common
 
 		if ($showtree == 1) {
 
-			$this->contentHeading("<a href=\"../out/out.ViewFolder.php?folderid=" . $folderid . "&showtree=0\"><i class=\"icon-minus-sign\"></i></a>", true);
+			$this->contentHeading("<span>" . getMLText("folders") . "</span><a class=\"tree-toggle\" href=\"../out/out.ViewFolder.php?folderid=" . $folderid . "&showtree=0\" title=\"Hide folder tree\"><i class=\"icon-minus-sign\"></i></a>", true);
 			$this->contentContainerStart();
 			$this->printFoldersTree(M_READ, -1, $this->params['rootfolderid'], $folderid, true);
 			$this->contentContainerEnd();
 		} else {
 
-			$this->contentHeading("<a href=\"../out/out.ViewFolder.php?folderid=" . $folderid . "&showtree=1\"><i class=\"icon-plus-sign\"></i></a>", true);
+			$this->contentHeading("<span>" . getMLText("folders") . "</span><a class=\"tree-toggle\" href=\"../out/out.ViewFolder.php?folderid=" . $folderid . "&showtree=1\" title=\"Show folder tree\"><i class=\"icon-plus-sign\"></i></a>", true);
 		}
 	} /* }}} */
 

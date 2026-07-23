@@ -18,7 +18,7 @@
 //    along with this program; if not, write to the Free Software
 //    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-/* deprecated! use LetoDMS_Core_File::format_filesize() instead */
+/* deprecated! use (new LetoDMS_Core_File())->format_filesize() instead */
 function formatted_size($size_bytes) { /* {{{ */
 	if ($size_bytes>1000000000) return number_format($size_bytes/1000000000,1,".","")." GBytes";
 	else if ($size_bytes>1000000) return number_format($size_bytes/1000000,1,".","")." MBytes";
@@ -79,7 +79,7 @@ function getReadableDurationArray($secs) {
 function sanitizeString($string) { /* {{{ */
 
 	$string = (string) $string;
-	if (get_magic_quotes_gpc()) {
+	if (function_exists('get_magic_quotes_gpc') && get_magic_quotes_gpc()) {
 		$string = stripslashes($string);
 	}
 
@@ -134,7 +134,7 @@ function createVersionigFile($document) { /* {{{ */
 	
 	// if directory has been removed recreate it
 	if (!file_exists($dms->contentDir . $document->getDir()))
-		if (!LetoDMS_Core_File::makeDir($dms->contentDir . $document->getDir())) return false;
+		if (!(new LetoDMS_Core_File())->makeDir($dms->contentDir . $document->getDir())) return false;
 	
 	$handle = fopen($dms->contentDir . $document->getDir() .$settings-> _versioningFileName , "wb");
 	

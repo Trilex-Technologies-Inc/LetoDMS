@@ -52,14 +52,14 @@ function insertKeywords(keywords) {
 	//assuming Mozilla
 	else {
 		selStart = myTA.selectionStart;
-		
-		myTA.value = myTA.value.substring(0,myTA.selectionStart) + " " 
+
+		myTA.value = myTA.value.substring(0,myTA.selectionStart) + " "
 			+ keywords
 			+ myTA.value.substring(myTA.selectionStart,myTA.value.length);
-		
+
 		myTA.selectionStart = selStart + keywords.length+1;
 		myTA.selectionEnd = selStart + keywords.length+1;
-	}				  
+	}
 	myTA.focus();
 }
 
@@ -80,13 +80,13 @@ obj[1] = -1;
 function showKeywords(which) {
 	if (obj[which] != -1)
 		obj[which].style.display = "none";
-	
+
 	list = document.getElementById("categories" + which);
-	
+
 	id = list.options[list.selectedIndex].value;
 	if (id == -1)
 		return;
-	
+
 	obj[which] = document.getElementById("keywords" + id);
 	obj[which].style.display = "";
 }
@@ -104,11 +104,11 @@ function showKeywords(which) {
 		<td valign="top" class="inputDescription"><?php echo getMLText("keywords")?>:</td>
 		<td><textarea id="keywordta" rows="5" cols="30"></textarea></td>
 	</tr>
-	
+
 	<tr>
 		<td colspan="2"><hr></td>
 	</tr>
-	
+
 
 	<tr>
 		<td class="inputDescription"><?php echo getMLText("global_default_keywords")?>:</td>
@@ -120,7 +120,7 @@ function showKeywords(which) {
 					$owner = $category->getOwner();
 					if (!$owner->isAdmin())
 						continue;
-					
+
 					print "<option value=\"".$category->getID()."\">" . htmlspecialchars($category->getName());
 				}
 ?>
@@ -138,9 +138,9 @@ function showKeywords(which) {
 		<td>
 			<?php
 				$lists = $category->getKeywordLists();
-				
+
 				if (count($lists) == 0) print getMLText("no_default_keywords");
-				else {	
+				else {
 					print "<ul>";
 					foreach ($lists as $list) {
 						print "<li><a href='javascript:insertKeywords(\"".htmlspecialchars($list["keywords"])."\");'>".htmlspecialchars($list["keywords"])."</a></li>";
@@ -164,7 +164,7 @@ function showKeywords(which) {
 					$owner = $category->getOwner();
 					if ($owner->isAdmin())
 						continue;
-					
+
 					print "<option value=\"".$category->getID()."\">" . htmlspecialchars($category->getName());
 				}
 ?>
@@ -181,9 +181,9 @@ function showKeywords(which) {
 			<td valign="top" class="inputDescription"><?php echo getMLText("default_keywords")?>:</td>
 			<td class="standardText">
 <?php
-					$lists = $category->getKeywordLists();				
+					$lists = $category->getKeywordLists();
 					if (count($lists) == 0) print getMLText("no_default_keywords");
-					else {	
+					else {
 						print "<ul>";
 						foreach ($lists as $list) {
 							print "<li><a href='javascript:insertKeywords(\"".htmlspecialchars($list["keywords"])."\");'>".htmlspecialchars($list["keywords"])."</a></li>";

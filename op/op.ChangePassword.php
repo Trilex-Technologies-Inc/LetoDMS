@@ -29,11 +29,11 @@ include("../inc/inc.ClassEmail.php");
 
 function _printMessage($heading, $message) {
 
-	UI::htmlStartPage($heading, "password");
-	UI::globalBanner();
-	UI::pageNavigation($heading);
-	UI::contentContainer($message."<p><a href=\"../out/out.Login.php\">" . getMLText("login") . "</a></p>\n");
-	UI::htmlEndPage();
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->htmlStartPage($heading, "password");
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->globalBanner();
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->pageNavigation($heading);
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->contentContainer($message."<p><a href=\"../out/out.Login.php\">" . getMLText("login") . "</a></p>\n");
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->htmlEndPage();
 	return;
 }
 
@@ -48,7 +48,7 @@ if (isset($_POST["newpasswordrepeat"])) {
 }
 
 if (empty($newpassword) || empty($newpasswordrepeat) || $newpassword != $newpasswordrepeat) {
-	UI::exitError(getMLText("password_mismatch_error_title"),getMLText("password_mismatch_error"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("password_mismatch_error_title"),getMLText("password_mismatch_error"));
 }
 
 $user = $dms->checkPasswordRequest($hash);
@@ -59,7 +59,7 @@ if($user) {
 	exit;
 }
 
-UI::exitError(getMLText("password_mismatch_error_title"),getMLText("password_mismatch_error"));
+(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("password_mismatch_error_title"),getMLText("password_mismatch_error"));
 
 ?>
 

@@ -1,5 +1,49 @@
 
 $(document).ready( function() {
+	var sidebarStorageKey = 'letodms-sidebar-collapsed';
+
+	/*
+	 * Bootstrap 2 listens to both touchstart and click for dropdown toggles.
+	 * Mobile browsers synthesize a click after a tap, which can open and then
+	 * immediately close the menu. Use the click path alone for reliable taps.
+	 */
+	$(document).off('touchstart.dropdown.data-api');
+
+	if (window.matchMedia && window.matchMedia('(min-width: 701px)').matches) {
+		try {
+			if (window.localStorage.getItem(sidebarStorageKey) === 'true')
+				$('body').addClass('sb-sidebar-collapsed');
+		} catch (e) {}
+	}
+
+	function updateSidebarToggle() {
+		var isMobile = window.matchMedia && window.matchMedia('(max-width: 700px)').matches;
+		var isExpanded = isMobile
+			? $('body').hasClass('sb-sidebar-open')
+			: !$('body').hasClass('sb-sidebar-collapsed');
+		$('.sb-sidebar-toggle')
+			.attr('aria-expanded', isExpanded ? 'true' : 'false')
+			.attr('aria-label', isExpanded ? 'Collapse navigation' : 'Expand navigation');
+	}
+
+	$('.sb-sidebar-toggle').on('click', function() {
+		var isMobile = window.matchMedia && window.matchMedia('(max-width: 700px)').matches;
+		if (isMobile) {
+			$('body').toggleClass('sb-sidebar-open');
+		} else {
+			var isCollapsed = $('body').toggleClass('sb-sidebar-collapsed').hasClass('sb-sidebar-collapsed');
+			try { window.localStorage.setItem(sidebarStorageKey, isCollapsed ? 'true' : 'false'); } catch (e) {}
+		}
+		updateSidebarToggle();
+	});
+	updateSidebarToggle();
+	$(window).on('resize', updateSidebarToggle);
+	$('.sb-sidebar-nav a').each(function() {
+		if (!$(this).attr('data-label'))
+			$(this).attr('data-label', $.trim($(this).find('span:last').text()));
+		if (window.location.pathname.indexOf($(this).attr('href').split('/').pop().split('?')[0]) !== -1)
+			$(this).addClass('active');
+	});
 	$('body').on('hidden', '.modal', function () {
 		$(this).removeData('modal');
 	});

@@ -182,7 +182,7 @@ class LetoDMS_View_ViewDocument extends LetoDMS_Bootstrap_Style {
 ?>
 		<tr>
 		<td><?php printMLText("used_discspace");?>:</td>
-		<td><?php print LetoDMS_Core_File::format_filesize($document->getUsedDiskSpace());?></td>
+		<td><?php print (new LetoDMS_Core_File())->format_filesize($document->getUsedDiskSpace());?></td>
 		</tr>
 		<tr>
 		<td><?php printMLText("creation_date");?>:</td>
@@ -282,7 +282,7 @@ class LetoDMS_View_ViewDocument extends LetoDMS_Bootstrap_Style {
 		print "<li>".$latestContent->getOriginalFileName() ."</li>\n";
 
 		if ($file_exists)
-			print "<li>". LetoDMS_Core_File::format_filesize($latestContent->getFileSize()) ." ".htmlspecialchars($latestContent->getMimeType())."</li>";
+			print "<li>". (new LetoDMS_Core_File())->format_filesize($latestContent->getFileSize()) ." ".htmlspecialchars($latestContent->getMimeType())."</li>";
 		else print "<li><span class=\"warning\">".getMLText("document_deleted")."</span></li>";
 
 		$updatingUser = $latestContent->getUser();
@@ -344,7 +344,7 @@ class LetoDMS_View_ViewDocument extends LetoDMS_Bootstrap_Style {
 			print "<li><a href=\"out.EditAttributes.php?documentid=".$documentid."&version=".$latestContent->getVersion()."\"><i class=\"icon-edit\"></i> ".getMLText("edit_attributes")."</a></li>";
 		}
 
-		print "<li><a href=\"../op/op.Download.php?documentid=".$documentid."&vfile=1\"><i class=\"icon-download\"></i> ".getMLText("versioning_info")."</a></li>";	
+		print "<li><a href=\"../op/op.Download.php?documentid=".$documentid."&vfile=1\"><i class=\"icon-download\"></i> ".getMLText("versioning_info")."</a></li>";
 
 		print "</ul>";
 		echo "</td>";
@@ -382,7 +382,7 @@ class LetoDMS_View_ViewDocument extends LetoDMS_Bootstrap_Style {
 			print "<tr><td colspan=5>\n";
 			$this->contentSubHeading(getMLText("reviewers"));
 			print "</tr>";
-			
+
 			print "<tr>\n";
 			print "<td width='20%'><b>".getMLText("name")."</b></td>\n";
 			print "<td width='20%'><b>".getMLText("last_update")."</b></td>\n";
@@ -435,8 +435,8 @@ class LetoDMS_View_ViewDocument extends LetoDMS_Bootstrap_Style {
 						print "<li><a href=\"../out/out.ReviewDocument.php?documentid=".$documentid."&version=".$latestContent->getVersion()."&reviewid=".$r['reviewID']."\" class=\"btn btn-mini\">".getMLText("edit")."</a></li>";
 					}
 				}
-				
-				print "</ul></td>\n";	
+
+				print "</ul></td>\n";
 				print "</td>\n</tr>\n";
 			}
 		}
@@ -449,7 +449,7 @@ class LetoDMS_View_ViewDocument extends LetoDMS_Bootstrap_Style {
 
 			print "<tr>\n";
 			print "<td width='20%'><b>".getMLText("name")."</b></td>\n";
-			print "<td width='20%'><b>".getMLText("last_update")."</b></td>\n";	
+			print "<td width='20%'><b>".getMLText("last_update")."</b></td>\n";
 			print "<td width='25%'><b>".getMLText("comment")."</b></td>";
 			print "<td width='15%'><b>".getMLText("status")."</b></td>\n";
 			print "<td width='20%'></td>\n";
@@ -487,11 +487,11 @@ class LetoDMS_View_ViewDocument extends LetoDMS_Bootstrap_Style {
 				print "<td><ul class=\"unstyled\"><li>".$a["date"]."</li>";
 				/* $updateUser is the user who has done the approval */
 				$updateUser = $dms->getUser($a["userID"]);
-				print "<li>".(is_object($updateUser) ? htmlspecialchars($updateUser->getFullName()) : "unknown user id '".$a["userID"]."'")."</li></ul></td>";	
+				print "<li>".(is_object($updateUser) ? htmlspecialchars($updateUser->getFullName()) : "unknown user id '".$a["userID"]."'")."</li></ul></td>";
 				print "<td>".htmlspecialchars($a["comment"])."</td>\n";
 				print "<td>".getApprovalStatusText($a["status"])."</td>\n";
 				print "<td><ul class=\"unstyled\">";
-			
+
 				if($accessop->mayApprove()) {
 					if ($is_approver && $status["status"]==S_DRAFT_APP) {
 						print "<li><a class=\"btn btn-mini\" href=\"../out/out.ApproveDocument.php?documentid=".$documentid."&version=".$latestContent->getVersion()."&approveid=".$a['approveID']."\">".getMLText("submit_approval")."</a></li>";
@@ -499,9 +499,9 @@ class LetoDMS_View_ViewDocument extends LetoDMS_Bootstrap_Style {
 						print "<li><a class=\"btn btn-mini\" href=\"../out/out.ApproveDocument.php?documentid=".$documentid."&version=".$latestContent->getVersion()."&approveid=".$a['approveID']."\">".getMLText("edit")."</a></li>";
 					}
 				}
-				
+
 				print "</ul>";
-				print "</td>\n";	
+				print "</td>\n";
 				print "</td>\n</tr>\n";
 			}
 		}
@@ -715,10 +715,10 @@ class LetoDMS_View_ViewDocument extends LetoDMS_Bootstrap_Style {
 				$vstat = $version->getStatus();
 				$workflow = $version->getWorkflow();
 				$workflowstate = $version->getWorkflowState();
-				
+
 				// verify if file exists
 				$file_exists=file_exists($dms->contentDir . $version->getPath());
-				
+
 				print "<tr>\n";
 				print "<td nowrap><ul class=\"unstyled\">";
 				if ($file_exists){
@@ -726,7 +726,7 @@ class LetoDMS_View_ViewDocument extends LetoDMS_Bootstrap_Style {
 					if ($viewonlinefiletypes && in_array(strtolower($latestContent->getFileType()), $viewonlinefiletypes))
 						print "<li><a target=\"_blank\" href=\"../op/op.ViewOnline.php?documentid=".$documentid."&version=".$version->getVersion()."\"><i class=\"icon-star\"></i> " . getMLText("view_online") . "</a>";
 				}else print "<li><img class=\"mimeicon\" src=\"".$this->getMimeIcon($version->getFileType())."\" title=\"".htmlspecialchars($version->getMimeType())."\">";
-				
+
 				print "</ul>";
 				$previewer->createPreview($version);
 				if($previewer->hasPreview($version)) {
@@ -736,7 +736,7 @@ class LetoDMS_View_ViewDocument extends LetoDMS_Bootstrap_Style {
 				print "<td>".$version->getVersion()."</td>\n";
 				print "<td><ul class=\"unstyled\">\n";
 				print "<li>".$version->getOriginalFileName()."</li>\n";
-				if ($file_exists) print "<li>". LetoDMS_Core_File::format_filesize($version->getFileSize()) ." ".htmlspecialchars($version->getMimeType())."</li>";
+				if ($file_exists) print "<li>". (new LetoDMS_Core_File())->format_filesize($version->getFileSize()) ." ".htmlspecialchars($version->getMimeType())."</li>";
 				else print "<li><span class=\"warning\">".getMLText("document_deleted")."</span></li>";
 				$updatingUser = $version->getUser();
 				print "<li>".getMLText("uploaded_by")." <a href=\"mailto:".$updatingUser->getEmail()."\">".htmlspecialchars($updatingUser->getFullName())."</a></li>";
@@ -798,7 +798,7 @@ class LetoDMS_View_ViewDocument extends LetoDMS_Bootstrap_Style {
 			foreach($files as $file) {
 
 				$file_exists=file_exists($dms->contentDir . $file->getPath());
-				
+
 				$responsibleUser = $file->getUser();
 
 				print "<tr>";
@@ -809,7 +809,7 @@ class LetoDMS_View_ViewDocument extends LetoDMS_Bootstrap_Style {
 						print "<li><a target=\"_blank\" href=\"../op/op.ViewOnline.php?documentid=".$documentid."&file=". $file->getID()."\"><i class=\"icon-star\"></i> " . getMLText("view_online") . "</a></li>";
 				} else print "<li><img class=\"mimeicon\" src=\"images/icons/".$this->getMimeIcon($file->getFileType())."\" title=\"".htmlspecialchars($file->getMimeType())."\">";
 				print "</ul></td>";
-				
+
 				print "<td><ul class=\"unstyled\">\n";
 				print "<li>".$file->getOriginalFileName() ."</li>\n";
 				if ($file_exists)
@@ -820,15 +820,15 @@ class LetoDMS_View_ViewDocument extends LetoDMS_Bootstrap_Style {
 				print "<li>".getLongReadableDate($file->getDate())."</li>";
 
 				print "<td>".htmlspecialchars($file->getComment())."</td>";
-			
+
 				print "<td><span class=\"actions\">";
 				if (($document->getAccessMode($user) == M_ALL)||($file->getUserID()==$user->getID()))
 					print "<form action=\"../out/out.RemoveDocumentFile.php\" method=\"get\"><input type=\"hidden\" name=\"documentid\" value=\"".$documentid."\" /><input type=\"hidden\" name=\"fileid\" value=\"".$file->getID()."\" /><button type=\"submit\" class=\"btn btn-mini\"><i class=\"icon-remove\"></i> ".getMLText("delete")."</button></form>";
-				print "</span></td>";		
-				
+				print "</span></td>";
+
 				print "</tr>";
 			}
-			print "</tbody>\n</table>\n";	
+			print "</tbody>\n</table>\n";
 
 		}
 		else printMLText("no_attached_files");

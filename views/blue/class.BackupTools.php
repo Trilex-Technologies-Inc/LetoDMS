@@ -103,7 +103,7 @@ class LetoDMS_View_BackupTools extends LetoDMS_Blue_Style {
 
 			$folderid=substr($entry,strpos($entry,"_")+1);
 			$folder=$dms->getFolder((int)$folderid);
-					
+
 			print "<tr>\n";
 			print "<td><a href=\"../op/op.Download.php?arkname=".$entry."\">".$entry."</a></td>\n";
 			if (is_object($folder)) print "<td>".htmlspecialchars($folder->getName())."</td>\n";
@@ -112,7 +112,7 @@ class LetoDMS_View_BackupTools extends LetoDMS_Blue_Style {
 			print "<td>".formatted_size(filesize($contentdir.$entry))."</td>\n";
 			print "<td><ul class=\"actions\">";
 			print "<li><a href=\"out.RemoveArchive.php?arkname=".$entry."\">".getMLText("backup_remove")."</a></li>";
-			print "</ul></td>\n";	
+			print "</ul></td>\n";
 			print "</tr>\n";
 		}
 
@@ -167,7 +167,7 @@ class LetoDMS_View_BackupTools extends LetoDMS_Blue_Style {
 			print "<td>".formatted_size(filesize($contentdir.$entry))."</td>\n";
 			print "<td><ul class=\"actions\">";
 			print "<li><a href=\"out.RemoveDump.php?dumpname=".$entry."\">".getMLText("dump_remove")."</a></li>";
-			print "</ul></td>\n";	
+			print "</ul></td>\n";
 			print "</tr>\n";
 		}
 
