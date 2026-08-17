@@ -1,0 +1,18 @@
+.dropzone {
+  border: 2px dashed #bbb;
+  border-radius: 6px;
+  padding: 24px;
+  text-align: center;
+  background: #fafafa;
+  cursor: pointer;
+}
+
+.dropzone:hover {
+  border-color: #888;
+  background: #f5f5f5;
+}
+
+.dropzone .dz-message {
+  color: #666;
+  font-size: 14px;
+}
