@@ -27,35 +27,53 @@ include("../inc/inc.Language.php");
 include("../inc/inc.ClassUI.php");
 include("../inc/inc.Authentication.php");
 
+/* Check if the form data comes for a trusted request */
+if(!checkFormKey('adddocument')) {
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("folder_title", array("foldername" => getMLText("invalid_request_token"))),getMLText("invalid_request_token"));
+}
+
 if (!isset($_POST["folderid"]) || !is_numeric($_POST["folderid"]) || intval($_POST["folderid"])<1) {
-	UI::exitError(getMLText("folder_title", array("foldername" => getMLText("invalid_folder_id"))),getMLText("invalid_folder_id"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("folder_title", array("foldername" => getMLText("invalid_folder_id"))),getMLText("invalid_folder_id"));
 }
 
 $folderid = $_POST["folderid"];
 $folder = $dms->getFolder($folderid);
 
 if (!is_object($folder)) {
-	UI::exitError(getMLText("folder_title", array("foldername" => getMLText("invalid_folder_id"))),getMLText("invalid_folder_id"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("folder_title", array("foldername" => getMLText("invalid_folder_id"))),getMLText("invalid_folder_id"));
 }
 
 $folderPathHTML = getFolderPathHTML($folder, true);
 
 if ($folder->getAccessMode($user) < M_READWRITE) {
-	UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("access_denied"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("access_denied"));
 }
 
-$comment  = sanitizeString($_POST["comment"]);
-$version_comment = sanitizeString($_POST["version_comment"]);
+$comment  = $_POST["comment"];
+$version_comment = $_POST["version_comment"];
 
-$keywords = sanitizeString($_POST["keywords"]);
-$categories = sanitizeString($_POST["categoryidform1"]);
+$keywords = $_POST["keywords"];
+$categories = isset($_POST["categories"]) ? $_POST["categories"] : null;
+if(isset($_POST["attributes"]))
+	$attributes = $_POST["attributes"];
+else
+	$attributes = array();
+if(isset($_POST["attributes_version"]))
+	$attributes_version = $_POST["attributes_version"];
+else
+	$attributes_version = array();
+
+if(isset($_POST["workflow"]))
+	$workflow = $dms->getWorkflow($_POST["workflow"]);
+else
+	$workflow = null;
 
 $reqversion = (int)$_POST["reqversion"];
 if ($reqversion<1) $reqversion=1;
 
 $sequence = $_POST["sequence"];
 if (!is_numeric($sequence)) {
-	UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("invalid_sequence"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("invalid_sequence"));
 }
 
 $expires = ($_POST["expires"] == "true") ? mktime(0,0,0, intval($_POST["expmonth"]), intval($_POST["expday"]), intval($_POST["expyear"])) : false;
@@ -95,7 +113,7 @@ if (isset($_POST["grpApprovers"])) {
 }
 
 // add mandatory reviewers/approvers
-$docAccess = $folder->getApproversList();
+$docAccess = $folder->getReadAccessList();
 $res=$user->getMandatoryReviewers();
 foreach ($res as $r){
 
@@ -133,40 +151,71 @@ foreach ($res as $r){
 	}
 }
 
-for ($file_num=0;$file_num<count($_FILES["userfile"]["tmp_name"]);$file_num++){
-
-	if ($_FILES["userfile"]["size"][$file_num]==0) continue;
-
-	if (is_uploaded_file($_FILES["userfile"]["tmp_name"][$file_num]) && $_FILES['userfile']['error'][$file_num]!=0){
-		UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("uploading_failed"));
+if($settings->_dropFolderDir) {
+	if($_POST["dropfolderfileform1"]) {
+		$fullfile = $settings->_dropFolderDir.'/'.$user->getLogin().'/'.$_POST["dropfolderfileform1"];
+		if(file_exists($fullfile)) {
+			/* Check if a local file is uploaded as well */
+			if(isset($_FILES["userfile"]['error'][0])) {
+				if($_FILES["userfile"]['error'][0] != 0)
+					$_FILES["userfile"] = array();
+			}
+			$finfo = finfo_open(FILEINFO_MIME);
+			$mimetype = explode(';', finfo_file($finfo, $fullfile));
+			$_FILES["userfile"]['tmp_name'][] = $fullfile;
+			$_FILES["userfile"]['type'][] = $mimetype[0];
+			$_FILES["userfile"]['name'][] = $_POST["dropfolderfileform1"];
+			$_FILES["userfile"]['size'][] = filesize($fullfile);
+			$_FILES["userfile"]['error'][] = 0;
+		}
 	}
+}
 
+/* Check files for Errors first */
+for ($file_num=0;$file_num<count($_FILES["userfile"]["tmp_name"]);$file_num++){
+	if ($_FILES["userfile"]["size"][$file_num]==0) {
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("uploading_zerosize"));
+	}
+	if (is_uploaded_file($_FILES["userfile"]["tmp_name"][$file_num]) && $_FILES['userfile']['error'][$file_num]!=0){
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("uploading_failed"));
+	}
+}
+
+for ($file_num=0;$file_num<count($_FILES["userfile"]["tmp_name"]);$file_num++){
 	$userfiletmp = $_FILES["userfile"]["tmp_name"][$file_num];
-	$userfiletype = sanitizeString($_FILES["userfile"]["type"][$file_num]);
-	$userfilename = sanitizeString($_FILES["userfile"]["name"][$file_num]);
-	
+	$userfiletype = $_FILES["userfile"]["type"][$file_num];
+	$userfilename = $_FILES["userfile"]["name"][$file_num];
+
 	$lastDotIndex = strrpos(basename($userfilename), ".");
 	if (is_bool($lastDotIndex) && !$lastDotIndex) $fileType = ".";
 	else $fileType = substr($userfilename, $lastDotIndex);
 
 	if ((count($_FILES["userfile"]["tmp_name"])==1)&&($_POST["name"]!=""))
-		$name = sanitizeString($_POST["name"]);
+		$name = $_POST["name"];
 	else $name = basename($userfilename);
+
+	/* Check if name already exists in the folder */
+	if(!$settings->_enableDuplicateDocNames) {
+		if($folder->hasDocumentByName($name)) {
+			(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("document_duplicate_name"));
+		}
+	}
 
 	$cats = array();
 	if($categories) {
-		$catids = explode(',', $categories);
-		foreach($catids as $catid) {
+		foreach($categories as $catid) {
 			$cats[] = $dms->getDocumentCategory($catid);
 		}
 	}
+
 	$res = $folder->addDocument($name, $comment, $expires, $user, $keywords,
 															$cats, $userfiletmp, basename($userfilename),
 	                            $fileType, $userfiletype, $sequence,
-	                            $reviewers, $approvers, $reqversion,$version_comment);
+	                            $reviewers, $approvers, $reqversion,
+	                            $version_comment, $attributes, $attributes_version, $workflow);
 
 	if (is_bool($res) && !$res) {
-		UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("error_occured"));
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("error_occured"));
 	} else {
 		$document = $res[0];
 		if(isset($GLOBALS['LETODMS_HOOKS']['postAddDocument'])) {
@@ -176,28 +225,47 @@ for ($file_num=0;$file_num<count($_FILES["userfile"]["tmp_name"]);$file_num++){
 				}
 			}
 		}
-		// Send notification to subscribers.
+
+
+		/* Add a default notification for the owner of the document */
+		if($settings->_enableOwnerNotification) {
+			$res = $document->addNotify($user->getID(), true);
+		}
+		// Send notification to subscribers of folder.
 		if($notifier) {
-			$folder->getNotifyList();
-			$subject = "###SITENAME###: ".$folder->_name." - ".getMLText("new_document_email");
+			$notifyList = $folder->getNotifyList();
+			if($settings->_enableNotificationAppRev) {
+				/* Reviewers and approvers will be informed about the new document */
+				foreach($reviewers['i'] as $reviewerid) {
+					$notifyList['users'][] = $dms->getUser($reviewerid);
+				}
+				foreach($approvers['i'] as $approverid) {
+					$notifyList['users'][] = $dms->getUser($approverid);
+				}
+				foreach($reviewers['g'] as $reviewergrpid) {
+					$notifyList['groups'][] = $dms->getGroup($reviewergrpid);
+				}
+				foreach($approvers['g'] as $approvergrpid) {
+					$notifyList['groups'][] = $dms->getGroup($approvergrpid);
+				}
+			}
+			$subject = "###SITENAME###: ".$folder->getName()." - ".getMLText("new_document_email");
 			$message = getMLText("new_document_email")."\r\n";
-			$message .= 
+			$message .=
 				getMLText("name").": ".$name."\r\n".
 				getMLText("folder").": ".$folder->getFolderPathPlain()."\r\n".
 				getMLText("comment").": ".$comment."\r\n".
 				getMLText("comment_for_current_version").": ".$version_comment."\r\n".
 				"URL: ###URL_PREFIX###out/out.ViewDocument.php?documentid=".$document->getID()."\r\n";
 
-			$subject=mydmsDecodeString($subject);
-			$message=mydmsDecodeString($message);
-			
-			$notifier->toList($user, $folder->_notifyList["users"], $subject, $message);
-			foreach ($folder->_notifyList["groups"] as $grp) {
+
+			$notifier->toList($user, $notifyList["users"], $subject, $message);
+			foreach ($notifyList["groups"] as $grp) {
 				$notifier->toGroup($user, $grp, $subject, $message);
 			}
 		}
 	}
-	
+
 	add_log_line("?name=".$name."&folderid=".$folderid);
 }
 

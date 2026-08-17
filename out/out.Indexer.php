@@ -4,6 +4,7 @@
 //    Copyright (C) 2006-2008 Malcolm Cowe
 //    Copyright (C) 2010 Matteo Lucarelli
 //    Copyright (C) 2011 Matteo Lucarelli
+//    Copyright (C) 2011-2013 Uwe Steinmann
 //
 //    This program is free software; you can redistribute it and/or modify
 //    it under the terms of the GNU General Public License as published by
@@ -26,88 +27,43 @@ include("../inc/inc.Language.php");
 include("../inc/inc.ClassUI.php");
 include("../inc/inc.Authentication.php");
 
-function tree($folder, $indent='') { /* {{{ */
-	global $index, $dms;
-	echo $indent."D ".$folder->getName()."\n";
-	$subfolders = $folder->getSubFolders();
-	foreach($subfolders as $subfolder) {
-		tree($subfolder, $indent.'  ');
-	}
-	$documents = $folder->getDocuments();
-	foreach($documents as $document) {
-		echo $indent."  ".$document->getId().":".$document->getName()." ";
-		/* If the document wasn't indexed before then just add it */
-		if(!($hits = $index->find('document_id:'.$document->getId()))) {
-			$index->addDocument(new LetoDMS_Lucene_IndexedDocument($dms, $document));
-			echo "(document added)";
-		} else {
-			$hit = $hits[0];
-			$created = (int) $hit->getDocument()->getFieldValue('created');
-			$content = $document->getLatestContent();
-			if($created >= $content->getDate()) {
-				echo $indent."(document unchanged)";
-			} else {
-				if($index->delete($hit->id)) {
-					$index->addDocument(new LetoDMS_Lucene_IndexedDocument($dms, $document));
-				}
-				echo $indent."(document updated)";
-			}
-		}
-		echo "\n";
-	}
-} /* }}} */
-
 if (!$user->isAdmin()) {
-	UI::exitError(getMLText("admin_tools"),getMLText("access_denied"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("access_denied"));
 }
 
-$v = new LetoDMS_Version;
+if(!$settings->_enableFullSearch) {
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("fulltextsearch_disabled"));
+}
 
-UI::htmlStartPage($v->banner());
-UI::globalNavigation();
-UI::pageNavigation($v->banner());
-UI::contentContainerStart();
-if($settings->_enableFullSearch) {
-	if(!empty($settings->_luceneClassDir))
-		require_once($settings->_luceneClassDir.'/Lucene.php');
-	else
-		require_once('LetoDMS/Lucene.php');
+if(!empty($settings->_luceneClassDir))
+	require_once($settings->_luceneClassDir.'/Lucene.php');
+else
+	require_once('../LetoDMS_Lucene/Lucene.php');
 
-	if(isset($_GET['create']) && $_GET['create'] == 1) {
-		if(isset($_GET['confirm']) && $_GET['confirm'] == 1) {
-			echo "<p>Recreating index</p>";
-			$index = Zend_Search_Lucene::create($settings->_luceneDir);
-		} else {
-			echo '<p>'.getMLText('create_fulltext_index_warning').'</p>';
-			echo '<a href="out.Indexer.php?create=1&confirm=1">'.getMLText('confirm_create_fulltext_index').'</a>';
-			UI::contentContainerEnd();
-			UI::htmlEndPage();
-			exit;
-		}
+if(isset($_GET['create']) && $_GET['create'] == 1) {
+	if(isset($_GET['confirm']) && $_GET['confirm'] == 1) {
+		$index = LetoDMS_Lucene_Indexer::create($settings->_luceneDir);
+		LetoDMS_Lucene_Indexer::init($settings->_stopWordsFile);
 	} else {
-		echo "<p>Updating index</p>";
-		$index = Zend_Search_Lucene::open($settings->_luceneDir);
+		header('Location: out.CreateIndex.php');
+		exit;
 	}
-
-	if($settings->_stopWordsFile && file_exists($settings->_stopWordsFile)) {
-		$stopWordsFilter = new Zend_Search_Lucene_Analysis_TokenFilter_StopWords();
-		$stopWordsFilter->loadFromFile($settings->_stopWordsFile);
-	 
-		$analyzer = new Zend_Search_Lucene_Analysis_Analyzer_Common_TextNum_CaseInsensitive();
-		$analyzer->addFilter($stopWordsFilter);
-	 
-		Zend_Search_Lucene_Analysis_Analyzer::setDefault($analyzer);
-	}
-
-	$folder = $dms->getFolder($settings->_rootFolderID);
-	echo "<pre>";
-	tree($folder);
-	echo "</pre>";
-
-	$index->commit();
 } else {
-	printMLText("fulltextsearch_disabled");
+	$index = LetoDMS_Lucene_Indexer::open($settings->_luceneDir);
+	if(!$index) {
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("no_fulltextindex"));
+	}
+	echo "<p>Updating index</p>";
+	LetoDMS_Lucene_Indexer::init($settings->_stopWordsFile);
 }
-UI::contentContainerEnd();
-UI::htmlEndPage();
+
+$folder = $dms->getFolder($settings->_rootFolderID);
+
+$tmp = explode('.', basename($_SERVER['SCRIPT_FILENAME']));
+$view = (new UI($GLOBALS['theme'] ?? 'bootstrap'))->factory($theme, $tmp[1], array('dms'=>$dms, 'user'=>$user, 'index'=>$index, 'recreate'=>(isset($_GET['create']) && $_GET['create']==1), 'folder'=>$folder));
+if($view) {
+	$view->show();
+	exit;
+}
+
 ?>

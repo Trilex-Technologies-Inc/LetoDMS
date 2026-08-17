@@ -26,35 +26,35 @@ include("../inc/inc.ClassUI.php");
 include("../inc/inc.Authentication.php");
 
 if (!isset($_GET["documentid"]) || !is_numeric($_GET["documentid"]) || intval($_GET["documentid"])<1) {
-	UI::exitError(getMLText("document_title", array("documentname" => getMLText("invalid_doc_id"))),getMLText("invalid_doc_id"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => getMLText("invalid_doc_id"))),getMLText("invalid_doc_id"));
 }
 $documentid = $_GET["documentid"];
 $document = $dms->getDocument($documentid);
 
 if (!is_object($document)) {
-	UI::exitError(getMLText("document_title", array("documentname" => getMLText("invalid_doc_id"))),getMLText("invalid_doc_id"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => getMLText("invalid_doc_id"))),getMLText("invalid_doc_id"));
 }
 
 $folder = $document->getFolder();
 $docPathHTML = getFolderPathHTML($folder, true). " / <a href=\"../out/out.ViewDocument.php?documentid=".$documentid."\">".$document->getName()."</a>";
 
 if ($document->getAccessMode($user) < M_READWRITE) {
-	UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("access_denied"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("access_denied"));
 }
 
 if (!$document->isLocked()) {
-	UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("document_is_not_locked"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("document_is_not_locked"));
 }
 
 $lockingUser = $document->getLockingUser();
 
 if (($lockingUser->getID() == $user->getID()) || ($document->getAccessMode($user) == M_ALL)) {
 	if (!$document->setLocked(false)) {
-		UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("error_occured"));
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("error_occured"));
 	}
 }
 else {
-	UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("access_denied"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("access_denied"));
 }
 add_log_line();
 header("Location:../out/out.ViewDocument.php?documentid=".$documentid);

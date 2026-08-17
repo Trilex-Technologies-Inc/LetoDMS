@@ -18,6 +18,7 @@
 //    along with this program; if not, write to the Free Software
 //    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
+/* deprecated! use (new LetoDMS_Core_File())->format_filesize() instead */
 function formatted_size($size_bytes) { /* {{{ */
 	if ($size_bytes>1000000000) return number_format($size_bytes/1000000000,1,".","")." GBytes";
 	else if ($size_bytes>1000000) return number_format($size_bytes/1000000,1,".","")." MBytes";
@@ -31,6 +32,33 @@ function getReadableDate($timestamp) {
 
 function getLongReadableDate($timestamp) {
 	return date("d/m/Y H:i", $timestamp);
+}
+
+function getReadableDuration($secs) {
+	$s = "";
+	foreach ( getReadableDurationArray($secs) as $k => $v ) {
+		if ( $v ) $s .= $v." ".($v==1? substr($k,0,-1) : $k).", ";
+	}
+
+	return substr($s, 0, -2);
+}
+
+function getReadableDurationArray($secs) {
+	$units = array(
+					getMLText("weeks")   => 7*24*3600,
+					getMLText("days")    =>   24*3600,
+					getMLText("hours")   =>      3600,
+					getMLText("minutes") =>        60,
+					getMLText("seconds") =>         1,
+	);
+
+	foreach ( $units as &$unit ) {
+		$quot  = intval($secs / $unit);
+		$secs -= $quot * $unit;
+		$unit  = $quot;
+	}
+
+	return $units;
 }
 
 //
@@ -47,16 +75,20 @@ function getLongReadableDate($timestamp) {
 //	return $string;
 //}
 
+/* Deprecated, do not use anymore */
 function sanitizeString($string) { /* {{{ */
 
 	$string = (string) $string;
-	if (get_magic_quotes_gpc()) {
+	if (function_exists('get_magic_quotes_gpc') && get_magic_quotes_gpc()) {
 		$string = stripslashes($string);
 	}
 
-	$string = str_replace("\\", "\\\\", $string);
-	$string = str_replace("--", "\-\-", $string);
-	$string = str_replace(";", "\;", $string);
+	// The following three are against sql injection. They are not
+	// needed anymore because strings are quoted propperly when saved into
+	// the database.
+//	$string = str_replace("\\", "\\\\", $string);
+//	$string = str_replace("--", "\-\-", $string);
+//	$string = str_replace(";", "\;", $string);
 	// Use HTML entities to represent the other characters that have special
 	// meaning in SQL. These can be easily converted back to ASCII / UTF-8
 	// with a decode function if need be.
@@ -76,6 +108,7 @@ function sanitizeString($string) { /* {{{ */
 	return trim($string);
 } /* }}} */
 
+/* Deprecated, do not use anymore */
 function mydmsDecodeString($string) { /* {{{ */
 
 	$string = (string)$string;
@@ -101,13 +134,13 @@ function createVersionigFile($document) { /* {{{ */
 	
 	// if directory has been removed recreate it
 	if (!file_exists($dms->contentDir . $document->getDir()))
-		if (!LetoDMS_Core_File::makeDir($dms->contentDir . $document->getDir())) return false;
+		if (!(new LetoDMS_Core_File())->makeDir($dms->contentDir . $document->getDir())) return false;
 	
 	$handle = fopen($dms->contentDir . $document->getDir() .$settings-> _versioningFileName , "wb");
 	
 	if (is_bool($handle)&&!$handle) return false;
 	
-	$tmp = mydmsDecodeString($document->getName())." (ID ".$document->getID().")\n\n";
+	$tmp = $document->getName()." (ID ".$document->getID()."\n\n";
 	fwrite($handle, $tmp);
 
 	$owner = $document->getOwner();
@@ -127,7 +160,7 @@ function createVersionigFile($document) { /* {{{ */
 	$tmp = getMLText("file")." = ".$latestContent->getOriginalFileName()." (".$latestContent->getMimeType().")\n";
 	fwrite($handle, $tmp);
 	
-	$tmp = getMLText("comment")." = ". mydmsDecodeString($latestContent->getComment())."\n";
+	$tmp = getMLText("comment")." = ". $latestContent->getComment()."\n";
 	fwrite($handle, $tmp);
 	
 	$status = $latestContent->getStatus();
@@ -159,7 +192,7 @@ function createVersionigFile($document) { /* {{{ */
 		$tmp = getMLText("status")." = ".getReviewStatusText($r["status"])."\n";
 		fwrite($handle, $tmp);
 		
-		$tmp = getMLText("comment")." = ". mydmsDecodeString($r["comment"])."\n";
+		$tmp = getMLText("comment")." = ". $r["comment"]."\n";
 		fwrite($handle, $tmp);
 		
 		$tmp = getMLText("last_update")." = ".$r["date"]."\n";
@@ -193,7 +226,7 @@ function createVersionigFile($document) { /* {{{ */
 		$tmp = getMLText("status")." = ".getApprovalStatusText($r["status"])."\n";
 		fwrite($handle, $tmp);
 		
-		$tmp = getMLText("comment")." = ". mydmsDecodeString($r["comment"])."\n";
+		$tmp = getMLText("comment")." = ". $r["comment"]."\n";
 		fwrite($handle, $tmp);
 		
 		$tmp = getMLText("last_update")." = ".$r["date"]."\n";
@@ -216,7 +249,7 @@ function createVersionigFile($document) { /* {{{ */
 		$tmp = getMLText("file")." = ".$version->getOriginalFileName()." (".$version->getMimeType().")\n";
 		fwrite($handle, $tmp);
 		
-		$tmp = getMLText("comment")." = ". mydmsDecodeString($version->getComment())."\n";
+		$tmp = getMLText("comment")." = ". $version->getComment()."\n";
 		fwrite($handle, $tmp);
 		
 		$status = $latestContent->getStatus();
@@ -229,12 +262,38 @@ function createVersionigFile($document) { /* {{{ */
 	return true;
 } /* }}} */
 
+// funcion by shalless at rubix dot net dot au (php.net)
+function dskspace($dir) { /* {{{ */
+   $s = stat($dir);
+   if ($s === false || !is_array($s)) {
+       return 0;
+   }
+   if (!isset($s["blocks"])) {
+       return 0;
+   }
+   $space = $s["blocks"]*512;
+   if (is_dir($dir)) {
+     $dh = opendir($dir);
+     if ($dh === false) {
+         return $space;
+     }
+     while (($file = readdir($dh)) !== false)
+       if ($file != "." and $file != "..")
+         $space += dskspace($dir."/".$file);
+     closedir($dh);
+   }
+   return $space;
+} /* }}} */
+
 function add_log_line($msg="") { /* {{{ */
 	global $logger, $user;
 
 	if(!$logger) return;
-	
-	$logger->log($user->getLogin()." (".$_SERVER['REMOTE_ADDR'].") ".basename($_SERVER["REQUEST_URI"], ".php").$msg);
+
+	if($user)
+		$logger->log($user->getLogin()." (".$_SERVER['REMOTE_ADDR'].") ".basename($_SERVER["REQUEST_URI"], ".php").$msg);
+	else
+		$logger->log("-- (".$_SERVER['REMOTE_ADDR'].") ".basename($_SERVER["REQUEST_URI"], ".php").$msg);
 } /* }}} */
 
 function _add_log_line($msg="") { /* {{{ */
@@ -252,29 +311,118 @@ function _add_log_line($msg="") { /* {{{ */
 	}
 } /* }}} */
 
-	function getFolderPathHTML($folder, $tagAll=false) { /* {{{ */
+	function getFolderPathHTML($folder, $tagAll=false, $document=null) { /* {{{ */
 		$path = $folder->getPath();
 		$txtpath = "";
 		for ($i = 0; $i < count($path); $i++) {
 			if ($i +1 < count($path)) {
 				$txtpath .= "<a href=\"../out/out.ViewFolder.php?folderid=".$path[$i]->getID()."&showtree=".showtree()."\">".
-					$path[$i]->getName()."</a> / ";
+					htmlspecialchars($path[$i]->getName())."</a> / ";
 			}
 			else {
 				$txtpath .= ($tagAll ? "<a href=\"../out/out.ViewFolder.php?folderid=".$path[$i]->getID()."&showtree=".showtree()."\">".
-										 $path[$i]->getName()."</a>" : $path[$i]->getName());
+										 htmlspecialchars($path[$i]->getName())."</a>" : htmlspecialchars($path[$i]->getName()));
 			}
 		}
+		if($document)
+			$txtpath .= " / <a href=\"../out/out.ViewDocument.php?documentid=".$document->getId()."\">".htmlspecialchars($document->getName())."</a>";
+
 		return $txtpath;
 	} /* }}} */
 	
+function filterDocumentLinks($user, $links) { /* {{{ */
+	$tmp = array();
+	foreach ($links as $link)
+		if ($link->isPublic() || ($link->_userID == $user->getID()) || $user->isAdmin())
+			array_push($tmp, $link);
+	return $tmp;
+} /* }}} */
+
 function showtree() { /* {{{ */
 	global $settings;
 	
-	if (isset($_GET["showtree"])) return $_GET["showtree"];
+	if (isset($_GET["showtree"])) return intval($_GET["showtree"]);
 	else if ($settings->_enableFolderTree==0) return 0;
 	
 	return 1;
 } /* }}} */
 
+/**
+ * Create a unique key which is used for form validation to prevent
+ * CSRF attacks. The key is added to a any form that has to be secured
+ * as a hidden field. Once the form is submitted the key is compared
+ * to the current key in the session and the request is only executed
+ * if both are equal. The key is derived from the session id, a configurable
+ * encryption key and form identifierer.
+ *
+ * @param string $formid individual form identifier
+ * @return string session key
+ */
+function createFormKey($formid='') { /* {{{ */
+	global $settings, $session;
+
+	if($id = $session->getId()) {
+		return md5($id.$settings->_encryptionKey.$formid);
+	} else {
+		return false;
+	}
+} /* }}} */
+
+/**
+ * Create a hidden field with the name 'formtoken' and set its value
+ * to the key returned by createFormKey()
+ *
+ * @param string $formid individual form identifier
+ * @return string input field for html formular
+ */
+function createHiddenFieldWithKey($formid='') { /* {{{ */
+	return '<input type="hidden" name="formtoken" value="'.createFormKey($formid).'" />';	
+} /* }}} */
+
+/**
+ * Check if the form key in the POST or GET request variable 'formtoken'
+ * has the value of key returned by createFormKey(). Request to modify
+ * data in the DMS should always use POST because it is harder to run
+ * CSRF attacks using POST than GET.
+ *
+ * @param string $formid individual form identifier
+ * @param string $method defines if the form data is pass via GET or
+ * POST (default)
+ * @return boolean true if key matches otherwise false
+ */
+function checkFormKey($formid='', $method='POST') { /* {{{ */
+	switch($method) {
+		case 'GET':
+			if(isset($_GET['formtoken']) && $_GET['formtoken'] == createFormKey($formid))
+				return true;
+			break;
+		default:
+			if(isset($_POST['formtoken']) && $_POST['formtoken'] == createFormKey($formid))
+				return true;
+	}
+	
+	return false;
+} /* }}} */
+
+/**
+ * Check disk usage of currently logged in user
+ *
+ * @return boolean/integer true if no quota is set, number of bytes until
+ *         quota is reached. Negative values indicate a disk usage above quota.
+ */
+function checkQuota() { /* {{{ */
+	global $settings, $dms, $user;
+
+	$quota = 0;
+	$uquota = $user->getQuota();
+	if($uquota > 0)
+		$quota = $uquota;
+	elseif($settings->_quota > 0)
+		$quota = $settings->_quota;
+
+	if($quota == 0)
+		return true;
+
+	return ($quota - $user->getUsedDiskSpace());
+} /* }}} */
 ?>

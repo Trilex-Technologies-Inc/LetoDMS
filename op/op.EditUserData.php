@@ -2,6 +2,7 @@
 //    MyDMS. Document Management System
 //    Copyright (C) 2002-2005  Markus Westphal
 //    Copyright (C) 2006-2008 Malcolm Cowe
+//    Copyright (C) 2009-2012 Uwe Steinmann
 //
 //    This program is free software; you can redistribute it and/or modify
 //    it under the terms of the GNU General Public License as published by
@@ -23,21 +24,63 @@ include("../inc/inc.DBInit.php");
 include("../inc/inc.Language.php");
 include("../inc/inc.ClassUI.php");
 include("../inc/inc.Authentication.php");
+include("../inc/inc.ClassPasswordStrength.php");
+include("../inc/inc.ClassPasswordHistoryManager.php");
 
 if ($user->isGuest()) {
-	UI::exitError(getMLText("edit_user_details"),getMLText("access_denied"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("edit_user_details"),getMLText("access_denied"));
 }
 
 if (!$user->isAdmin() && ($settings->_disableSelfEdit)) {
-	UI::exitError(getMLText("edit_user_details"),getMLText("access_denied"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("edit_user_details"),getMLText("access_denied"));
 }
 
-$fullname = sanitizeString($_POST["fullname"]);
-$email    = sanitizeString($_POST["email"]);
-$comment  = sanitizeString($_POST["comment"]);
+$fullname = $_POST["fullname"];
+$email    = $_POST["email"];
+$comment  = $_POST["comment"];
+$language  = $_POST["language"];
+$mytheme  = $_POST["theme"];
+$current_pwd  = $_POST["currentpwd"];
 
-if (isset($_POST["pwd"]) && ($_POST["pwd"] != ""))
-	$user->setPwd(md5($_POST["pwd"]));
+if($user->getPwd() != md5($current_pwd)) {
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("edit_user_details"),getMLText("password_wrong"));
+}
+
+if (isset($_POST["pwd"]) && ($_POST["pwd"] != "")) {
+	if($settings->_passwordStrength) {
+		$ps = new Password_Strength();
+		$ps->set_password($_POST["pwd"]);
+		$ps->calculate();
+		$score = $ps->get_score();
+		if($score > $settings->_passwordStrength) {
+			if($settings->_passwordHistory > 0) {
+				$phm = new LetoDMS_PasswordHistoryManager($db);
+				$oldpwd = $phm->search($user, md5($_POST["pwd"]));
+				if($oldpwd) {
+					(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("set_password"),getMLText("password_already_used"));
+				} else {
+					$phm->add($user, md5($_POST["pwd"]));
+				}
+			}
+			$user->setPwd(md5($_POST["pwd"]));
+			$user->setPwdExpiration(date('Y-m-d H:i:s', time()+$settings->_passwordExpiration*86400));
+		} else {
+			(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("set_password"),getMLText("password_strength_insuffient"));
+		}
+	} else {
+		if($settings->_passwordHistory > 0) {
+			$phm = new LetoDMS_PasswordHistoryManager($db);
+			$oldpwd = $phm->search($user, md5($_POST["pwd"]));
+			if($oldpwd) {
+				(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("set_password"),getMLText("password_already_used"));
+			} else {
+				$phm->add($user, md5($_POST["pwd"]));
+			}
+		}
+		$user->setPwd(md5($_POST["pwd"]));
+		$user->setPwdExpiration(date('Y-m-d H:i:s', time()+$settings->_passwordExpiration*86400));
+	}
+}
 
 if ($user->getFullName() != $fullname)
 	$user->setFullName($fullname);
@@ -48,27 +91,33 @@ if ($user->getEmail() != $email)
 if ($user->getComment() != $comment)
 	$user->setComment($comment);
 
-if (is_uploaded_file($_FILES["userfile"]["tmp_name"]) && $_FILES["userfile"]["size"] > 0 && $_FILES['userfile']['error']==0)
+if ($user->getLanguage() != $language)
+	$user->setLanguage($language);
+
+if ($user->getTheme() != $mytheme)
+	$user->setTheme($mytheme);
+
+if (isset($_FILES["userfile"]) && is_uploaded_file($_FILES["userfile"]["tmp_name"]) && $_FILES["userfile"]["size"] > 0 && $_FILES['userfile']['error']==0)
 {
-	$lastDotIndex = strrpos(basename($_FILES["userfile"]["name"]), ".");
-	$fileType = substr($_FILES["userfile"]["name"], $lastDotIndex);
-	if ($fileType != ".jpg" && $filetype != ".jpeg") {
-		UI::exitError(getMLText("user_info"),getMLText("only_jpg_user_images"));
+	$finfo = new finfo(FILEINFO_MIME);
+	echo $finfo->file($_FILES["userfile"]["tmp_name"]);
+	if(substr($finfo->file($_FILES["userfile"]["tmp_name"]), 0, 10) != "image/jpeg") {;
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("user_info"),getMLText("only_jpg_user_images"));
 	}
-	//verkleinern des Bildes, so dass es 150 Pixel hoch ist
-	// Originalbild einlesen
+	// shrink the image to a max height of 150 px
+	// read original image
 	$origImg = imagecreatefromjpeg($_FILES["userfile"]["tmp_name"]);
 	$width = imagesx($origImg);
 	$height = imagesy($origImg);
-	// Thumbnail im Speicher erzeugen
+	// create thumbnail in memory
 	$newHeight = 150;
 	$newWidth = ($width/$height) * $newHeight;
 	$newImg = imagecreatetruecolor($newWidth, $newHeight);
-	// Verkleinern
+	// shrink image
 	imagecopyresized($newImg, $origImg, 0, 0, 0, 0, $newWidth, $newHeight, $width, $height);
-	// In File speichern 
+	// save image to file
 	imagejpeg($newImg, $_FILES["userfile"]["tmp_name"]);
-	// Aufräumen
+	// clean up
 	imagedestroy($origImg);
 	imagedestroy($newImg);
 	$user->setImage($_FILES["userfile"]["tmp_name"], $_FILES["userfile"]["type"]);

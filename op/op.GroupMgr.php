@@ -27,161 +27,190 @@ include("../inc/inc.ClassEmail.php");
 include("../inc/inc.Authentication.php");
 
 if (!$user->isAdmin()) {
-	UI::exitError(getMLText("admin_tools"),getMLText("access_denied"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("access_denied"));
 }
 
-if (isset($_GET["action"])) $action = $_GET["action"];
-else if (isset($_POST["action"])) $action = $_POST["action"];
-
+if (isset($_POST["action"])) $action = $_POST["action"];
+else $action = null;
 
 //Neue Gruppe anlegen -----------------------------------------------------------------------------
 if ($action == "addgroup") {
 
-	$name = sanitizeString($_GET["name"]);
-	$comment = sanitizeString($_GET["comment"]);
+	/* Check if the form data comes for a trusted request */
+	if(!checkFormKey('addgroup')) {
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("invalid_request_token"));
+	}
+
+	$name = $_POST["name"];
+	$comment = $_POST["comment"];
 
 	if (is_object($dms->getGroupByName($name))) {
-		UI::exitError(getMLText("admin_tools"),getMLText("group_exists"));
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("group_exists"));
 	}
 
 	$newGroup = $dms->addGroup($name, $comment);
 	if (!$newGroup) {
-		UI::exitError(getMLText("admin_tools"),getMLText("error_occured"));
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("error_occured"));
 	}
-	
+
 	$groupid=$newGroup->getID();
-	
+
 	add_log_line();
 }
 
 //Gruppe löschen ----------------------------------------------------------------------------------
 else if ($action == "removegroup") {
-	
-	if (!isset($_POST["groupid"]) || !is_numeric($_POST["groupid"]) || intval($_POST["groupid"])<1) {
-		UI::exitError(getMLText("admin_tools"),getMLText("invalid_group_id"));
+
+	/* Check if the form data comes for a trusted request */
+	if(!checkFormKey('removegroup')) {
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("invalid_request_token"));
 	}
-	
+
+	if (!isset($_POST["groupid"]) || !is_numeric($_POST["groupid"]) || intval($_POST["groupid"])<1) {
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("invalid_group_id"));
+	}
+
 	$group = $dms->getGroup($_POST["groupid"]);
 	if (!is_object($group)) {
-		UI::exitError(getMLText("admin_tools"),getMLText("invalid_group_id"));
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("invalid_group_id"));
 	}
 
 	if (!$group->remove($user)) {
-		UI::exitError(getMLText("admin_tools"),getMLText("error_occured"));
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("error_occured"));
 	}
-	
+
 	add_log_line(".php?groupid=".$groupid."&action=removegroup");
 }
 
 //Gruppe bearbeiten -------------------------------------------------------------------------------
 else if ($action == "editgroup") {
 
-	if (!isset($_GET["groupid"]) || !is_numeric($_GET["groupid"]) || intval($_GET["groupid"])<1) {
-		UI::exitError(getMLText("admin_tools"),getMLText("invalid_group_id"));
+	/* Check if the form data comes for a trusted request */
+	if(!checkFormKey('editgroup')) {
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("invalid_request_token"));
 	}
-	
-	$groupid=$_GET["groupid"];
+
+	if (!isset($_POST["groupid"]) || !is_numeric($_POST["groupid"]) || intval($_POST["groupid"])<1) {
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("invalid_group_id"));
+	}
+
+	$groupid=$_POST["groupid"];
 	$group = $dms->getGroup($groupid);
-	
+
 	if (!is_object($group)) {
-		UI::exitError(getMLText("admin_tools"),getMLText("invalid_group_id"));
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("invalid_group_id"));
 	}
-	
-	$name = sanitizeString($_GET["name"]);
-	$comment = sanitizeString($_GET["comment"]);
+
+	$name = $_POST["name"];
+	$comment = $_POST["comment"];
 
 	if ($group->getName() != $name)
 		$group->setName($name);
 	if ($group->getComment() != $comment)
 		$group->setComment($comment);
-		
+
 	add_log_line();
 }
 
 //Benutzer zu Gruppe hinzufügen -------------------------------------------------------------------
 else if ($action == "addmember") {
 
-	if (!isset($_POST["groupid"]) || !is_numeric($_POST["groupid"]) || intval($_POST["groupid"])<1) {
-		UI::exitError(getMLText("admin_tools"),getMLText("invalid_group_id"));
+	/* Check if the form data comes for a trusted request */
+	if(!checkFormKey('addmember')) {
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("invalid_request_token"));
 	}
-	
+
+	if (!isset($_POST["groupid"]) || !is_numeric($_POST["groupid"]) || intval($_POST["groupid"])<1) {
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("invalid_group_id"));
+	}
+
 	$groupid=$_POST["groupid"];
 	$group = $dms->getGroup($groupid);
-	
+
 	if (!is_object($group)) {
-		UI::exitError(getMLText("admin_tools"),getMLText("invalid_group_id"));
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("invalid_group_id"));
 	}
 
 	if (!isset($_POST["userid"]) || !is_numeric($_POST["userid"]) || intval($_POST["userid"])<1) {
-		UI::exitError(getMLText("admin_tools"),getMLText("invalid_user_id"));
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("invalid_user_id"));
 	}
-	
+
 	$newMember = $dms->getUser($_POST["userid"]);
 	if (!is_object($newMember)) {
-		UI::exitError(getMLText("admin_tools"),getMLText("invalid_user_id"));
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("invalid_user_id"));
 	}
 
 	if (!$group->isMember($newMember)){
 		$group->addUser($newMember);
 		if (isset($_POST["manager"])) $group->toggleManager($newMember);
 	}
-	
+
 	add_log_line(".php?groupid=".$groupid."&userid=".$_POST["userid"]."&action=addmember");
 }
 
 //Benutzer aus Gruppe entfernen -------------------------------------------------------------------
 else if ($action == "rmmember") {
 
-	if (!isset($_GET["groupid"]) || !is_numeric($_GET["groupid"]) || intval($_GET["groupid"])<1) {
-		UI::exitError(getMLText("admin_tools"),getMLText("invalid_group_id"));
-	}
-	
-	$groupid=$_GET["groupid"];
-	$group = $dms->getGroup($groupid);
-	
-	if (!is_object($group)) {
-		UI::exitError(getMLText("admin_tools"),getMLText("invalid_group_id"));
+	/* Check if the form data comes for a trusted request */
+	if(!checkFormKey('rmmember')) {
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("invalid_request_token"));
 	}
 
-	if (!isset($_GET["userid"]) || !is_numeric($_GET["userid"]) || intval($_GET["userid"])<1) {
-		UI::exitError(getMLText("admin_tools"),getMLText("invalid_user_id"));
+	if (!isset($_POST["groupid"]) || !is_numeric($_POST["groupid"]) || intval($_POST["groupid"])<1) {
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("invalid_group_id"));
 	}
-	
-	$oldMember = $dms->getUser($_GET["userid"]);
+
+	$groupid=$_POST["groupid"];
+	$group = $dms->getGroup($groupid);
+
+	if (!is_object($group)) {
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("invalid_group_id"));
+	}
+
+	if (!isset($_POST["userid"]) || !is_numeric($_POST["userid"]) || intval($_POST["userid"])<1) {
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("invalid_user_id"));
+	}
+
+	$oldMember = $dms->getUser($_POST["userid"]);
 	if (!is_object($oldMember)) {
-		UI::exitError(getMLText("admin_tools"),getMLText("invalid_user_id"));
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("invalid_user_id"));
 	}
 
 	$group->removeUser($oldMember);
-	
+
 	add_log_line();
 }
 
 // toggle manager flag
 else if ($action == "tmanager") {
 
-	if (!isset($_GET["groupid"]) || !is_numeric($_GET["groupid"]) || intval($_GET["groupid"])<1) {
-		UI::exitError(getMLText("admin_tools"),getMLText("invalid_group_id"));
-	}
-	
-	$groupid=$_GET["groupid"];
-	$group = $dms->getGroup($groupid);
-	
-	if (!is_object($group)) {
-		UI::exitError(getMLText("admin_tools"),getMLText("invalid_group_id"));
+	/* Check if the form data comes for a trusted request */
+	if(!checkFormKey('tmanager')) {
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("invalid_request_token"));
 	}
 
-	if (!isset($_GET["userid"]) || !is_numeric($_GET["userid"]) || intval($_GET["userid"])<1) {
-		UI::exitError(getMLText("admin_tools"),getMLText("invalid_user_id"));
+	if (!isset($_POST["groupid"]) || !is_numeric($_POST["groupid"]) || intval($_POST["groupid"])<1) {
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("invalid_group_id"));
 	}
-	
-	$usertoedit = $dms->getUser($_GET["userid"]);
+
+	$groupid=$_POST["groupid"];
+	$group = $dms->getGroup($groupid);
+
+	if (!is_object($group)) {
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("invalid_group_id"));
+	}
+
+	if (!isset($_POST["userid"]) || !is_numeric($_POST["userid"]) || intval($_POST["userid"])<1) {
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("invalid_user_id"));
+	}
+
+	$usertoedit = $dms->getUser($_POST["userid"]);
 	if (!is_object($usertoedit)) {
-		UI::exitError(getMLText("admin_tools"),getMLText("invalid_user_id"));
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("invalid_user_id"));
 	}
-	
+
 	$group->toggleManager($usertoedit);
-	
+
 	add_log_line();
 }
 

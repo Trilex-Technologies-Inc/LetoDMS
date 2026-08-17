@@ -23,62 +23,14 @@ include("../inc/inc.ClassUI.php");
 include("../inc/inc.Authentication.php");
 
 if ($user->isGuest()) {
-	UI::exitError(getMLText("edit_event"),getMLText("access_denied"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("edit_event"),getMLText("access_denied"));
 }
 
-UI::htmlStartPage(getMLText("calendar"));
-UI::globalNavigation();
-UI::pageNavigation(getMLText("calendar"), "calendar");
-
-UI::contentHeading(getMLText("add_event"));
-UI::contentContainerStart();
-?>
-<script language="JavaScript">
-function checkForm()
-{
-	msg = "";
-	if (document.form1.name.value == "") msg += "<?php printMLText("js_no_name");?>\n";
-<?php
-	if (isset($settings->_strictFormCheck) && $settings->_strictFormCheck) {
-	?>
-	if (document.form1.comment.value == "") msg += "<?php printMLText("js_no_comment");?>\n";
-<?php
-	}
-?>
-	if (msg != "")
-	{
-		alert(msg);
-		return false;
-	}
-	else
-		return true;
+$tmp = explode('.', basename($_SERVER['SCRIPT_FILENAME']));
+$view = (new UI($GLOBALS['theme'] ?? 'bootstrap'))->factory($theme, $tmp[1], array('dms'=>$dms, 'user'=>$user));
+if($view) {
+	$view->show();
+	exit;
 }
-</script>
 
-<form action="../op/op.AddEvent.php" name="form1" onsubmit="return checkForm();" method="POST">
-	<table>
-		<tr>
-			<td><?php printMLText("from");?>:</td>
-			<td><?php UI::printDateChooser(-1, "from");?></td>
-		</tr>
-		<tr>
-			<td><?php printMLText("to");?>:</td>
-			<td><?php UI::printDateChooser(-1, "to");?></td>
-		</tr>
-		<tr>
-			<td class="inputDescription"><?php printMLText("name");?>:</td>
-			<td><input name="name" size="60"></td>
-		</tr>
-		<tr>
-			<td valign="top" class="inputDescription"><?php printMLText("comment");?>:</td>
-			<td><textarea name="comment" rows="4" cols="80"></textarea></td>
-		</tr>
-		<tr>
-			<td colspan="2"><br><input type="Submit" value="<?php printMLText("add_event");?>"></td>
-		</tr>
-	</table>
-</form>
-<?php
-UI::contentContainerEnd();
-UI::htmlEndPage();
 ?>

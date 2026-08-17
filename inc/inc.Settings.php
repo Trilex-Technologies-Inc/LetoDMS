@@ -67,4 +67,7 @@ if (isset($settingsOLD)) {
 	exit;
 }
 
+if(isset($settings->_extraPath))
+	ini_set('include_path', $settings->_extraPath. PATH_SEPARATOR .ini_get('include_path'));
+
 ?>

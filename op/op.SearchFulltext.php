@@ -42,14 +42,14 @@ if (!isset($_GET["folderid"]) || !is_numeric($_GET["folderid"]) || intval($_GET[
 
 $folder = $dms->getFolder($folderid);
 if (!is_object($folder)) {
-	UI::exitError(getMLText("search_results"),getMLText("invalid_folder_id"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("search_results"),getMLText("invalid_folder_id"));
 }
 
 // Create the keyword search string. This search spans up to three columns
 // in the database: keywords, name and comment.
 
 if (isset($_GET["query"]) && is_string($_GET["query"])) {
-	$query = sanitizeString($_GET["query"]);
+	$query = $_GET["query"];
 }
 else {
 	$query = "";
@@ -87,21 +87,13 @@ if (isset($_GET["pg"])) {
 
 // --------------- Suche starten --------------------------------------------
 
-$folderPathHTML = getFolderPathHTML($folder, true);
-UI::htmlStartPage(getMLText("search_results"));
-UI::globalNavigation($folder);
-UI::pageNavigation($folderPathHTML, "", $folder);
-UI::contentHeading(getMLText("search_results"));
-
 // Check to see if the search has been restricted to a particular
 // document owner.
 $owner = null;
 if (isset($_GET["ownerid"]) && is_numeric($_GET["ownerid"]) && $_GET["ownerid"]!=-1) {
 	$owner = $dms->getUser($_GET["ownerid"]);
 	if (!is_object($owner)) {
-		UI::contentContainer(getMLText("unknown_owner"));
-		UI::htmlEndPage();
-		exit;
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("search_results"),getMLText("unknown_owner"));
 	}
 }
 
@@ -122,10 +114,13 @@ if($settings->_enableFullSearch) {
 	else
 		require_once('LetoDMS/Lucene.php');
 }
+
+Zend_Search_Lucene_Search_QueryParser::setDefaultEncoding('utf-8');
 $index = Zend_Search_Lucene::open($settings->_luceneDir);
 $lucenesearch = new LetoDMS_Lucene_Search($index);
 $hits = $lucenesearch->search($query, $owner ? $owner->getLogin() : '', '', $categories);
-$limit = 25;
+$totalDocs = count($hits);
+$limit = 20;
 $resArr = array();
 if($pageNumber != 'all' && count($hits) > $limit) {
 	$resArr['totalPages'] = (int) (count($hits) / $limit);
@@ -137,20 +132,31 @@ if($pageNumber != 'all' && count($hits) > $limit) {
 }
 
 $resArr['docs'] = array();
-$resArr['totalDocs'] = 0;
 if($hits) {
-	$resArr['totalDocs'] = 0; //count($hits);
 	foreach($hits as $hit) {
 		if($tmp = $dms->getDocument($hit['document_id'])) {
 			$resArr['docs'][] = $tmp;
-			$resArr['totalDocs']++;
 		}
 	}
 }
 $searchTime = getTime() - $startTime;
 $searchTime = round($searchTime, 2);
 
-UI::contentContainerStart();
+// -------------- Output results --------------------------------------------
+
+$tmp = explode('.', basename($_SERVER['SCRIPT_FILENAME']));
+$view = (new UI($GLOBALS['theme'] ?? 'bootstrap'))->factory($theme, $tmp[1], array('dms'=>$dms, 'user'=>$user, 'folder'=>$folder, 'searchhits'=>$resArr['docs'], 'totalpages'=>$resArr['totalPages'], 'totaldocs'=>$totalDocs, 'pagenumber'=>$pageNumber, 'searchtime'=>$searchTime, 'urlparams'=>$_GET));
+if($view) {
+	$view->show();
+	exit;
+}
+
+(new UI($GLOBALS['theme'] ?? 'bootstrap'))->htmlStartPage(getMLText("search_results"));
+(new UI($GLOBALS['theme'] ?? 'bootstrap'))->globalNavigation($folder);
+(new UI($GLOBALS['theme'] ?? 'bootstrap'))->pageNavigation(getFolderPathHTML($folder, true), "", $folder);
+(new UI($GLOBALS['theme'] ?? 'bootstrap'))->contentHeading(getMLText("search_results"));
+
+(new UI($GLOBALS['theme'] ?? 'bootstrap'))->contentContainerStart();
 ?>
 <table width="100%" style="border-collapse: collapse;">
 <tr>
@@ -161,7 +167,7 @@ if ($numResults == 0) {
 	printMLText("search_no_results");
 }
 else {
-	printMLText("search_report", array("count" => $resArr['totalDocs']));
+	printMLText("search_report_fulltext", array("doccount" => $totalDocs));
 }
 ?>
 </td>
@@ -171,12 +177,12 @@ else {
 
 <?php
 if ($numResults == 0) {
-	UI::contentContainerEnd();
-	UI::htmlEndPage();
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->contentContainerEnd();
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->htmlEndPage();
 	exit;
 }
 
-UI::pageList($pageNumber, $resArr['totalPages'], "../op/op.SearchFulltext.php", $_GET);
+(new UI($GLOBALS['theme'] ?? 'bootstrap'))->pageList($pageNumber, $resArr['totalPages'], "../op/op.SearchFulltext.php", $_GET);
 
 print "<table class=\"folderView\">";
 print "<thead>\n<tr>\n";
@@ -198,23 +204,24 @@ foreach ($resArr['docs'] as $document) {
 	else {
 		$lc = $document->getLatestContent();
 		print "<tr>";
-		$docName = $document->getName();
+		$docName = htmlspecialchars($document->getName());
 		print "<td><a class=\"standardText\" href=\"../out/out.ViewDocument.php?documentid=".$document->getID()."\">/";
 		$folder = $document->getFolder();
 		$path = $folder->getPath();
 		for ($i = 1; $i  < count($path); $i++) {
-			print $path[$i]->getName()."/";
+			print htmlspecialchars($path[$i]->getName())."/";
 		}
 		print $docName;
 		print "</a></td>";
-		
+
 		$owner = $document->getOwner();
-		print "<td>".$owner->getFullName()."</td>";
-		print "<td>".getOverallStatusText($lc->getStatus()). "</td>";
+		print "<td>".htmlspecialchars($owner->getFullName())."</td>";
+		$display_status=$lc->getStatus();
+		print "<td>".getOverallStatusText($display_status["status"]). "</td>";
 
 		print "<td class=\"center\">".$lc->getVersion()."</td>";
-		
-		$comment = $document->getComment();
+
+		$comment = htmlspecialchars($document->getComment());
 		if (strlen($comment) > 50) $comment = substr($comment, 0, 47) . "...";
 		print "<td>".$comment."</td>";
 		print "</tr>\n";
@@ -225,8 +232,8 @@ if ($resultsFilteredByAccess) {
 }
 print "</tbody></table>\n";
 
-UI::pageList($pageNumber, $resArr['totalPages'], "../op/op.Search.php", $_GET);
+(new UI($GLOBALS['theme'] ?? 'bootstrap'))->pageList($pageNumber, $resArr['totalPages'], "../op/op.Search.php", $_GET);
 
-UI::contentContainerEnd();
-UI::htmlEndPage();
+(new UI($GLOBALS['theme'] ?? 'bootstrap'))->contentContainerEnd();
+(new UI($GLOBALS['theme'] ?? 'bootstrap'))->htmlEndPage();
 ?>

@@ -23,28 +23,20 @@ include("../inc/inc.ClassUI.php");
 include("../inc/inc.Authentication.php");
 
 if (!$user->isAdmin()) {
-	UI::exitError(getMLText("admin_tools"),getMLText("access_denied"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("access_denied"));
 }
 
 if (!isset($_GET["dumpname"]) || !file_exists($settings->_contentDir.$_GET["dumpname"]) ) {
-	UI::exitError(getMLText("admin_tools"),getMLText("unknown_id"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("unknown_id"));
 }
 
 $dumpname = $_GET["dumpname"];
 
-UI::htmlStartPage(getMLText("backup_tools"));
-UI::globalNavigation();
-UI::pageNavigation(getMLText("admin_tools"), "admin_tools");
-UI::contentHeading(getMLText("dump_remove"));
-UI::contentContainerStart();
+$tmp = explode('.', basename($_SERVER['SCRIPT_FILENAME']));
+$view = (new UI($GLOBALS['theme'] ?? 'bootstrap'))->factory($theme, $tmp[1], array('dms'=>$dms, 'user'=>$user, 'dumpfile'=>$dumpname));
+if($view) {
+	$view->show();
+	exit;
+}
 
-?>
-<form action="../op/op.RemoveDump.php" name="form1" method="POST">
-	<input type="Hidden" name="dumpname" value="<?php echo $dumpname?>">
-	<p><?php printMLText("confirm_rm_dump", array ("dumpname" => $dumpname));?></p>
-	<input type="Submit" value="<?php printMLText("dump_remove");?>">
-</form>
-<?php
-UI::contentContainerEnd();
-UI::htmlEndPage();
 ?>

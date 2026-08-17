@@ -1,30 +1,35 @@
 <?php
-//    MyDMS. Document Management System
-//    Copyright (C) 2010 Uwe Steinmann
-//
-//    This program is free software; you can redistribute it and/or modify
-//    it under the terms of the GNU General Public License as published by
-//    the Free Software Foundation; either version 2 of the License, or
-//    (at your option) any later version.
-//
-//    This program is distributed in the hope that it will be useful,
-//    but WITHOUT ANY WARRANTY; without even the implied warranty of
-//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//    GNU General Public License for more details.
-//
-//    You should have received a copy of the GNU General Public License
-//    along with this program; if not, write to the Free Software
-//    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+/**
+ * Implementation of a document in the document management system
+ *
+ * @category   DMS
+ * @package    LetoDMS_Core
+ * @license    GPL2
+ * @author     Markus Westphal, Malcolm Cowe, Matteo Lucarelli,
+ *             Uwe Steinmann <uwe@steinmann.cx>
+ * @copyright  Copyright (C) 2002-2005 Markus Westphal, 2006-2008 Malcolm Cowe,
+ *             2010 Matteo Lucarelli, 2010-2012 Uwe Steinmann
+ * @version    Release: @package_version@
+ */
 
 /**
  * @uses LetoDMS_DatabaseAccess
  */
-require_once('Core/inc.DBAccess.php');
+define('USE_PDO', 1);
+if(defined('USE_PDO'))
+	require_once('Core/inc.DBAccessPDO.php');
+else
+	require_once('Core/inc.DBAccess.php');
 
 /**
  * @uses LetoDMS_DMS
  */
 require_once('Core/inc.ClassDMS.php');
+
+/**
+ * @uses LetoDMS_Object
+ */
+require_once('Core/inc.ClassObject.php');
 
 /**
  * @uses LetoDMS_Folder
@@ -35,6 +40,11 @@ require_once('Core/inc.ClassFolder.php');
  * @uses LetoDMS_Document
  */
 require_once('Core/inc.ClassDocument.php');
+
+/**
+ * @uses LetoDMS_Attribute
+ */
+require_once('Core/inc.ClassAttribute.php');
 
 /**
  * @uses LetoDMS_Group
@@ -66,6 +76,11 @@ require_once('Core/inc.ClassNotification.php');
  * @uses LetoDMS_GroupAccess
  */
 require_once('Core/inc.ClassAccess.php');
+
+/**
+ * @uses LetoDMS_Workflow
+ */
+require_once('Core/inc.ClassWorkflow.php');
 
 /**
  */

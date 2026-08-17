@@ -26,48 +26,41 @@ include("../inc/inc.ClassUI.php");
 include("../inc/inc.Authentication.php");
 
 if (!isset($_GET["documentid"]) || !is_numeric($_GET["documentid"]) || intval($_GET["documentid"])<1) {
-	UI::exitError(getMLText("document_title", array("documentname" => getMLText("invalid_doc_id"))),getMLText("invalid_doc_id"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => getMLText("invalid_doc_id"))),getMLText("invalid_doc_id"));
 }
 
-$documentid = $_GET["documentid"];
-$document = $dms->getDocument($documentid);
+$document = $dms->getDocument(intval($_GET["documentid"]));
 
 if (!is_object($document)) {
-	UI::exitError(getMLText("document_title", array("documentname" => getMLText("invalid_doc_id"))),getMLText("invalid_doc_id"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => getMLText("invalid_doc_id"))),getMLText("invalid_doc_id"));
 }
 
-$folder = $document->getFolder();
-$docPathHTML = getFolderPathHTML($folder, true). " / <a href=\"../out/out.ViewDocument.php?documentid=".$documentid."\">".$document->getName()."</a>";
+if (!$settings->_enableVersionDeletion && !$user->isAdmin()) {
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => htmlspecialchars($document->getName()))),getMLText("access_denied"));
+}
 
 if ($document->getAccessMode($user) < M_ALL) {
-	UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("access_denied"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => htmlspecialchars($document->getName()))),getMLText("access_denied"));
 }
 
 if (!isset($_GET["version"]) || !is_numeric($_GET["version"]) || intval($_GET["version"])<1) {
-	UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("invalid_version"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => htmlspecialchars($document->getName()))),getMLText("invalid_version"));
 }
 
 $version = $_GET["version"];
 $version = $document->getContentByVersion($version);
 
 if (!is_object($version)) {
-	UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("invalid_version"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => htmlspecialchars($document->getName()))),getMLText("invalid_version"));
 }
 
-UI::htmlStartPage(getMLText("document_title", array("documentname" => $document->getName())));
-UI::globalNavigation($folder);
-UI::pageNavigation($docPathHTML, "view_document");
-UI::contentHeading(getMLText("rm_version"));
-UI::contentContainerStart();
+$folder = $document->getFolder();
 
-?>
-<form action="../op/op.RemoveVersion.php" name="form1" method="POST">
-	<input type="Hidden" name="documentid" value="<?php echo $documentid?>">
-	<input type="Hidden" name="version" value="<?php echo $version->getVersion()?>">
-	<p><?php printMLText("confirm_rm_version", array ("documentname" => $document->getName(), "version" => $version->getVersion()));?></p>
-	<input type="Submit" value="<?php printMLText("rm_version");?>">
-</form>
-<?php
-UI::contentContainerEnd();
-UI::htmlEndPage();
+$tmp = explode('.', basename($_SERVER['SCRIPT_FILENAME']));
+$view = (new UI($GLOBALS['theme'] ?? 'bootstrap'))->factory($theme, $tmp[1], array('dms'=>$dms, 'user'=>$user, 'folder'=>$folder, 'document'=>$document, 'version'=>$version));
+if($view) {
+	$view->show();
+	exit;
+}
+
 ?>

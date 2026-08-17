@@ -25,92 +25,19 @@ include("../inc/inc.ClassUI.php");
 include("../inc/inc.Authentication.php");
 
 if ($user->isGuest()) {
-	UI::exitError(getMLText("edit_user_details"),getMLText("access_denied"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("edit_user_details"),getMLText("access_denied"));
 }
 
 if (!$user->isAdmin() && ($settings->_disableSelfEdit)) {
-	UI::exitError(getMLText("edit_user_details"),getMLText("access_denied"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("edit_user_details"),getMLText("access_denied"));
 }
 
-UI::htmlStartPage(getMLText("edit_user_details"));
-UI::globalNavigation();
-UI::pageNavigation(getMLText("my_account"), "my_account");
 
-?>
-
-<script language="JavaScript">
-
-function checkForm()
-{
-	msg = "";
-	if (document.form1.pwd.value != document.form1.pwdconf.value) msg += "<?php printMLText("js_pwd_not_conf");?>\n";
-	if (document.form1.fullname.value == "") msg += "<?php printMLText("js_no_name");?>\n";
-	// if (document.form1.email.value == "") msg += "<?php printMLText("js_no_email");?>\n";
-	if (document.form1.comment.value == "") msg += "<?php printMLText("js_no_comment");?>\n";
-	if (msg != "")
-	{
-		alert(msg);
-		return false;
-	}
-	else
-		return true;
+$tmp = explode('.', basename($_SERVER['SCRIPT_FILENAME']));
+$view = (new UI($GLOBALS['theme'] ?? 'bootstrap'))->factory($theme, $tmp[1], array('dms'=>$dms, 'user'=>$user, 'enableuserimage'=>$settings->_enableUserImage, 'passwordstrength'=>$settings->_passwordStrength, 'httproot'=>$settings->_httpRoot));
+if($view) {
+	$view->show();
+	exit;
 }
-</script>
 
-<?php
-UI::contentHeading(getMLText("edit_user_details"));
-UI::contentContainerStart();
-?>
-
-<form action="../op/op.EditUserData.php" enctype="multipart/form-data" method="post" name="form1" onsubmit="return checkForm();">
-<table>
-	<tr>
-		<td><?php printMLText("password");?>:</td>
-		<td><input type="Password" name="pwd" size="30"></td>
-	</tr>
-	<tr>
-		<td><?php printMLText("confirm_pwd");?>:</td>
-		<td><input type="Password" name="pwdconf" size="30"></td>
-	</tr>
-	<tr>
-		<td><?php printMLText("name");?>:</td>
-		<td><input name="fullname" value="<?php print $user->getFullName();?>" size="30"></td>
-	</tr>
-	<tr>
-		<td><?php printMLText("email");?>:</td>
-		<td><input name="email" value="<?php print $user->getEmail();?>" size="30"></td>
-	</tr>
-	<tr>
-		<td><?php printMLText("comment");?>:</td>
-		<td><textarea name="comment" rows="4" cols="80"><?php print $user->getComment();?></textarea></td>
-	</tr>
-
-<?php	
-if ($settings->_enableUserImage){	
-?>	
-	<tr>
-		<td><?php printMLText("user_image");?>:</td>
-		<td>
-	<?php
-	if ($user->hasImage())
-		print "<img src=\"".$settings->_httpRoot . "out/out.UserImage.php?userid=".$user->getId()."\">";
-	else printMLText("no_user_image");
-	?>
-		</td>
-	</tr>
-	<tr>
-		<td><?php printMLText("new_user_image");?>:</td>
-		<td><input type="file" name="userfile" accept="image/jpeg" size="30"></td>
-	</tr>
-<?php	} ?>
-
-	<tr>
-		<td colspan="2"><input type="Submit" value="<?php printMLText("update_info") ?>"></td>
-	</tr>
-</table>
-</form>
-
-<?php
-UI::contentContainerEnd();
-UI::htmlEndPage();
 ?>

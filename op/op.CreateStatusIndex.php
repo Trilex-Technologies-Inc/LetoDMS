@@ -25,17 +25,17 @@ include("../inc/inc.Language.php");
 include("../inc/inc.ClassUI.php");
 include("../inc/inc.Authentication.php");
 
-UI::htmlStartPage("Create Initial Status Index");
-UI::globalNavigation();
-UI::pageNavigation("Create Initial Status Index");
+(new UI($GLOBALS['theme'] ?? 'bootstrap'))->htmlStartPage("Create Initial Status Index");
+(new UI($GLOBALS['theme'] ?? 'bootstrap'))->globalNavigation();
+(new UI($GLOBALS['theme'] ?? 'bootstrap'))->pageNavigation("Create Initial Status Index");
 
-UI::contentHeading("Generate a New Document Status Index.");
-UI::contentContainerStart();
+(new UI($GLOBALS['theme'] ?? 'bootstrap'))->contentHeading("Generate a New Document Status Index.");
+(new UI($GLOBALS['theme'] ?? 'bootstrap'))->contentContainerStart();
 
 if (!$user->isAdmin()) {
 	print "<p>Error: User must have administrative privileges to create the status index.</p>";
-	UI::contentContainerEnd();
-	UI::htmlEndPage();
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->contentContainerEnd();
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->htmlEndPage();
 	exit;
 }
 
@@ -44,8 +44,8 @@ if (!isset($_GET["genIndex"]) || $_GET["genIndex"]!=1) {
 	print "<input type=\"checkbox\" name=\"genIndex\" id=\"genIndex\" value=\"1\"/><label for=\"genIndex\">Generate the Initial Status Index (for MyDMS upgrades only)</label>";
 	print "<p><input type=\"submit\" value=\"go\"/></p>";
 	print "</form>";
-	UI::contentContainerEnd();
-	UI::htmlEndPage();
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->contentContainerEnd();
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->htmlEndPage();
 	exit;
 }
 
@@ -53,8 +53,8 @@ $queryStr = "SELECT `tblDocumentContent`.`document`, `tblDocumentContent`.`versi
 $resArr = $db->getResultArray($queryStr);
 if (is_bool($resArr)) {
 	print "<p>Error: unable to retrieve document content listing.</p>";
-	UI::contentContainerEnd();
-	UI::htmlEndPage();
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->contentContainerEnd();
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->htmlEndPage();
 	exit;
 }
 
@@ -66,8 +66,8 @@ foreach ($resArr as $row) {
 	if (!$db->getResult($queryStr)) {
 		print "<p>Error: unable to insert status row.</p>";
 		echo "</li>";
-		UI::contentContainerEnd();
-		UI::htmlEndPage();
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->contentContainerEnd();
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->htmlEndPage();
 		exit;
 	}
 	$statusID = $db->getInsertID();
@@ -76,14 +76,14 @@ foreach ($resArr as $row) {
 	if (!$db->getResult($queryStr)) {
 		print "<p>Error: unable to insert status log entry.</p>";
 		echo "</li>";
-		UI::contentContainerEnd();
-		UI::htmlEndPage();
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->contentContainerEnd();
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->htmlEndPage();
 		exit;
 	}
 	echo "</li>";
 }
 print "<ul>";
 print "<p>Status Index Generation is complete.</p>";
-UI::contentContainerEnd();
-UI::htmlEndPage();
+(new UI($GLOBALS['theme'] ?? 'bootstrap'))->contentContainerEnd();
+(new UI($GLOBALS['theme'] ?? 'bootstrap'))->htmlEndPage();
 ?>

@@ -24,49 +24,36 @@ include("../inc/inc.ClassUI.php");
 include("../inc/inc.Authentication.php");
 
 if (!isset($_GET["documentid"]) || !is_numeric($_GET["documentid"]) || intval($_GET["documentid"])<1) {
-	UI::exitError(getMLText("document_title", array("documentname" => getMLText("invalid_doc_id"))),getMLText("invalid_doc_id"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => getMLText("invalid_doc_id"))),getMLText("invalid_doc_id"));
 }
 
-$documentid = $_GET["documentid"];
-$document = $dms->getDocument($documentid);
+$document = $dms->getDocument($_GET["documentid"]);
 
 if (!is_object($document)) {
-	UI::exitError(getMLText("document_title", array("documentname" => getMLText("invalid_doc_id"))),getMLText("invalid_doc_id"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => getMLText("invalid_doc_id"))),getMLText("invalid_doc_id"));
 }
-
-$folder = $document->getFolder();
-$docPathHTML = getFolderPathHTML($folder, true). " / <a href=\"../out/out.ViewDocument.php?documentid=".$documentid."\">".$document->getName()."</a>";
 
 if (!isset($_GET["fileid"]) || !is_numeric($_GET["fileid"]) || intval($_GET["fileid"])<1) {
-	UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("invalid_file_id"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => htmlspecialchars($document->getName()))),getMLText("invalid_file_id"));
 }
 
-$fileid = $_GET["fileid"];
-$file = $document->getDocumentFile($fileid);
+$file = $document->getDocumentFile($_GET["fileid"]);
 
 if (!is_object($file)) {
-	UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("invalid_file_id"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => htmlspecialchars($document->getName()))),getMLText("invalid_file_id"));
 }
 
 if (($document->getAccessMode($user) < M_ALL)&&($user->getID()!=$file->getUserID())) {
-	UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("access_denied"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => htmlspecialchars($document->getName()))),getMLText("access_denied"));
 }
 
+$folder = $document->getFolder();
 
-UI::htmlStartPage(getMLText("document_title", array("documentname" => $document->getName())));
-UI::globalNavigation($folder);
-UI::pageNavigation($docPathHTML, "view_document");
-UI::contentHeading(getMLText("rm_file"));
-UI::contentContainerStart();
+$tmp = explode('.', basename($_SERVER['SCRIPT_FILENAME']));
+$view = (new UI($GLOBALS['theme'] ?? 'bootstrap'))->factory($theme, $tmp[1], array('dms'=>$dms, 'user'=>$user, 'folder'=>$folder, 'document'=>$document, 'file'=>$file));
+if($view) {
+	$view->show();
+	exit;
+}
 
-?>
-<form action="../op/op.RemoveDocumentFile.php" name="form1" method="POST">
-	<input type="Hidden" name="documentid" value="<?php echo $documentid?>">
-	<input type="Hidden" name="fileid" value="<?php echo $fileid?>">
-	<p><?php printMLText("confirm_rm_file", array ("documentname" => $document->getName(), "name" => $file->getName()));?></p>
-	<input type="Submit" value="<?php printMLText("rm_file");?>">
-</form>
-<?php
-UI::contentContainerEnd();
-UI::htmlEndPage();
 ?>

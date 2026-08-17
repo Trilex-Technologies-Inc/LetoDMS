@@ -24,74 +24,20 @@ include("../inc/inc.Calendar.php");
 include("../inc/inc.Authentication.php");
 
 if (!isset($_GET["id"])){
-	UI::exitError(getMLText("event_details"),getMLText("error_occured"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("event_details"),getMLText("error_occured"));
 }
 
-$event=getEvent($_GET["id"]);
-
+$event=getEvent(intval($_GET["id"]));
 if (is_bool($event)&&!$event){
-	UI::exitError(getMLText("event_details"),getMLText("error_occured"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("event_details"),getMLText("error_occured"));
 }
 
-UI::htmlStartPage(getMLText("calendar"));
-UI::globalNavigation();
-UI::pageNavigation(getMLText("calendar"), "calendar");
-
-UI::contentHeading(getMLText("event_details"));
-UI::contentContainerStart();
-
-$u=$dms->getUser($event["userID"]);
-
-echo "<table>";
-
-echo "<tr>";
-echo "<td>".getMLText("name").": </td>";
-echo "<td>".$event["name"]."</td>";
-echo "</tr>";
-
-echo "<tr>";
-echo "<td>".getMLText("comment").": </td>";
-echo "<td>".$event["comment"]."</td>";
-echo "</tr>";
-
-echo "<tr>";
-echo "<td>".getMLText("from").": </td>";
-echo "<td>".getReadableDate($event["start"])."</td>";
-echo "</tr>";
-
-echo "<tr>";
-echo "<td>".getMLText("to").": </td>";
-echo "<td>".getReadableDate($event["stop"])."</td>";
-echo "</tr>";
-
-echo "<tr>";
-echo "<td>".getMLText("last_update").": </td>";
-echo "<td>".getLongReadableDate($event["date"])."</td>";
-echo "</tr>";
-
-echo "<tr>";
-echo "<td>".getMLText("user").": </td>";
-echo "<td>".(is_object($u)?$u->getFullName():getMLText("unknown_user"))."</td>";
-echo "</tr>";
-
-echo "</table>";
-
-UI::contentContainerEnd();
-
-if (($user->getID()==$event["userID"])||($user->isAdmin())){
-
-	UI::contentHeading(getMLText("edit"));
-	UI::contentContainerStart();
-
-	print "<ul class=\"actions\">";
-	print "<li><a href=\"../out/out.RemoveEvent.php?id=".$event["id"]."\">".getMLText("delete")."</a>";
-	print "<li><a href=\"../out/out.EditEvent.php?id=".$event["id"]."\">".getMLText("edit")."</a>";
-	print "</ul>";
-	
-	UI::contentContainerEnd();
+$tmp = explode('.', basename($_SERVER['SCRIPT_FILENAME']));
+$view = (new UI($GLOBALS['theme'] ?? 'bootstrap'))->factory($theme, $tmp[1], array('dms'=>$dms, 'user'=>$user, 'event'=>$event));
+if($view) {
+	$view->show();
+	exit;
 }
 
 
-
-UI::htmlEndPage();
 ?>

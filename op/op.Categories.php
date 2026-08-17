@@ -25,21 +25,30 @@ include("../inc/inc.ClassEmail.php");
 include("../inc/inc.Authentication.php");
 
 if (!$user->isAdmin()) {
-	UI::exitError(getMLText("admin_tools"),getMLText("access_denied"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("access_denied"));
 }
 
-$action = $_GET["action"];
+if (isset($_POST["action"])) $action=$_POST["action"];
+else $action=NULL;
 
 //Neue Kategorie anlegen -----------------------------------------------------------------------------
 if ($action == "addcategory") {
-	
-	$name = sanitizeString($_GET["name"]);
+
+	/* Check if the form data comes for a trusted request */
+	if(!checkFormKey('addcategory')) {
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("invalid_request_token"));
+	}
+
+	$name = trim($_POST["name"]);
+	if($name == '') {
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("category_noname"));
+	}
 	if (is_object($dms->getDocumentCategoryByName($name))) {
-		UI::exitError(getMLText("admin_tools"),getMLText("category_exists"));
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("category_exists"));
 	}
 	$newCategory = $dms->addDocumentCategory($name);
 	if (!$newCategory) {
-		UI::exitError(getMLText("admin_tools"),getMLText("error_occured"));
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("error_occured"));
 	}
 	$categoryid=$newCategory->getID();
 }
@@ -47,17 +56,22 @@ if ($action == "addcategory") {
 //Kategorie löschen ----------------------------------------------------------------------------------
 else if ($action == "removecategory") {
 
-	if (!isset($_GET["categoryid"]) || !is_numeric($_GET["categoryid"]) || intval($_GET["categoryid"])<1) {
-		UI::exitError(getMLText("admin_tools"),getMLText("unknown_document_category"));
+	/* Check if the form data comes for a trusted request */
+	if(!checkFormKey('removecategory')) {
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("invalid_request_token"));
 	}
-	$categoryid = $_GET["categoryid"];
+
+	if (!isset($_POST["categoryid"]) || !is_numeric($_POST["categoryid"]) || intval($_POST["categoryid"])<1) {
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("unknown_document_category"));
+	}
+	$categoryid = $_POST["categoryid"];
 	$category = $dms->getDocumentCategory($categoryid);
 	if (!is_object($category)) {
-		UI::exitError(getMLText("admin_tools"),getMLText("unknown_document_category"));
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("unknown_document_category"));
 	}
 
 	if (!$category->remove()) {
-		UI::exitError(getMLText("admin_tools"),getMLText("error_occured"));
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("error_occured"));
 	}
 	$categoryid=-1;
 }
@@ -65,23 +79,28 @@ else if ($action == "removecategory") {
 //Kategorie bearbeiten: Neuer Name --------------------------------------------------------------------
 else if ($action == "editcategory") {
 
-	if (!isset($_GET["categoryid"]) || !is_numeric($_GET["categoryid"]) || intval($_GET["categoryid"])<1) {
-		UI::exitError(getMLText("admin_tools"),getMLText("unknown_document_category"));
-	}
-	$categoryid = $_GET["categoryid"];
-	$category = $dms->getDocumentCategory($categoryid);
-	if (!is_object($category)) {
-		UI::exitError(getMLText("admin_tools"),getMLText("unknown_document_category"));
+	/* Check if the form data comes for a trusted request */
+	if(!checkFormKey('editcategory')) {
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("invalid_request_token"));
 	}
 
-	$name = sanitizeString($_GET["name"]);
+	if (!isset($_POST["categoryid"]) || !is_numeric($_POST["categoryid"]) || intval($_POST["categoryid"])<1) {
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("unknown_document_category"));
+	}
+	$categoryid = $_POST["categoryid"];
+	$category = $dms->getDocumentCategory($categoryid);
+	if (!is_object($category)) {
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("unknown_document_category"));
+	}
+
+	$name = $_POST["name"];
 	if (!$category->setName($name)) {
-		UI::exitError(getMLText("admin_tools"),getMLText("error_occured"));
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("error_occured"));
 	}
 }
 
 else {
-	UI::exitError(getMLText("admin_tools"),getMLText("unknown_command"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("unknown_command"));
 }
 
 header("Location:../out/out.Categories.php?categoryid=".$categoryid);

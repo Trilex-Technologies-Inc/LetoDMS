@@ -26,16 +26,16 @@ include("../inc/inc.ClassUI.php");
 include("../inc/inc.Authentication.php");
 
 if (!$user->isAdmin()) {
-	UI::exitError(getMLText("admin_tools"),getMLText("access_denied"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("access_denied"));
 }
 
 $v = new LetoDMS_Version;
 
-UI::htmlStartPage($v->banner());
-UI::globalNavigation();
-UI::pageNavigation($v->banner());
-UI::contentContainerStart();
-phpinfo();
-UI::contentContainerEnd();
-UI::htmlEndPage();
+$tmp = explode('.', basename($_SERVER['SCRIPT_FILENAME']));
+$view = (new UI($GLOBALS['theme'] ?? 'bootstrap'))->factory($theme, $tmp[1], array('dms'=>$dms, 'user'=>$user, 'version'=>$v));
+if($view) {
+	$view->show();
+	exit;
+}
+
 ?>

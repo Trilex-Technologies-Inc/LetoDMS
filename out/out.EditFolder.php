@@ -25,82 +25,25 @@ include("../inc/inc.ClassUI.php");
 include("../inc/inc.Authentication.php");
 
 if (!isset($_GET["folderid"]) || !is_numeric($_GET["folderid"]) || intval($_GET["folderid"])<1) {
-	UI::exitError(getMLText("folder_title", array("foldername" => getMLText("invalid_folder_id"))),getMLText("invalid_folder_id"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("folder_title", array("foldername" => getMLText("invalid_folder_id"))),getMLText("invalid_folder_id"));
 }
 
-$folderid = $_GET["folderid"];
-$folder = $dms->getFolder($folderid);
-
+$folder = $dms->getFolder($_GET["folderid"]);
 if (!is_object($folder)) {
-	UI::exitError(getMLText("folder_title", array("foldername" => getMLText("invalid_folder_id"))),getMLText("invalid_folder_id"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("folder_title", array("foldername" => getMLText("invalid_folder_id"))),getMLText("invalid_folder_id"));
 }
-
-$folderPathHTML = getFolderPathHTML($folder, true);
 
 if ($folder->getAccessMode($user) < M_READWRITE) {
-	UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("access_denied"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("folder_title", array("foldername" => htmlspecialchars($folder->getName()))),getMLText("access_denied"));
 }
 
-UI::htmlStartPage(getMLText("folder_title", array("foldername" => $folder->getName())));
-UI::globalNavigation($folder);
-UI::pageNavigation($folderPathHTML, "view_folder", $folder);
+$attrdefs = $dms->getAllAttributeDefinitions(array(LetoDMS_Core_AttributeDefinition::objtype_folder, LetoDMS_Core_AttributeDefinition::objtype_all));
 
-?>
-
-<script language="JavaScript">
-function checkForm()
-{
-	msg = "";
-	if (document.form1.name.value == "") msg += "<?php printMLText("js_no_name");?>\n";
-<?php
-	if (isset($settings->_strictFormCheck) && $settings->_strictFormCheck) {
-	?>
-	if (document.form1.comment.value == "") msg += "<?php printMLText("js_no_comment");?>\n";
-<?php
-	}
-?>
-	if (msg != "")
-	{
-		alert(msg);
-		return false;
-	}
-	else
-		return true;
+$tmp = explode('.', basename($_SERVER['SCRIPT_FILENAME']));
+$view = (new UI($GLOBALS['theme'] ?? 'bootstrap'))->factory($theme, $tmp[1], array('dms'=>$dms, 'user'=>$user, 'folder'=>$folder, 'attrdefs'=>$attrdefs, 'strictformcheck'=>$settings->_strictFormCheck, 'rootfolderid'=>$settings->_rootFolderID));
+if($view) {
+	$view->show();
+	exit;
 }
-</script>
 
-<?php
-UI::contentHeading(getMLText("edit_folder_props"));
-UI::contentContainerStart();
-?>
-<form action="../op/op.EditFolder.php" name="form1" onsubmit="return checkForm();" method="POST">
-<input type="Hidden" name="folderid" value="<?php print $folderid;?>">
-<input type="Hidden" name="showtree" value="<?php echo showtree();?>">
-<table>
-<tr>
-<td><?php printMLText("name");?>:</td>
-<td><input name="name" value="<?php print $folder->getName();?>" size="60"></td>
-</tr>
-<tr>
-<td><?php printMLText("comment");?>:</td>
-<td><textarea name="comment" rows="4" cols="80"><?php print $folder->getComment();?></textarea></td>
-</tr>
-<?php
-$parent = ($folder->getID() == $settings->_rootFolderID) ? false : $folder->getParent();
-if ($parent && $parent->getAccessMode($user) > M_READ) {
-	print "<tr>";
-	print "<td>" . getMLText("sequence") . ":</td>";
-	print "<td>";
-	UI::printSequenceChooser($parent->getSubFolders(), $folder->getID());
-	print "</td></tr>\n";
-}
-?>
-<tr>
-<td colspan="2"><input type="Submit" value="<?php printMLText("save"); ?>"></td>
-</tr>
-</table>
-</form>
-<?php
-UI::contentContainerEnd();
-UI::htmlEndPage();
 ?>

@@ -1,7 +1,8 @@
 <?php
 //    MyDMS. Document Management System
-//    Copyright (C) 2002-2005  Markus Westphal
+//    Copyright (C) 2002-2005 Markus Westphal
 //    Copyright (C) 2006-2008 Malcolm Cowe
+//    Copyright (C) 2010-2013 Uwe Steinmann
 //
 //    This program is free software; you can redistribute it and/or modify
 //    it under the terms of the GNU General Public License as published by
@@ -19,10 +20,10 @@
 
 class LetoDMS_Version {
 
-	var $_number = "3.1.0-RC1";
+	var $_number = "5.0α";
 	var $_string = "LetoDMS";
 
-	function LetoDMS_Version() {
+	function __construct() {
 		return;
 	}
 

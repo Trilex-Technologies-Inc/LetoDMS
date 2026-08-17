@@ -23,37 +23,14 @@ include("../inc/inc.ClassUI.php");
 include("../inc/inc.Authentication.php");
 
 if (!$user->isAdmin()) {
-	UI::exitError(getMLText("admin_tools"),getMLText("access_denied"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("access_denied"));
 }
 
-UI::htmlStartPage(getMLText("admin_tools"));
-UI::globalNavigation();
-UI::pageNavigation(getMLText("admin_tools"), "admin_tools");
-UI::contentContainerStart();
-?>
-	<ul>
-		<li class="first"><a href="../out/out.Statistic.php"><?php echo getMLText("folders_and_documents_statistic")?></a></li>
-		<li><a href="../out/out.BackupTools.php"><?php echo getMLText("backup_tools")?></a></li>
-<?php		
-		if ($settings->_logFileEnable) echo "<li><a href=\"../out/out.LogManagement.php\">".getMLText("log_management")."</a></li>";
-?>
-		<li><a href="../out/out.UsrMgr.php"><?php echo getMLText("user_management")?></a></li>
-		<li><a href="../out/out.GroupMgr.php"><?php echo getMLText("group_management")?></a></li>
-		<li><a href="../out/out.DefaultKeywords.php"><?php echo getMLText("global_default_keywords")?></a></li>
-		<li><a href="../out/out.Categories.php"><?php echo getMLText("global_document_categories")?></a></li>
-		<li><a href="../out/out.Info.php"><?php echo getMLText("version_info")?></a></li>
-<?php
-if($settings->_enableFullSearch) {
-?>
-		<li><a href="../out/out.Indexer.php"><?php echo getMLText("update_fulltext_index")?></a></li>
-		<li><a href="../out/out.Indexer.php?create=1"><?php echo getMLText("create_fulltext_index")?></a></li>
-		<li><a href="../out/out.IndexInfo.php"><?php echo getMLText("fulltext_info")?></a></li>
-<?php
+$tmp = explode('.', basename($_SERVER['SCRIPT_FILENAME']));
+$view = (new UI($GLOBALS['theme'] ?? 'bootstrap'))->factory($theme, $tmp[1], array('dms'=>$dms, 'user'=>$user, false, 'logfileenable'=>$settings->_logFileEnable));
+if($view) {
+	$view->show();
+	exit;
 }
-?>
-	<li><a href="../out/out.Settings.php"><?php echo getMLText("settings")?></a></li>
-	</ul>
-<?php
-UI::contentContainerEnd();
-UI::htmlEndPage();
+
 ?>

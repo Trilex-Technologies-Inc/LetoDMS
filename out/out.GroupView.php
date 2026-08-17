@@ -23,53 +23,28 @@ include("../inc/inc.ClassUI.php");
 include("../inc/inc.Authentication.php");
 
 if ($user->isGuest()) {
-	UI::exitError(getMLText("my_account"),getMLText("access_denied"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("my_account"),getMLText("access_denied"));
 }
 
 if (!$settings->_enableUsersView) {
-	UI::exitError(getMLText("my_account"),getMLText("access_denied"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("my_account"),getMLText("access_denied"));
 }
 
 $allUsers = $dms->getAllUsers();
-
 if (is_bool($allUsers)) {
-	UI::exitError(getMLText("my_account"),getMLText("internal_error"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("my_account"),getMLText("internal_error"));
 }
 
-$groups = $dms->getAllGroups();
-
-if (is_bool($groups)) {
-	UI::exitError(getMLText("admin_tools"),getMLText("internal_error"));
+$allGroups = $dms->getAllGroups();
+if (is_bool($allGroups)) {
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("internal_error"));
 }
 
-UI::htmlStartPage(getMLText("my_account"));
-UI::globalNavigation();
-UI::pageNavigation(getMLText("my_account"), "my_account");
-
-UI::contentHeading(getMLText("groups"));
-UI::contentContainerStart();
-
-echo "<ul class=\"groupView\">\n";
-
-foreach ($groups as $group){
-
-	echo "<li>".$group->getName()." : ".$group->getComment()."</li>";
-	
-	$members = $group->getUsers();
-	
-	echo "<ul>\n";
-	
-	foreach ($members as $member) {
-	
-		echo "<li>".$member->getFullName();
-		if ($member->getEmail()!="")
-			echo " (<a href=\"mailto:".$member->getEmail()."\">".$member->getEmail()."</a>)</li>";
-		else echo "</li>";
-	}
-	echo "</ul>\n";
+$tmp = explode('.', basename($_SERVER['SCRIPT_FILENAME']));
+$view = (new UI($GLOBALS['theme'] ?? 'bootstrap'))->factory($theme, $tmp[1], array('dms'=>$dms, 'user'=>$user, 'allusers'=>$allUsers, 'allgroups'=>$allGroups));
+if($view) {
+	$view->show();
+	exit;
 }
-echo "</ul>\n";
 
-UI::contentContainerEnd();
-UI::htmlEndPage();
 ?>

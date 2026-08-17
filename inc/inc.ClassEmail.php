@@ -31,7 +31,7 @@ require_once("inc.ClassNotify.php");
  */
 class LetoDMS_Email extends LetoDMS_Notify {
 
-	function toIndividual($sender, $recipient, $subject, $message) {
+	function toIndividual($sender, $recipient, $subject, $message) { /* {{{ */
 	
 		global $settings;
 		if ($settings->_enableEmail==FALSE) return 0;
@@ -50,9 +50,9 @@ class LetoDMS_Email extends LetoDMS_Notify {
 		$message .= "\r\n\r\n".getMLText("email_footer");
 
 		return (mail($recipient->getEmail(), $this->replaceMarker($subject), $this->replaceMarker($message), $header) ? 0 : -1);
-	}
+	} /* }}} */
 
-	function toGroup($sender, $groupRecipient, $subject, $message) {
+	function toGroup($sender, $groupRecipient, $subject, $message) { /* {{{ */
 	
 		global $settings;
 		if (!$settings->_enableEmail) return 0;
@@ -80,9 +80,9 @@ class LetoDMS_Email extends LetoDMS_Notify {
 		$message .= "\r\n\r\n".getMLText("email_footer");
 
 		return (mail($toList, parent::replaceMarker($subject), parent::replaceMarker($message), $header) ? 0 : -1);
-	}
+	} /* }}} */
 
-	function toList($sender, $recipients, $subject, $message) {
+	function toList($sender, $recipients, $subject, $message) { /* {{{ */
 	
 		global $settings;
 		if (!$settings->_enableEmail) return 0;
@@ -112,6 +112,15 @@ class LetoDMS_Email extends LetoDMS_Notify {
 		$message .= "\r\n\r\n".getMLText("email_footer");
 
 		return (mail($toList, $this->replaceMarker($subject), $this->replaceMarker($message), $header) ? 0 : -1);
+	} /* }}} */
+
+	function sendPassword($sender, $recipient, $subject, $message) {
+		global $settings;
+
+		$header = "From: " . $settings->_smtpSendFrom . "\r\n" .
+"Reply-To: " . $settings->_smtpSendFrom . "\r\n";
+
+		return (mail($recipient->getEmail(), $this->replaceMarker($subject), $this->replaceMarker($message), $header) ? 0 : -1);
 	}
 }
 ?>

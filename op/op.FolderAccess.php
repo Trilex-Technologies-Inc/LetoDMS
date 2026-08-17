@@ -27,20 +27,26 @@ include("../inc/inc.ClassEmail.php");
 include("../inc/inc.Authentication.php");
 
 if (!isset($_GET["folderid"]) || !is_numeric($_GET["folderid"]) || intval($_GET["folderid"])<1) {
-	UI::exitError(getMLText("folder_title", array("foldername" => getMLText("invalid_folder_id"))),getMLText("invalid_folder_id"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("folder_title", array("foldername" => getMLText("invalid_folder_id"))),getMLText("invalid_folder_id"));
 }
 
 $folderid = $_GET["folderid"];
 $folder = $dms->getFolder($folderid);
 
 if (!is_object($folder)) {
-	UI::exitError(getMLText("folder_title", array("foldername" => getMLText("invalid_folder_id"))),getMLText("invalid_folder_id"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("folder_title", array("foldername" => getMLText("invalid_folder_id"))),getMLText("invalid_folder_id"));
 }
 
 $folderPathHTML = getFolderPathHTML($folder, true);
 
 if ($folder->getAccessMode($user) < M_ALL) {
-	UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("access_denied"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("access_denied"));
+}
+
+/* Check if the form data comes for a trusted request */
+/* FIXME: Currently GET request are allowed. */
+if(!checkFormKey('folderaccess', 'GET')) {
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("invalid_request_token"));
 }
 
 switch ($_GET["action"]) {
@@ -54,32 +60,32 @@ switch ($_GET["action"]) {
 	case "addaccess":
 		$action = $_GET["action"];
 		if (!isset($_GET["mode"]) || !is_numeric($_GET["mode"]) || $_GET["mode"]<M_ANY || $_GET["mode"]>M_ALL) {
-			UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("invalid_access_mode"));
+			(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("invalid_access_mode"));
 		}
 		$mode = $_GET["mode"];
 		break;
 	case "notinherit":
 		$action = $_GET["action"];
 		if (strcasecmp($_GET["mode"], "copy") && strcasecmp($_GET["mode"], "empty")) {
-			UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("invalid_access_mode"));
+			(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("invalid_access_mode"));
 		}
 		$mode = $_GET["mode"];
 		break;
 	default:
-		UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("invalid_action"));
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("invalid_action"));
 		break;
 }
 
 if (isset($_GET["userid"])) {
 	if (!is_numeric($_GET["userid"])) {
-		UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("unknown_user"));
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("unknown_user"));
 	}
 	if (!strcasecmp($action, "addaccess") && $_GET["userid"]==-1) {
 		$userid = -1;
 	}
 	else {
 		if (!is_object($dms->getUser($_GET["userid"]))) {
-			UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("unknown_user"));
+			(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("unknown_user"));
 		}
 		$userid = $_GET["userid"];
 	}
@@ -87,14 +93,14 @@ if (isset($_GET["userid"])) {
 
 if (isset($_GET["groupid"])) {
 	if (!is_numeric($_GET["groupid"])) {
-		UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("unknown_group"));
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("unknown_group"));
 	}
 	if (!strcasecmp($action, "addaccess") && $_GET["groupid"]==-1) {
 		$groupid = -1;
 	}
 	else {
 		if (!is_object($dms->getGroup($_GET["groupid"]))) {
-			UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("unknown_group"));
+			(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("unknown_group"));
 		}
 		$groupid = $_GET["groupid"];
 	}
@@ -104,40 +110,40 @@ if (isset($_GET["groupid"])) {
 if ($action == "setowner") {
 
 	if (!$user->isAdmin()) {
-		UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("access_denied"));
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("access_denied"));
 	}
 	if (!isset($_GET["ownerid"]) || !is_numeric($_GET["ownerid"]) || $_GET["ownerid"]<1) {
-		UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("unknown_user"));
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("unknown_user"));
 	}
 	$newOwner = $dms->getUser($_GET["ownerid"]);
 	if (!is_object($newOwner)) {
-		UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("unknown_user"));
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("unknown_user"));
 	}
 	$oldOwner = $folder->getOwner();
 	if($folder->setOwner($newOwner)) {
 		if($notifier) {
 			// Send notification to subscribers.
 			$folder->getNotifyList();
-			$subject = "###SITENAME###: ".$folder->_name." - ".getMLText("ownership_changed_email");
+			$subject = "###SITENAME###: ".$folder->getName()." - ".getMLText("ownership_changed_email");
 			$message = getMLText("ownership_changed_email")."\r\n";
-			$message .= 
-				getMLText("name").": ".$folder->_name."\r\n".
+			$message .=
+				getMLText("name").": ".$folder->getName()."\r\n".
 				getMLText("old").": ".$oldOwner->getFullName()."\r\n".
 				getMLText("new").": ".$newOwner->getFullName()."\r\n".
 				getMLText("folder").": ".$folder->getFolderPathPlain()."\r\n".
-				getMLText("comment").": ".$folder->_comment."\r\n".
-				"URL: ###URL_PREFIX###out/out.ViewFolder.php?folderid=".$folder->_id."\r\n";
+				getMLText("comment").": ".$folder->getComment()."\r\n".
+				"URL: ###URL_PREFIX###out/out.ViewFolder.php?folderid=".$folder->getID()."\r\n";
 
-			$subject=mydmsDecodeString($subject);
-			$message=mydmsDecodeString($message);
-			
+//			$subject=mydmsDecodeString($subject);
+//			$message=mydmsDecodeString($message);
+
 			$notifier->toList($user, $folder->_notifyList["users"], $subject, $message);
 			foreach ($folder->_notifyList["groups"] as $grp) {
 				$notifier->toGroup($user, $grp, $subject, $message);
 			}
 		}
 	} else {
-		UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("set_owner_error"));
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("set_owner_error"));
 	}
 }
 
@@ -149,16 +155,16 @@ else if ($action == "notinherit") {
 		if($notifier) {
 			// Send notification to subscribers.
 			$folder->getNotifyList();
-			$subject = "###SITENAME###: ".$folder->_name." - ".getMLText("access_permission_changed_email");
+			$subject = "###SITENAME###: ".$folder->getName()." - ".getMLText("access_permission_changed_email");
 			$message = getMLText("access_permission_changed_email")."\r\n";
-			$message .= 
-				getMLText("name").": ".$folder->_name."\r\n".
+			$message .=
+				getMLText("name").": ".$folder->getName()."\r\n".
 				getMLText("folder").": ".$folder->getFolderPathPlain()."\r\n".
-				"URL: ###URL_PREFIX###out/out.ViewFolder.php?folderid=".$folder->_id."\r\n";
+				"URL: ###URL_PREFIX###out/out.ViewFolder.php?folderid=".$folder->getID()."\r\n";
 
-			$subject=mydmsDecodeString($subject);
-			$message=mydmsDecodeString($message);
-			
+//			$subject=mydmsDecodeString($subject);
+//			$message=mydmsDecodeString($message);
+
 			$notifier->toList($user, $folder->_notifyList["users"], $subject, $message);
 			foreach ($folder->_notifyList["groups"] as $grp) {
 				$notifier->toGroup($user, $grp, $subject, $message);
@@ -169,16 +175,16 @@ else if ($action == "notinherit") {
 		if($notifier) {
 			// Send notification to subscribers.
 			$folder->getNotifyList();
-			$subject = "###SITENAME###: ".$folder->_name." - ".getMLText("access_permission_changed_email");
+			$subject = "###SITENAME###: ".$folder->getName()." - ".getMLText("access_permission_changed_email");
 			$message = getMLText("access_permission_changed_email")."\r\n";
-			$message .= 
-				getMLText("name").": ".$folder->_name."\r\n".
+			$message .=
+				getMLText("name").": ".$folder->getName()."\r\n".
 				getMLText("folder").": ".$folder->getFolderPathPlain()."\r\n".
-				"URL: ###URL_PREFIX###out/out.ViewFolder.php?folderid=".$folder->_id."\r\n";
+				"URL: ###URL_PREFIX###out/out.ViewFolder.php?folderid=".$folder->getID()."\r\n";
 
-			$subject=mydmsDecodeString($subject);
-			$message=mydmsDecodeString($message);
-			
+//			$subject=mydmsDecodeString($subject);
+//			$message=mydmsDecodeString($message);
+
 			$notifier->toList($user, $folder->_notifyList["users"], $subject, $message);
 			foreach ($folder->_notifyList["groups"] as $grp) {
 				$notifier->toGroup($user, $grp, $subject, $message);
@@ -205,16 +211,16 @@ else if ($action == "inherit") {
 		if($notifier) {
 			// Send notification to subscribers.
 			$folder->getNotifyList();
-			$subject = "###SITENAME###: ".$folder->_name." - ".getMLText("access_permission_changed_email");
+			$subject = "###SITENAME###: ".$folder->getName()." - ".getMLText("access_permission_changed_email");
 			$message = getMLText("access_permission_changed_email")."\r\n";
-			$message .= 
-				getMLText("name").": ".$folder->_name."\r\n".
+			$message .=
+				getMLText("name").": ".$folder->getName()."\r\n".
 				getMLText("folder").": ".$folder->getFolderPathPlain()."\r\n".
-				"URL: ###URL_PREFIX###out/out.ViewFolder.php?folderid=".$folder->_id."\r\n";
+				"URL: ###URL_PREFIX###out/out.ViewFolder.php?folderid=".$folder->getID()."\r\n";
 
-			$subject=mydmsDecodeString($subject);
-			$message=mydmsDecodeString($message);
-			
+//			$subject=mydmsDecodeString($subject);
+//			$message=mydmsDecodeString($message);
+
 			$notifier->toList($user, $folder->_notifyList["users"], $subject, $message);
 			foreach ($folder->_notifyList["groups"] as $grp) {
 				$notifier->toGroup($user, $grp, $subject, $message);
@@ -229,16 +235,16 @@ else if ($action == "setdefault") {
 		if($notifier) {
 			// Send notification to subscribers.
 			$folder->getNotifyList();
-			$subject = "###SITENAME###: ".$folder->_name." - ".getMLText("access_permission_changed_email");
+			$subject = "###SITENAME###: ".$folder->getName()." - ".getMLText("access_permission_changed_email");
 			$message = getMLText("access_permission_changed_email")."\r\n";
-			$message .= 
-				getMLText("name").": ".$folder->_name."\r\n".
+			$message .=
+				getMLText("name").": ".$folder->getName()."\r\n".
 				getMLText("folder").": ".$folder->getFolderPathPlain()."\r\n".
-				"URL: ###URL_PREFIX###out/out.ViewFolder.php?folderid=".$folder->_id."\r\n";
+				"URL: ###URL_PREFIX###out/out.ViewFolder.php?folderid=".$folder->getID()."\r\n";
 
-			$subject=mydmsDecodeString($subject);
-			$message=mydmsDecodeString($message);
-			
+//			$subject=mydmsDecodeString($subject);
+//			$message=mydmsDecodeString($message);
+
 			$notifier->toList($user, $folder->_notifyList["users"], $subject, $message);
 			foreach ($folder->_notifyList["groups"] as $grp) {
 				$notifier->toGroup($user, $grp, $subject, $message);

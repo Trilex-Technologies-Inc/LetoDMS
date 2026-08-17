@@ -21,10 +21,13 @@
        - enableEmail: enable/disable automatic email notification
        - enableUsersView: enable/disable group and user view for all users
        - enableFullSearch: false to don't use fulltext search
+       - enableLanguageSelector: false to don't show the language selector after login
        - enableFolderTree: false to don't show the folder tree
        - expandFolderTree: 0 to start with tree hidden
        -                   1 to start with tree shown and first level expanded
        -                   2 to start with tree shown fully expanded     
+       - stopWordsFile: path to stop word file for indexer
+       - sortUsersInList: how to sort users in lists ('fullname' or '' (default))
     -->   
     <edition
       strictFormCheck = "false"
@@ -35,7 +38,9 @@
       enableFullSearch = "true"
       enableFolderTree = "true"
       expandFolderTree = "1"
-  
+      enableLanguageSelector = "true"
+      stopWordsFile = ""
+      sortUsersInList = ""
     >
     </edition> 
     <!-- enableCalendar: enable/disable calendar
@@ -58,10 +63,14 @@
 	     -           If the URL is http://www.example.com/, set $_httpRoot = "/".
        - contentDir: Where the uploaded files are stored (best to choose a directory that
        -             is not accessible through your web-server)
-			 - stagingDir: Where partial file uploads are saved
-			 - luceneDir: Where the lucene fulltext index iѕ saved
+       - stagingDir: Where partial file uploads are saved
+       - luceneDir: Where the lucene fulltext index iѕ saved
        - logFileEnable: set false to disable log system
        - logFileRotation: the log file rotation (h=hourly, d=daily, m=monthly)
+       - enableLargeFileUpload: support for dropzone
+       - partitionsize: size of chunk uploaded by dropzone
+       - dropFolderDir: where files for document upload are located
+       - cacheDir: where the preview images are saved
     -->
     <server
       rootDir = ""
@@ -71,18 +80,23 @@
       luceneDir = ""
       logFileEnable = "true"
       logFileRotation = "d"
+      enableLargeFileUpload = "true"
       partitionSize = "2000000"
+      dropFolderDir = ""
+      cacheDir = ""
     >
     </server>
     
     <!-- enableGuestLogin: If you want anybody to login as guest, set the following line to true
        -                   note: guest login should be used only in a trusted environment
+			 - enablePasswordForgotten: Allow users to reset their password
        - restricted: Restricted access: only allow users to log in if they have an entry in the local database (irrespective of successful authentication with LDAP).
        - enableUserImage: enable users images
        - disableSelfEdit: if true user cannot edit his own profile
     -->    
     <authentication
       enableGuestLogin = "false"
+      enablePasswordForgotten = "false"
       restricted = "true"
       enableUserImage = "false"
       disableSelfEdit = "false"
@@ -174,10 +188,18 @@
     </authentication>
     <!-- enableAdminRevApp: false to don't list administrator as reviewer/approver
        - versioningFileName: the name of the versioning info file created by the backup tool
+       - workflowMode: 'traditional' or 'advanced'
+       - enableVersionDeletion: allow to delete versions after approval
+       - enableVersionModification: allow to modify versions after approval
+       - enableDuplicateDocNames: allow duplicate names in a folder
     --> 
     <edition
       enableAdminRevApp = "false"
       versioningFileName = "versioning_info.txt"
+      workflowMode = "advanced"
+      enableVersionDeletion = "true"
+      enableVersionModification = "true"
+      enableDuplicateDocNames = "true"
     >
     </edition>
     <!-- coreDir: Path to LetoDMS_Core (optional)
@@ -194,7 +216,7 @@
       coreDir = ""
       luceneClassDir = ""
       contentOffsetDir = "1048576"
-      maxDirID = "32700"
+      maxDirID = "0"
       updateNotifyTime = "86400"
     >
     </server>
@@ -202,6 +224,3 @@
   </advanced>
 
 </configuration>
-
-
-

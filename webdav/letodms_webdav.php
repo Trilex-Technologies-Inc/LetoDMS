@@ -1,7 +1,10 @@
 <?php
 
 require_once "HTTP/WebDAV/Server.php";
-require_once "LetoDMS/Core.php";
+if(!empty($settings->_coreDir))
+	require_once($settings->_coreDir.'/Core.php');
+else
+	require_once('LetoDMS/Core.php');
 
 /**
  * LetoDMS access using WebDAV
@@ -111,7 +114,7 @@ class HTTP_WebDAV_Server_LetoDMS extends HTTP_WebDAV_Server
 	function check_auth($type, $user, $pass) /* {{{ */
 	{
 		if($this->logger)
-			$this->logger->log('check_auth: user='.$user.'', PEAR_LOG_INFO);
+			$this->logger->log('check_auth: type='.$type.', user='.$user.'', PEAR_LOG_INFO);
 		$userobj = $this->dms->getUserByLogin($user);
 		if(!$userobj)
 			return false;
@@ -133,6 +136,7 @@ class HTTP_WebDAV_Server_LetoDMS extends HTTP_WebDAV_Server
 	 */
 	function reverseLookup($path) /* {{{ */
 	{
+		$path = rawurldecode($path);
 		if($this->logger)
 			$this->logger->log('reverseLookup: path='.$path.'', PEAR_LOG_DEBUG);
 
@@ -226,6 +230,7 @@ class HTTP_WebDAV_Server_LetoDMS extends HTTP_WebDAV_Server
 		if (get_class($obj) == 'LetoDMS_Core_Folder' && !empty($options["depth"])) {
 
 			$subfolders = $obj->getSubFolders();
+			$subfolders = LetoDMS_Core_DMS::filterAccess($subfolders, $this->user, M_READ);
 			if ($subfolders) {
 				// ok, now get all its contents
 				foreach($subfolders as $subfolder) {
@@ -234,6 +239,7 @@ class HTTP_WebDAV_Server_LetoDMS extends HTTP_WebDAV_Server
 				// TODO recursion needed if "Depth: infinite"
 			}
 			$documents = $obj->getDocuments();
+			$documents = LetoDMS_Core_DMS::filterAccess($documents, $this->user, M_READ);
 			if ($documents) {
 				// ok, now get all its contents
 				foreach($documents as $document) {
@@ -271,12 +277,14 @@ class HTTP_WebDAV_Server_LetoDMS extends HTTP_WebDAV_Server
 			array_shift($patharr);
 			$path = '';
 			foreach($patharr as $pathseg)
-				$path .= '/'.rawurlencode($pathseg->getName());
+//				$path .= '/'.rawurlencode($pathseg->getName());
+				$path .= '/'.$pathseg->getName();
 			if(!$path) {
 				$path = '/';
 				$info["props"][] = $this->mkprop("isroot", "true");
 			}
-			$info["path"] = htmlspecialchars($path);
+//			$info["path"] = htmlspecialchars($path);
+			$info["path"] = $path;
 			$info["props"][] = $this->mkprop("displayname", $obj->getName());
 			$info["props"][] = $this->mkprop("resourcetype", "collection");
 			$info["props"][] = $this->mkprop("getcontenttype", "httpd/unix-directory");
@@ -290,8 +298,10 @@ class HTTP_WebDAV_Server_LetoDMS extends HTTP_WebDAV_Server
 			array_shift($patharr);
 			$path = '/';
 			foreach($patharr as $pathseg)
-				$path .= rawurlencode($pathseg->getName()).'/';
-			$info["path"] = htmlspecialchars($path.rawurlencode($obj->getName()));
+//				$path .= rawurlencode($pathseg->getName()).'/';
+				$path .= $pathseg->getName().'/';
+//			$info["path"] = htmlspecialchars($path.rawurlencode($obj->getName()));
+			$info["path"] = $path.$obj->getName();
 			$info["props"][] = $this->mkprop("displayname", $obj->getName());
 
 			$info["props"][] = $this->mkprop("resourcetype", "");
@@ -299,7 +309,7 @@ class HTTP_WebDAV_Server_LetoDMS extends HTTP_WebDAV_Server
 				$info["props"][] = $this->mkprop("getcontenttype", $content->getMimeType());
 			} else {
 				$info["props"][] = $this->mkprop("getcontenttype", "application/x-non-readable");
-			}			   
+			}
 			$info["props"][] = $this->mkprop("getcontentlength", filesize($this->dms->contentDir.'/'.$fspath));
 			if($keywords = $obj->getKeywords())
 				$info["props"][] = $this->mkprop("LetoDMS:", "keywords", $keywords);
@@ -317,8 +327,8 @@ class HTTP_WebDAV_Server_LetoDMS extends HTTP_WebDAV_Server
 
 		// get additional properties from database
 				/*
-		$query = "SELECT ns, name, value 
-						FROM {$this->db_prefix}properties 
+		$query = "SELECT ns, name, value
+						FROM {$this->db_prefix}properties
 					   WHERE path = '$path'";
 		$res = mysql_query($query);
 		while ($row = mysql_fetch_assoc($res)) {
@@ -331,7 +341,7 @@ class HTTP_WebDAV_Server_LetoDMS extends HTTP_WebDAV_Server
 
 	/**
 	 * GET method handler
-	 * 
+	 *
 	 * @param  array  parameter passing array
 	 * @return bool   true on success
 	 */
@@ -353,7 +363,7 @@ class HTTP_WebDAV_Server_LetoDMS extends HTTP_WebDAV_Server
 		$content = $obj->getLatestContent();
 
 		// detect resource type
-		$options['mimetype'] = $content->getMimeType(); 
+		$options['mimetype'] = $content->getMimeType();
 
 		// detect modification time
 		// see rfc2518, section 13.7
@@ -386,7 +396,22 @@ class HTTP_WebDAV_Server_LetoDMS extends HTTP_WebDAV_Server
 		$format = "%15s  %-19s  %-s\n";
 
 		$subfolders = $folder->getSubFolders();
+		$subfolders = LetoDMS_Core_DMS::filterAccess($subfolders, $this->user, M_READ);
 		$documents = $folder->getDocuments();
+		$docs = LetoDMS_Core_DMS::filterAccess($documents, $this->user, M_READ);
+		if(!$this->user->isAdmin()) {
+			$documents = array();
+			foreach($docs as $document) {
+				$lc = $document->getLatestContent();
+				$status = $lc->getStatus();
+				if($status['status'] == S_RELEASED) {
+					$documents[] = $document;
+				}
+			}
+		} else {
+			$documents = $docs;
+		}
+
 		$objs = array_merge($subfolders, $documents);
 
 		echo "<html><head><meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" /><title>Index of ".htmlspecialchars($options['path'])."</title></head>\n";
@@ -397,16 +422,21 @@ class HTTP_WebDAV_Server_LetoDMS extends HTTP_WebDAV_Server
 		printf($format, "Size", "Last modified", "Filename");
 		echo "<hr>";
 
+		$parents = $folder->getPath();
+		$_fullpath = '/';
+		if(count($parents) > 1) {
+			$p = array_slice($parents, -2, 1);
+			$p = $p[0];
+			array_shift($parents);
+			$last = array_pop($parents);
+			foreach($parents as $parent)
+				$_fullpath .= $parent->getName().'/';
+			printf($format, 0, date("Y-m-d H:i:s", $p->getDate()), "<a href=\"".$_SERVER['SCRIPT_NAME'].htmlspecialchars($_fullpath)."\">..</a>");
+			$_fullpath .= $last->getName().'/';
+		}
 		foreach ($objs as $obj) {
 			$filename = $obj->getName();
-			$parents = $folder->getPath();
-			array_shift($parents);
-			$fullpath = '/';
-			if($parents) {
-				foreach($parents as $parent)
-					$fullpath .= $parent->getName().'/';
-			}
-			$fullpath .= $filename;
+			$fullpath = $_fullpath.$filename;
 			if(get_class($obj) == 'LetoDMS_Core_Folder') {
 				$fullpath .= '/';
 				$filename .= '/';
@@ -415,7 +445,7 @@ class HTTP_WebDAV_Server_LetoDMS extends HTTP_WebDAV_Server
 			} else {
 				$content = $obj->getLatestContent();
 
-				$mimetype = $content->getMimeType(); 
+				$mimetype = $content->getMimeType();
 
 				$mtime = $content->getDate();
 
@@ -424,10 +454,10 @@ class HTTP_WebDAV_Server_LetoDMS extends HTTP_WebDAV_Server
 			}
 //			$name	 = htmlspecialchars($filename);
 			$name = $filename;
-			printf($format, 
+			printf($format,
 				   number_format($filesize),
-				   strftime("%Y-%m-%d %H:%M:%S", $mtime), 
-				   "<a href='".$_SERVER['SCRIPT_NAME'].$fullpath."'>$name</a>");
+				   date("Y-m-d H:i:s", $mtime),
+				   "<a href=\"".$_SERVER['SCRIPT_NAME'].htmlspecialchars($fullpath)."\">".htmlspecialchars($name, ENT_QUOTES)."</a>");
 		}
 
 		echo "</pre>";
@@ -439,7 +469,7 @@ class HTTP_WebDAV_Server_LetoDMS extends HTTP_WebDAV_Server
 
 	/**
 	 * PUT method handler
-	 * 
+	 *
 	 * @param  array  parameter passing array
 	 * @return bool   true on success
 	 */
@@ -462,7 +492,7 @@ class HTTP_WebDAV_Server_LetoDMS extends HTTP_WebDAV_Server
 
 		/* Check if user is logged in */
 		if(!$this->user) {
-			return "403 Forbidden";				 
+			return "403 Forbidden";
 		}
 
 		$tmpFile = tempnam('/tmp', 'webdav');
@@ -487,14 +517,29 @@ class HTTP_WebDAV_Server_LetoDMS extends HTTP_WebDAV_Server
 				if($lastDotIndex === false) $fileType = ".";
 				else $fileType = substr($name, $lastDotIndex);
 		}
+		/* First check whether there is already a file with the same name */
 		if($document = $this->dms->getDocumentByName($name, $folder)) {
-			if(!$document->addContent('', $this->user, $tmpFile, $name, $fileType, $mimetype, array(), array(), 0)) {
+			if ($document->getAccessMode($this->user) < M_READWRITE) {
 				unlink($tmpFile);
-				return "409 Conflict";
+				return "403 Forbidden";
+			} else{
+				/* Check if the new version iѕ identical to the current version.
+				 * In that case just update the modification date
+				 */
+				$lc = $document->getLatestContent();
+				if($lc->getChecksum() == (new LetoDMS_Core_File())->checksum($tmpFile)) {
+					$lc->setDate();
+				} elseif(!$document->addContent('', $this->user, $tmpFile, $name, $fileType, $mimetype, array(), array(), 0)) {
+					unlink($tmpFile);
+					return "409 Conflict";
+				}
 			}
 
 		} else {
-			if(!$res = $folder->addDocument($name, '', 0, $this->user, '', array(), $tmpFile, $name, $fileType, $mimetype, 0, array(), array(), 0, "")) {
+			if ($folder->getAccessMode($this->user) < M_READWRITE) {
+				unlink($tmpFile);
+				return "403 Forbidden";
+			} elseif(!$res = $folder->addDocument($name, '', 0, $this->user, '', array(), $tmpFile, $name, $fileType, $mimetype, 0, array(), array(), 0, "")) {
 				unlink($tmpFile);
 				return "409 Conflict";
 			}
@@ -512,7 +557,7 @@ class HTTP_WebDAV_Server_LetoDMS extends HTTP_WebDAV_Server
 	 * @return bool   true on success
 	 */
 	function MKCOL($options) /* {{{ */
-	{		   
+	{
 		$this->log_options('MKCOL', $options);
 
 		$path   = $options["path"];
@@ -545,11 +590,15 @@ class HTTP_WebDAV_Server_LetoDMS extends HTTP_WebDAV_Server
 
 		/* Check if user is logged in */
 		if(!$this->user) {
-			return "403 Forbidden";				 
+			return "403 Forbidden";
+		}
+
+		if ($folder->getAccessMode($this->user) < M_READWRITE) {
+			return "403 Forbidden";
 		}
 
 		if (!$folder->addSubFolder($name, '', $this->user, 0)) {
-			return "403 Forbidden";				 
+			return "403 Forbidden";
 		}
 
 		return ("201 Created");
@@ -568,20 +617,32 @@ class HTTP_WebDAV_Server_LetoDMS extends HTTP_WebDAV_Server
 
 		// get folder or document from path
 		$obj = $this->reverseLookup($options["path"]);
+		/* Make a second try if it is a directory with the leading '/' */
+		if(!$obj)
+			$obj = $this->reverseLookup($options["path"].'/');
 
 		// sanity check
 		if (!$obj) return "404 Not found";
 
 		// check for access rights
 		if($obj->getAccessMode($this->user) < M_ALL) {
-			return "403 Forbidden";				 
+			return "403 Forbidden";
 		}
 
 		if (get_class($obj) == 'LetoDMS_Core_Folder') {
+			if($obj->hasDocuments() || $obj->hasSubFolders()) {
+				return "409 Conflict";
+			}
 			if(!$obj->remove()) {
 				return "409 Conflict";
 			}
 		} else {
+			// check if user is admin
+			// only admins may delete documents
+			if(!$this->user->isAdmin()) {
+				return "403 Forbidden";
+			}
+
 			if(!$obj->remove()) {
 				return "409 Conflict";
 			}
@@ -633,7 +694,7 @@ class HTTP_WebDAV_Server_LetoDMS extends HTTP_WebDAV_Server
 		 * destination object
 		 */
 		if (($objsource->getAccessMode($this->user) < M_READWRITE) || ($objdest->getAccessMode($this->user) < M_READWRITE)) {
-			return "403 Forbidden";				 
+			return "403 Forbidden";
 		}
 
 		if(get_class($objdest) == 'LetoDMS_Core_Document') {
@@ -730,7 +791,7 @@ class HTTP_WebDAV_Server_LetoDMS extends HTTP_WebDAV_Server
 		 * access on the destination object
 		 */
 		if (($objsource->getAccessMode($this->user) < M_READ) || ($objdest->getAccessMode($this->user) < M_READWRITE)) {
-			return "403 Forbidden";				 
+			return "403 Forbidden";
 		}
 
 		/* If destination object is a document it must be overwritten */
@@ -804,6 +865,10 @@ class HTTP_WebDAV_Server_LetoDMS extends HTTP_WebDAV_Server
 				return false;
 		}
 
+		if ($obj->getAccessMode($this->user) < M_READWRITE) {
+			return false;
+		}
+
 		foreach ($options["props"] as $key => $prop) {
 			if ($prop["ns"] == "DAV:") {
 				$options["props"][$key]['status'] = "403 Forbidden";
@@ -849,7 +914,7 @@ class HTTP_WebDAV_Server_LetoDMS extends HTTP_WebDAV_Server
 		}
 
 		if ($obj->getAccessMode($this->user) < M_READWRITE) {
-			return "403 Forbidden";				 
+			return "403 Forbidden";
 		}
 
 		$options["timeout"] = 0;//time()+300; // 5min. hardcoded
@@ -887,7 +952,7 @@ class HTTP_WebDAV_Server_LetoDMS extends HTTP_WebDAV_Server
 		}
 
 		if ($obj->getAccessMode($this->user) < M_READWRITE) {
-			return "403 Forbidden";				 
+			return "403 Forbidden";
 		}
 
 		if(!$obj->setLocked(false)) {

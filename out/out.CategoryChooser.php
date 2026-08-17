@@ -23,62 +23,15 @@ include("../inc/inc.DBInit.php");
 include("../inc/inc.Language.php");
 include("../inc/inc.Authentication.php");
 
-$form = sanitizeString($_GET["form"]);
-$selcats = sanitizeString($_GET["cats"]);
+$form = preg_replace('/[^A-Za-z0-9_]+/', '', $_GET["form"]);
+$selcats = preg_replace('/[^0-9,]+/', '', $_GET["cats"]);
+$categories = $dms->getDocumentCategories();
 
-UI::htmlStartPage(getMLText("choose_target_category"));
-UI::globalBanner();
-UI::pageNavigation(getMLText("choose_target_category"));
-?>
+$tmp = explode('.', basename($_SERVER['SCRIPT_FILENAME']));
+$view = (new UI($GLOBALS['theme'] ?? 'bootstrap'))->factory($theme, $tmp[1], array('dms'=>$dms, 'user'=>$user, 'categories'=>$categories, 'form'=>$form, 'selcats'=>$selcats));
+if($view) {
+	$view->show();
+	exit;
+}
 
-<script language="JavaScript">
-var targetName = opener.document.<?php echo $form?>.categoryname<?php print $form ?>;
-var targetID = opener.document.<?php echo $form?>.categoryid<?php print $form ?>;
-$(document).ready(function(){
-	$('#getcategories').click(function(){
-//    alert($('#keywordta option:selected').text());
-		var value = '';
-		$('#keywordta option:selected').each(function(){
-			value += ' ' + $(this).text();
-		});
-		targetName.value = value;
-		targetID.value = $('#keywordta').val();
-		window.close();
-		return true;
-	});
-});
-</script>
-
-<?php
-	UI::contentContainerStart();
-	$categories = $dms->getDocumentCategories();
-	$selcatsarr = explode(',', $selcats);
-?>
-<table>
-	<tr>
-		<td valign="top" class="inputDescription"><?php echo getMLText("categories")?>:</td>
-		<td>
-			<select id="keywordta" size="5" style="min-width: 100px;" multiple>
-<?php
-	foreach($categories as $category) {
-		echo "<option value=\"".$category->getId()."\"";
-		if(in_array($category->getID(), $selcatsarr))
-			echo " selected";
-		echo ">".$category->getName()."</option>\n";
-	}
-?>
-			</select>
-		</td>
-	</tr>
-	<tr>
-	  <td></td>
-		<td>
-			<input type="button" id='getcategories' value="<?php echo getMLText("accept")?>"> &nbsp;&nbsp;
-		</td>
-	</tr>
-
-</table>
-<?php
-	UI::contentContainerEnd();
-	UI::htmlEndPage();
 ?>

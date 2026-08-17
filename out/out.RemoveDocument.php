@@ -26,37 +26,25 @@ include("../inc/inc.ClassUI.php");
 include("../inc/inc.Authentication.php");
 
 if (!isset($_GET["documentid"]) || !is_numeric($_GET["documentid"]) || intval($_GET["documentid"])<1) {
-	UI::exitError(getMLText("document_title", array("documentname" => getMLText("invalid_doc_id"))),getMLText("invalid_doc_id"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => getMLText("invalid_doc_id"))),getMLText("invalid_doc_id"));
 }
-$documentid = $_GET["documentid"];
-$document = $dms->getDocument($documentid);
+$document = $dms->getDocument($_GET["documentid"]);
 
 if (!is_object($document)) {
-	UI::exitError(getMLText("document_title", array("documentname" => getMLText("invalid_doc_id"))),getMLText("invalid_doc_id"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => getMLText("invalid_doc_id"))),getMLText("invalid_doc_id"));
+}
+
+if ($document->getAccessMode($user) < M_ALL) {
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => htmlspecialchars($document->getName()))),getMLText("access_denied"));
 }
 
 $folder = $document->getFolder();
-$docPathHTML = getFolderPathHTML($folder, true). " / <a href=\"../out/out.ViewDocument.php?documentid=".$documentid."\">".$document->getName()."</a>";
 
-if ($document->getAccessMode($user) < M_ALL) {
-	UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("access_denied"));
+$tmp = explode('.', basename($_SERVER['SCRIPT_FILENAME']));
+$view = (new UI($GLOBALS['theme'] ?? 'bootstrap'))->factory($theme, $tmp[1], array('dms'=>$dms, 'user'=>$user, 'folder'=>$folder, 'document'=>$document));
+if($view) {
+	$view->show();
+	exit;
 }
 
-UI::htmlStartPage(getMLText("document_title", array("documentname" => $document->getName())));
-UI::globalNavigation($folder);
-UI::pageNavigation($docPathHTML, "view_document");
-UI::contentHeading(getMLText("rm_document"));
-UI::contentContainerStart();
-
-?>
-<form action="../op/op.RemoveDocument.php" name="form1" method="POST">
-<input type="Hidden" name="documentid" value="<?php print $documentid;?>">
-<p>
-<?php printMLText("confirm_rm_document", array ("documentname" => $document->getName()));?>
-</p>
-<p><input type="Submit" value="<?php printMLText("rm_document");?>"></p>
-</form>
-<?php
-UI::contentContainerEnd();
-UI::htmlEndPage();
 ?>

@@ -435,7 +435,15 @@ span.absSpacerTitle {
 	border: 1px solid rgb(255,0,0);
 }
 
-.error{
+.install_warning{
+	margin: 20px;
+	padding: 10px;
+	background: #fa0;
+	color: #fff;
+	font-weight: bold;
+	font-size: 120%;
+}
+.error, .install_error{
 	margin: 20px;
 	padding: 10px;
 	background: #f00;

@@ -22,14 +22,11 @@ include("../inc/inc.Language.php");
 include("../inc/inc.ClassUI.php");
 include("../inc/inc.Authentication.php");
 
-UI::htmlStartPage(getMLText("help"));
-UI::globalNavigation();
-UI::pageNavigation(getMLText("help"), "");
+$tmp = explode('.', basename($_SERVER['SCRIPT_FILENAME']));
+$view = (new UI($GLOBALS['theme'] ?? 'bootstrap'))->factory($theme, $tmp[1], array('dms'=>$dms, 'user'=>$user));
+if($view) {
+	$view->show();
+	exit;
+}
 
-UI::contentContainerStart();
-
-readfile("../languages/".$user->getLanguage()."/help.htm");
-
-UI::contentContainerEnd();
-UI::htmlEndPage();
 ?>

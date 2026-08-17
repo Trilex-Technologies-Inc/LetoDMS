@@ -28,40 +28,40 @@ include("../inc/inc.ClassUI.php");
 include("../inc/inc.Authentication.php");
 
 if (!isset($_POST["documentid"]) || !is_numeric($_POST["documentid"]) || intval($_POST["documentid"])<1) {
-	UI::exitError(getMLText("document_title", array("documentname" => getMLText("invalid_doc_id"))),getMLText("invalid_doc_id"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => getMLText("invalid_doc_id"))),getMLText("invalid_doc_id"));
 }
 
 $documentid = $_POST["documentid"];
 $document = $dms->getDocument($documentid);
 
 if (!is_object($document)) {
-	UI::exitError(getMLText("document_title", array("documentname" => getMLText("invalid_doc_id"))),getMLText("invalid_doc_id"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => getMLText("invalid_doc_id"))),getMLText("invalid_doc_id"));
 }
 
 if ($document->getAccessMode($user) < M_ALL) {
-	UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("access_denied"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("access_denied"));
 }
 
 if (!isset($_POST["version"]) || !is_numeric($_POST["version"]) || intval($_POST["version"])<1) {
-	UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("invalid_version"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("invalid_version"));
 }
 
 $version = $_POST["version"];
 $content = $document->getContentByVersion($version);
 
 if (!is_object($content)) {
-	UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("invalid_version"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("invalid_version"));
 }
 
 // control status.
 $overallStatus = $content->getStatus();
 if ($overallStatus["status"]==S_REJECTED || $overallStatus["status"]==S_OBSOLETE ) {
-	UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("cannot_assign_invalid_state"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("cannot_assign_invalid_state"));
 }
 
 // Retrieve a list of all users and groups that have review / approve
 // privileges.
-$docAccess = $document->getApproversList();
+$docAccess = $document->getReadAccessList();
 $accessIndex = array("i"=>array(), "g"=>array());
 foreach ($docAccess["users"] as $i=>$da) {
 	$accessIndex["i"][$da->getID()] = $i;
@@ -109,37 +109,36 @@ foreach ($pIndRev as $p) {
 			if (!isset($reviewIndex["i"][$p])) {
 				// Proposed reviewer is not a current reviewer, so add as a new
 				// reviewer.
-				$res = $content->addIndReviewer($docAccess["users"][$accessIndex["i"][$p]], $user, true);
+				$res = $content->addIndReviewer($docAccess["users"][$accessIndex["i"][$p]], $user);
 				$unm = $docAccess["users"][$accessIndex["i"][$p]]->getFullName();
 				$uml = $docAccess["users"][$accessIndex["i"][$p]]->getEmail();
-				
+
 				switch ($res) {
 					case 0:
 						// Send an email notification to the new reviewer.
-						if ($notifier) {
-							$subject = "###SITENAME###: ".$document->getName().", v.".$content->_version." - ".getMLText("review_request_email");
-							$message = getMLText("review_request_email")."\r\n";
-							$message .= 
-								getMLText("document").": ".$document->getName()."\r\n".
-								getMLText("version").": ".$content->_version."\r\n".
-								getMLText("comment").": ".$content->getComment()."\r\n".
-								getMLText("user").": ".$user->getFullName()." <". $user->getEmail() .">\r\n".
-								"URL: ###URL_PREFIX###out/out.ViewDocument.php?documentid=".$document->getID()."&version=".$content->_version."\r\n";
+						if($settings->_enableNotificationAppRev) {
+							if ($notifier) {
+								$subject = "###SITENAME###: ".$document->getName().", v.".$content->_version." - ".getMLText("review_request_email");
+								$message = getMLText("review_request_email")."\r\n";
+								$message .=
+									getMLText("document").": ".$document->getName()."\r\n".
+									getMLText("version").": ".$content->_version."\r\n".
+									getMLText("comment").": ".$content->getComment()."\r\n".
+									getMLText("user").": ".$user->getFullName()." <". $user->getEmail() .">\r\n".
+									"URL: ###URL_PREFIX###out/out.ViewDocument.php?documentid=".$document->getID()."&version=".$content->_version."\r\n";
 
-							$subject=mydmsDecodeString($subject);
-							$message=mydmsDecodeString($message);
-							
-							$notifier->toIndividual($user, $docAccess["users"][$accessIndex["i"][$p]], $subject, $message);
+								$notifier->toIndividual($user, $docAccess["users"][$accessIndex["i"][$p]], $subject, $message);
+							}
 						}
 						break;
 					case -1:
-						UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("internal_error"));
+						(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("internal_error"));
 						break;
 					case -2:
-						UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("access_denied"));
+						(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("access_denied"));
 						break;
 					case -3:
-						UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("reviewer_already_assigned"));
+						(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("reviewer_already_assigned"));
 						break;
 					case -4:
 						// email error
@@ -164,40 +163,38 @@ if (count($reviewIndex["i"]) > 0) {
 				// revision or does not exist.
 				$queryStr = "INSERT INTO `tblDocumentReviewLog` (`reviewID`, `status`, `comment`, `date`, `userID`) ".
 					"VALUES ('". $reviewStatus[$rv["idx"]]["reviewID"] ."', '-2', '".getMLText("removed_reviewer")."', NOW(), '". $user->getID() ."')";
-				echo $queryStr;
 				$res = $db->getResult($queryStr);
 			}
 			else {
-				$res = $content->delIndReviewer($docAccess["users"][$accessIndex["i"][$rx]], $user, true);
+				$res = $content->delIndReviewer($docAccess["users"][$accessIndex["i"][$rx]], $user);
 				$unm = $docAccess["users"][$accessIndex["i"][$rx]]->getFullName();
 				$uml = $docAccess["users"][$accessIndex["i"][$rx]]->getEmail();
 				switch ($res) {
 					case 0:
 						// Send an email notification to the reviewer.
-						if ($notifier) {
-							$subject = "###SITENAME###: ".$document->getName().", v.".$content->_version." - ".getMLText("review_deletion_email");
-							$message = getMLText("review_deletion_email")."\r\n";
-							$message .= 
-								getMLText("document").": ".$document->getName()."\r\n".
-								getMLText("version").": ".$content->_version."\r\n".
-								getMLText("comment").": ".$content->getComment()."\r\n".
-								getMLText("user").": ".$user->getFullName()." <". $user->getEmail() .">\r\n".			
-								"URL: ###URL_PREFIX###out/out.ViewDocument.php?documentid=".$document->getID()."\r\n";
+						if($settings->_enableNotificationAppRev) {
+							if ($notifier) {
+								$subject = "###SITENAME###: ".$document->getName().", v.".$content->_version." - ".getMLText("review_deletion_email");
+								$message = getMLText("review_deletion_email")."\r\n";
+								$message .=
+									getMLText("document").": ".$document->getName()."\r\n".
+									getMLText("version").": ".$content->_version."\r\n".
+									getMLText("comment").": ".$content->getComment()."\r\n".
+									getMLText("user").": ".$user->getFullName()." <". $user->getEmail() .">\r\n".
+									"URL: ###URL_PREFIX###out/out.ViewDocument.php?documentid=".$document->getID()."\r\n";
 
-							$subject=mydmsDecodeString($subject);
-							$message=mydmsDecodeString($message);
-							
-							$notifier->toIndividual($user, $docAccess["users"][$accessIndex["i"][$rx]], $subject, $message);
+								$notifier->toIndividual($user, $docAccess["users"][$accessIndex["i"][$rx]], $subject, $message);
+							}
 						}
 						break;
 					case -1:
-						UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("internal_error"));
+						(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("internal_error"));
 						break;
 					case -2:
-						UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("access_denied"));
+						(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("access_denied"));
 						break;
 					case -3:
-						UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("reviewer_already_removed"));
+						(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("reviewer_already_removed"));
 						break;
 					case -4:
 						// email error
@@ -214,35 +211,34 @@ foreach ($pGrpRev as $p) {
 			if (!isset($reviewIndex["g"][$p])) {
 				// Proposed reviewer is not a current reviewer, so add as a new
 				// reviewer.
-				$res = $content->addGrpReviewer($docAccess["groups"][$accessIndex["g"][$p]], $user, true);
+				$res = $content->addGrpReviewer($docAccess["groups"][$accessIndex["g"][$p]], $user);
 				$gnm = $docAccess["groups"][$accessIndex["g"][$p]]->getName();
 				switch ($res) {
 					case 0:
 						// Send an email notification to the new reviewer.
-						if ($notifier) {
-							$subject = "###SITENAME###: ".$document->getName().", v.".$content->_version." - ".getMLText("review_request_email");
-							$message = getMLText("review_request_email")."\r\n";
-							$message .=
-								getMLText("document").": ".$document->getName()."\r\n".
-								getMLText("version").": ".$content->_version."\r\n".
-								getMLText("comment").": ".$content->getComment()."\r\n".
-								getMLText("user").": ".$user->getFullName()." <". $user->getEmail() .">\r\n".
-								"URL: ###URL_PREFIX###out/out.ViewDocument.php?documentid=".$document->getID()."&version=".$content->_version."\r\n";
+						if($settings->_enableNotificationAppRev) {
+							if ($notifier) {
+								$subject = "###SITENAME###: ".$document->getName().", v.".$content->_version." - ".getMLText("review_request_email");
+								$message = getMLText("review_request_email")."\r\n";
+								$message .=
+									getMLText("document").": ".$document->getName()."\r\n".
+									getMLText("version").": ".$content->_version."\r\n".
+									getMLText("comment").": ".$content->getComment()."\r\n".
+									getMLText("user").": ".$user->getFullName()." <". $user->getEmail() .">\r\n".
+									"URL: ###URL_PREFIX###out/out.ViewDocument.php?documentid=".$document->getID()."&version=".$content->_version."\r\n";
 
-							$subject=mydmsDecodeString($subject);
-							$message=mydmsDecodeString($message);
-							
-							$notifier->toGroup($user, $docAccess["groups"][$accessIndex["g"][$p]], $subject, $message);
+								$notifier->toGroup($user, $docAccess["groups"][$accessIndex["g"][$p]], $subject, $message);
+							}
 						}
 						break;
 					case -1:
-						UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("internal_error"));
+						(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("internal_error"));
 						break;
 					case -2:
-						UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("access_denied"));
+						(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("access_denied"));
 						break;
 					case -3:
-						UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("reviewer_already_assigned"));
+						(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("reviewer_already_assigned"));
 						break;
 					case -4:
 						// email error
@@ -265,40 +261,38 @@ if (count($reviewIndex["g"]) > 0) {
 				// revision or does not exist.
 				$queryStr = "INSERT INTO `tblDocumentReviewLog` (`reviewID`, `status`, `comment`, `date`, `userID`) ".
 					"VALUES ('". $reviewStatus[$rv["idx"]]["reviewID"] ."', '-2', '".getMLText("removed_reviewer")."', NOW(), '". $user->getID() ."')";
-				echo $queryStr;
 				$res = $db->getResult($queryStr);
 			}
 			else {
-				$res = $content->delGrpReviewer($docAccess["groups"][$accessIndex["g"][$rx]], $user, true);
+				$res = $content->delGrpReviewer($docAccess["groups"][$accessIndex["g"][$rx]], $user);
 				$gnm = $docAccess["groups"][$accessIndex["g"][$rx]]->getName();
 				switch ($res) {
 					case 0:
 						// Send an email notification to the review group.
-						if ($notifier) {
-						
-							$subject = "###SITENAME###: ".$document->getName().", v.".$content->_version." - ".getMLText("review_deletion_email");
-							$message = getMLText("review_deletion_email")."\r\n";
-							$message .= 
-								getMLText("document").": ".$document->getName()."\r\n".
-								getMLText("version").": ".$content->_version."\r\n".
-								getMLText("comment").": ".$content->getComment()."\r\n".
-								getMLText("user").": ".$user->getFullName()." <". $user->getEmail() .">\r\n".			
-								"URL: ###URL_PREFIX###out/out.ViewDocument.php?documentid=".$document->getID()."\r\n";
+						if($settings->_enableNotificationAppRev) {
+							if ($notifier) {
 
-							$subject=mydmsDecodeString($subject);
-							$message=mydmsDecodeString($message);
-							
-							$notifier->toGroup($user, $docAccess["groups"][$accessIndex["g"][$rx]], $subject, $message);
+								$subject = "###SITENAME###: ".$document->getName().", v.".$content->_version." - ".getMLText("review_deletion_email");
+								$message = getMLText("review_deletion_email")."\r\n";
+								$message .=
+									getMLText("document").": ".$document->getName()."\r\n".
+									getMLText("version").": ".$content->_version."\r\n".
+									getMLText("comment").": ".$content->getComment()."\r\n".
+									getMLText("user").": ".$user->getFullName()." <". $user->getEmail() .">\r\n".
+									"URL: ###URL_PREFIX###out/out.ViewDocument.php?documentid=".$document->getID()."\r\n";
+
+								$notifier->toGroup($user, $docAccess["groups"][$accessIndex["g"][$rx]], $subject, $message);
+							}
 						}
 						break;
 					case -1:
-						UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("internal_error"));
+						(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("internal_error"));
 						break;
 					case -2:
-						UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("access_denied"));
+						(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("access_denied"));
 						break;
 					case -3:
-						UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("reviewer_already_removed"));
+						(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("reviewer_already_removed"));
 						break;
 					case -4:
 						// email error
@@ -319,36 +313,35 @@ foreach ($pIndApp as $p) {
 			if (!isset($approvalIndex["i"][$p])) {
 				// Proposed approver is not a current approver, so add as a new
 				// approver.
-				$res = $content->addIndApprover($docAccess["users"][$accessIndex["i"][$p]], $user, ($overallStatus["status"]==0 ? false : true));
+				$res = $content->addIndApprover($docAccess["users"][$accessIndex["i"][$p]], $user);
 				$unm = $docAccess["users"][$accessIndex["i"][$p]]->getFullName();
 				$uml = $docAccess["users"][$accessIndex["i"][$p]]->getEmail();
 				switch ($res) {
 					case 0:
 						// Send an email notification to the new approver.
-						if ($overallStatus["status"]!=0 && $notifier) {
-							$subject = "###SITENAME###: ".$document->getName().", v.".$content->_version." - ".getMLText("approval_request_email");
-							$message = getMLText("approval_request_email")."\r\n";
-							$message .= 
-								getMLText("document").": ".$document->getName()."\r\n".
-								getMLText("version").": ".$content->_version."\r\n".
-								getMLText("comment").": ".$content->getComment()."\r\n".
-								getMLText("user").": ".$user->getFullName()." <". $user->getEmail() .">\r\n".			
-								"URL: ###URL_PREFIX###out/out.ViewDocument.php?documentid=".$document->getID()."&version=".$content->_version."\r\n";
+						if($settings->_enableNotificationAppRev) {
+							if ($overallStatus["status"]!=0 && $notifier) {
+								$subject = "###SITENAME###: ".$document->getName().", v.".$content->_version." - ".getMLText("approval_request_email");
+								$message = getMLText("approval_request_email")."\r\n";
+								$message .=
+									getMLText("document").": ".$document->getName()."\r\n".
+									getMLText("version").": ".$content->_version."\r\n".
+									getMLText("comment").": ".$content->getComment()."\r\n".
+									getMLText("user").": ".$user->getFullName()." <". $user->getEmail() .">\r\n".
+									"URL: ###URL_PREFIX###out/out.ViewDocument.php?documentid=".$document->getID()."&version=".$content->_version."\r\n";
 
-							$subject=mydmsDecodeString($subject);
-							$message=mydmsDecodeString($message);
-							
-							$notifier->toIndividual($user, $docAccess["users"][$accessIndex["i"][$p]], $subject, $message);
+								$notifier->toIndividual($user, $docAccess["users"][$accessIndex["i"][$p]], $subject, $message);
+							}
 						}
 						break;
 					case -1:
-						UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("internal_error"));
+						(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("internal_error"));
 						break;
 					case -2:
-						UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("access_denied"));
+						(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("access_denied"));
 						break;
 					case -3:
-						UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("reviewer_already_assigned"));
+						(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("reviewer_already_assigned"));
 						break;
 					case -4:
 						// email error
@@ -374,36 +367,35 @@ if (count($approvalIndex["i"]) > 0) {
 				$res = $db->getResult($queryStr);
 			}
 			else {
-				$res = $content->delIndApprover($docAccess["users"][$accessIndex["i"][$rx]], $user, true);
+				$res = $content->delIndApprover($docAccess["users"][$accessIndex["i"][$rx]], $user);
 				$unm = $docAccess["users"][$accessIndex["i"][$rx]]->getFullName();
 				$uml = $docAccess["users"][$accessIndex["i"][$rx]]->getEmail();
 				switch ($res) {
 					case 0:
 						// Send an email notification to the approver.
-						if ($notifier) {
-							$subject = "###SITENAME###: ".$document->getName().", v.".$content->_version." - ".getMLText("approval_deletion_email");
-							$message = getMLText("approval_deletion_email")."\r\n";
-							$message .= 
-								getMLText("document").": ".$document->getName()."\r\n".
-								getMLText("version").": ".$content->_version."\r\n".
-								getMLText("comment").": ".$content->getComment()."\r\n".
-								getMLText("user").": ".$user->getFullName()." <". $user->getEmail() .">\r\n".			
-								"URL: ###URL_PREFIX###out/out.ViewDocument.php?documentid=".$document->getID()."\r\n";
+						if($settings->_enableNotificationAppRev) {
+							if ($notifier) {
+								$subject = "###SITENAME###: ".$document->getName().", v.".$content->_version." - ".getMLText("approval_deletion_email");
+								$message = getMLText("approval_deletion_email")."\r\n";
+								$message .=
+									getMLText("document").": ".$document->getName()."\r\n".
+									getMLText("version").": ".$content->_version."\r\n".
+									getMLText("comment").": ".$content->getComment()."\r\n".
+									getMLText("user").": ".$user->getFullName()." <". $user->getEmail() .">\r\n".
+									"URL: ###URL_PREFIX###out/out.ViewDocument.php?documentid=".$document->getID()."\r\n";
 
-							$subject=mydmsDecodeString($subject);
-							$message=mydmsDecodeString($message);
-							
-							$notifier->toIndividual($user, $docAccess["users"][$accessIndex["i"][$rx]], $subject, $message);
+								$notifier->toIndividual($user, $docAccess["users"][$accessIndex["i"][$rx]], $subject, $message);
+							}
 						}
 						break;
 					case -1:
-						UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("internal_error"));
+						(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("internal_error"));
 						break;
 					case -2:
-						UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("access_denied"));
+						(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("access_denied"));
 						break;
 					case -3:
-						UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("reviewer_already_removed"));
+						(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("reviewer_already_removed"));
 						break;
 					case -4:
 						// email error
@@ -420,35 +412,34 @@ foreach ($pGrpApp as $p) {
 			if (!isset($approvalIndex["g"][$p])) {
 				// Proposed approver is not a current approver, so add as a new
 				// approver.
-				$res = $content->addGrpApprover($docAccess["groups"][$accessIndex["g"][$p]], $user, ($overallStatus["status"]==0 ? false : true));
+				$res = $content->addGrpApprover($docAccess["groups"][$accessIndex["g"][$p]], $user);
 				$gnm = $docAccess["groups"][$accessIndex["g"][$p]]->getName();
 				switch ($res) {
 					case 0:
 						// Send an email notification to the new approver.
-						if ($overallStatus["status"]!=0 && $notifier) {
-							$subject = "###SITENAME###: ".$document->getName().", v.".$content->_version." - ".getMLText("approval_request_email");
-							$message = getMLText("approval_request_email")."\r\n";
-							$message .=
-								getMLText("document").": ".$document->getName()."\r\n".
-								getMLText("version").": ".$content->_version."\r\n".
-								getMLText("comment").": ".$content->getComment()."\r\n".
-								getMLText("user").": ".$user->getFullName()." <". $user->getEmail() .">\r\n".			
-								"URL: ###URL_PREFIX###out/out.ViewDocument.php?documentid=".$document->getID()."&version=".$content->_version."\r\n";
+						if($settings->_enableNotificationAppRev) {
+							if ($overallStatus["status"]!=0 && $notifier) {
+								$subject = "###SITENAME###: ".$document->getName().", v.".$content->_version." - ".getMLText("approval_request_email");
+								$message = getMLText("approval_request_email")."\r\n";
+								$message .=
+									getMLText("document").": ".$document->getName()."\r\n".
+									getMLText("version").": ".$content->_version."\r\n".
+									getMLText("comment").": ".$content->getComment()."\r\n".
+									getMLText("user").": ".$user->getFullName()." <". $user->getEmail() .">\r\n".
+									"URL: ###URL_PREFIX###out/out.ViewDocument.php?documentid=".$document->getID()."&version=".$content->_version."\r\n";
 
-							$subject=mydmsDecodeString($subject);
-							$message=mydmsDecodeString($message);
-							
-							$notifier->toGroup($user, $docAccess["groups"][$accessIndex["g"][$p]], $subject, $message);
+								$notifier->toGroup($user, $docAccess["groups"][$accessIndex["g"][$p]], $subject, $message);
+							}
 						}
 						break;
 					case -1:
-						UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("internal_error"));
+						(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("internal_error"));
 						break;
 					case -2:
-						UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("access_denied"));
+						(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("access_denied"));
 						break;
 					case -3:
-						UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("reviewer_already_assigned"));
+						(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("reviewer_already_assigned"));
 						break;
 					case -4:
 						// email error
@@ -469,42 +460,41 @@ if (count($approvalIndex["g"]) > 0) {
 			if (!isset($docAccess["groups"][$accessIndex["g"][$rx]])) {
 				// Group does not have any approval privileges for this document
 				// revision or does not exist.
-				
+
 				$queryStr = "INSERT INTO `tblDocumentApproveLog` (`approveID`, `status`, `comment`, `date`, `userID`) ".
 					"VALUES ('". $approvalStatus[$rv["idx"]]["approveID"] ."', '-2', '".getMLText("removed_approver")."', NOW(), '". $user->getID() ."')";
 				$res = $db->getResult($queryStr);
 			}
 			else {
-				$res = $content->delGrpApprover($docAccess["groups"][$accessIndex["g"][$rx]], $user, true);
+				$res = $content->delGrpApprover($docAccess["groups"][$accessIndex["g"][$rx]], $user);
 				$gnm = $docAccess["groups"][$accessIndex["g"][$rx]]->getName();
 				switch ($res) {
 					case 0:
 						// Send an email notification to the approval group.
-						if ($notifier) {
-						
-							$subject = "###SITENAME###: ".$document->getName().", v.".$content->_version." - ".getMLText("approval_deletion_email");
-							$message = getMLText("approval_deletion_email")."\r\n";
-							$message .= 
-								getMLText("document").": ".$document->getName()."\r\n".
-								getMLText("version").": ".$content->_version."\r\n".
-								getMLText("comment").": ".$content->getComment()."\r\n".
-								getMLText("user").": ".$user->getFullName()." <". $user->getEmail() .">\r\n".			
-								"URL: ###URL_PREFIX###out/out.ViewDocument.php?documentid=".$document->getID()."\r\n";
+						if($settings->_enableNotificationAppRev) {
+							if ($notifier) {
 
-							$subject=mydmsDecodeString($subject);
-							$message=mydmsDecodeString($message);
-							
-							$notifier->toGroup($user, $docAccess["groups"][$accessIndex["g"][$rx]], $subject, $message);
+								$subject = "###SITENAME###: ".$document->getName().", v.".$content->_version." - ".getMLText("approval_deletion_email");
+								$message = getMLText("approval_deletion_email")."\r\n";
+								$message .=
+									getMLText("document").": ".$document->getName()."\r\n".
+									getMLText("version").": ".$content->_version."\r\n".
+									getMLText("comment").": ".$content->getComment()."\r\n".
+									getMLText("user").": ".$user->getFullName()." <". $user->getEmail() .">\r\n".
+									"URL: ###URL_PREFIX###out/out.ViewDocument.php?documentid=".$document->getID()."\r\n";
+
+								$notifier->toGroup($user, $docAccess["groups"][$accessIndex["g"][$rx]], $subject, $message);
+							}
 						}
 						break;
 					case -1:
-						UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("internal_error"));
+						(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("internal_error"));
 						break;
 					case -2:
-						UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("access_denied"));
+						(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("access_denied"));
 						break;
 					case -3:
-						UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("reviewer_already_removed"));
+						(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("reviewer_already_removed"));
 						break;
 					case -4:
 						// email error

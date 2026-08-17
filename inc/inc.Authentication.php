@@ -26,7 +26,7 @@ require_once("inc.ClassEmail.php");
 require_once("inc.ClassSession.php");
 
 /* Load session */
-$dms_session = sanitizeString($_COOKIE["mydms_session"]);
+$dms_session = $_COOKIE["mydms_session"];
 $session = new LetoDMS_Session($db);
 if(!$resArr = $session->load($dms_session)) {
 	setcookie("mydms_session", $dms_session, time()-3600, $settings->_httpRoot); //delete cookie
@@ -46,7 +46,37 @@ $dms->setUser($user);
 $notifier = new LetoDMS_Email();
 $notifier->setSender($user);
 
-$theme = $resArr["theme"];
-include $settings->_rootDir . "languages/" . $resArr["language"] . "/lang.inc";
+/* Include the language file as specified in the session. If that is not
+ * available use the language from the settings
+ */
+if(file_exists($settings->_rootDir . "languages/" . $resArr["language"] . "/lang.inc"))
+	include $settings->_rootDir . "languages/" . $resArr["language"] . "/lang.inc";
+else
+	include $settings->_rootDir . "languages/" . $settings->_language . "/lang.inc";
 
+$theme = $resArr["theme"];
+if(file_exists($settings->_rootDir . "view/".$theme."/languages/" . $resArr["language"] . "/lang.inc")) {
+	include $settings->_rootDir . "view/".$theme."/languages/" . $resArr["language"] . "/lang.inc";
+}
+
+/* Check if password needs to be changed because it expired. If it needs
+ * to be changed redirect to out/out.ForcePasswordChange.php. Do this
+ * check only if password expiration is turned on, we are not on the
+ * page to change the password or the page that changes the password, and
+ * it is not admin */
+
+if (!$user->isAdmin()) {
+	if($settings->_passwordExpiration > 0) {
+		if(basename($_SERVER['SCRIPT_NAME']) != 'out.ForcePasswordChange.php' && basename($_SERVER['SCRIPT_NAME']) != 'op.EditUserData.php') {
+			$pwdexp = $user->getPwdExpiration();
+			if(substr($pwdexp, 0, 10) != '0000-00-00') {
+				$pwdexpts = strtotime($pwdexp); // + $pwdexp*86400;
+				if($pwdexpts > 0 && $pwdexpts < time()) {
+					header("Location: ../out/out.ForcePasswordChange.php");
+					exit;
+				}
+			}
+		}
+	}
+}
 ?>

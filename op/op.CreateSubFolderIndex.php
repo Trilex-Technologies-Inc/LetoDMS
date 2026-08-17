@@ -24,14 +24,14 @@ include("../inc/inc.ClassUI.php");
 include("../inc/inc.ClassEmail.php");
 include("../inc/inc.Authentication.php");
 
-UI::htmlStartPage("Create Document Folder Index");
-UI::globalNavigation();
-UI::pageNavigation("Create Document Folder Index");
-UI::contentHeading("Indexing Documents...");
+(new UI($GLOBALS['theme'] ?? 'bootstrap'))->htmlStartPage("Create Document Folder Index");
+(new UI($GLOBALS['theme'] ?? 'bootstrap'))->globalNavigation();
+(new UI($GLOBALS['theme'] ?? 'bootstrap'))->pageNavigation("Create Document Folder Index");
+(new UI($GLOBALS['theme'] ?? 'bootstrap'))->contentHeading("Indexing Documents...");
 
 if (!$user->isAdmin()) {
-	UI::contentContainer("<p>Permission denied.</p>");
-	UI::htmlPageEnd();
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->contentContainer("<p>Permission denied.</p>");
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->htmlEndPage();
 	exit;
 }
 
@@ -47,7 +47,7 @@ function getTime() {
 
 // ------------------------------------- Suche starten --------------------------------------------
 
-UI::contentContainerStart();
+(new UI($GLOBALS['theme'] ?? 'bootstrap'))->contentContainerStart();
 
 $startTime = getTime();
 $results = array();
@@ -105,6 +105,6 @@ $searchTime = round($searchTime, 2);
 echo "<p>";
 printMLText("search_time", array("time" => $searchTime));
 
-UI::contentContainerEnd();
-UI::htmlEndPage();
+(new UI($GLOBALS['theme'] ?? 'bootstrap'))->contentContainerEnd();
+(new UI($GLOBALS['theme'] ?? 'bootstrap'))->htmlEndPage();
 ?>

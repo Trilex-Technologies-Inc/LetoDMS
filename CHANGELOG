@@ -1,4 +1,160 @@
 --------------------------------------------------------------------------------
+                     Changes in version 4.0.0
+--------------------------------------------------------------------------------
+- completely new user interface based on bootstrap
+- quota support on user basis
+- support for sqlite3
+- added pdo database abstraction as an alternative to adodb, pdo is not the default
+- search by expiration date
+- completely new and much more powerful workflow engine
+- language can be switched at any time
+- check for duplicate document names in a folder
+- document/folder chooser allows to search
+- added clipboard and drag&drop for moving documents
+- show used disk space of a document and all files of a user
+- show access rights and id for folders and documents on info page (admin only)
+- added checksum to document versions
+- webdav: saving an identical document several times will not create new versions but just update the modification time
+- check and cancel upload if a new version of a document is identical to the last one
+
+--------------------------------------------------------------------------------
+                     Changes in version 3.4.3
+--------------------------------------------------------------------------------
+- fixed saving of multiple values field for attribute definitions
+
+--------------------------------------------------------------------------------
+                     Changes in version 3.4.2
+--------------------------------------------------------------------------------
+- fixed database update script (second trial)
+- fixed dropzone upload
+- updated dutch language file
+- fixed list on MyDocuments page
+
+--------------------------------------------------------------------------------
+                     Changes in version 3.4.1
+--------------------------------------------------------------------------------
+- fixed database update script
+- check if full text index is available before added new document
+- minor translation settings
+
+--------------------------------------------------------------------------------
+                     Changes in version 3.4.0
+--------------------------------------------------------------------------------
+- check for password strength
+- passwords can expire after a given number of days
+- prevent passwords from being reused
+- user can be disabled after n login failures
+- added autocompletion to document chooser
+- do not list documents in search result which cannot be accessed by the user
+- more database constraints and transaction management
+- documents, folders and document content can have user defined attributes
+- update of swedish language (Thanks to Thorsten M.)
+- update of french language (Thanks to Yves)
+
+--------------------------------------------------------------------------------
+                     Changes in version 3.3.11
+--------------------------------------------------------------------------------
+- fixed output of status in full text search result
+- do not allow to insert categories with an empty name
+
+--------------------------------------------------------------------------------
+                     Changes in version 3.3.10
+--------------------------------------------------------------------------------
+- fixed stupid error in addDocumentCategory
+
+--------------------------------------------------------------------------------
+                     Changes in version 3.3.9
+--------------------------------------------------------------------------------
+- more security fixes for preventing XSS
+- minor fix in spanish translation
+- do not show document on mydocuments page twice
+
+--------------------------------------------------------------------------------
+                     Changes in version 3.3.8
+--------------------------------------------------------------------------------
+- more security fixes for preventing CSRF, XSS and sql injection attacks
+- fixed search for special chars (e.g. german umlaute) in fulltext search
+
+--------------------------------------------------------------------------------
+                     Changes in version 3.3.7
+--------------------------------------------------------------------------------
+- major security update which fixeѕ lots of possible XSS and CSRF attacks
+- comment is no longer needed when adding a user, email is now required (this
+  time it is really changed)
+
+--------------------------------------------------------------------------------
+                     Changes in version 3.3.6
+--------------------------------------------------------------------------------
+- fixed deletion of files over WebDAV for some clients
+- updated russian language
+- comment is no longer needed when adding a user, email is now required
+- added debug mode in DBAccess class
+- list of users/groups on 'Edit Access' page does not contain users/groups
+  which are already on the acl
+- if a document/folder has access rights based on a group, then the highest
+  access right will be used (not the one first assigned)
+- added configuration of path to stop words file
+- fixed creation of database dump file
+
+--------------------------------------------------------------------------------
+                     Changes in version 3.3.5
+--------------------------------------------------------------------------------
+- extend the php include path with ADOdb path much earlier. This fixeѕ
+  problems with Log.php if installed in the same as ADOdb.
+
+--------------------------------------------------------------------------------
+                     Changes in version 3.3.4
+--------------------------------------------------------------------------------
+- fixed another issue of incorrect document access if masDirID != 0
+- updated README
+- use common way to check for configuration file
+
+--------------------------------------------------------------------------------
+                     Changes in version 3.3.3
+--------------------------------------------------------------------------------
+- fixed incorrect document access if masDirID != 0
+- added swedish translation (thanks to Thorsten Michelfelder)
+
+--------------------------------------------------------------------------------
+                     Changes in version 3.3.2
+--------------------------------------------------------------------------------
+- minor bugfixes
+
+--------------------------------------------------------------------------------
+                     Changes in version 3.3.1
+--------------------------------------------------------------------------------
+- added missing check for access right in webdav server
+- update.sql creates table tblUserPasswordRequest
+- minor changes in language files
+- fixed link to login page on password forgotten page
+
+--------------------------------------------------------------------------------
+                     Changes in version 3.3.0
+--------------------------------------------------------------------------------
+- all data is saved into the database without prior modification
+- smoother installation process with less manual interaction
+- support multi level content directory to overcome the limitations of recent
+  filesystems
+- better approval/review workflow
+- do not allow any operation on a document if is locked (unless you are the
+  owner)
+- searching for folders (run the new consistency check function!)
+- initial consistency check of database with repair function 
+- group managers are allowed to remove and delete users from their group
+- withdraw rights from a group if the group access is set to none
+- added password forgotten function
+
+--------------------------------------------------------------------------------
+                     Changes in version 3.2.2
+--------------------------------------------------------------------------------
+- fixed unallowed access on documents and folders
+
+--------------------------------------------------------------------------------
+                     Changes in version 3.2.1
+--------------------------------------------------------------------------------
+- large file upload with dropzone can be turned off
+
+--------------------------------------------------------------------------------
                      Changes in version 3.2.0
 --------------------------------------------------------------------------------
 - select keywords from list in advanced search form

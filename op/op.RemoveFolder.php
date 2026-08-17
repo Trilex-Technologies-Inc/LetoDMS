@@ -25,52 +25,58 @@ include("../inc/inc.Language.php");
 include("../inc/inc.ClassUI.php");
 include("../inc/inc.Authentication.php");
 
-if (!isset($_GET["folderid"]) || !is_numeric($_GET["folderid"]) || intval($_GET["folderid"])<1) {
-	UI::exitError(getMLText("folder_title", array("foldername" => getMLText("invalid_folder_id"))),getMLText("invalid_folder_id"));
+/* Check if the form data comes for a trusted request */
+if (!checkFormKey('removefolder')) {
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("folder_title", array("foldername" => getMLText("invalid_request_token"))), getMLText("invalid_request_token"));
 }
-$folderid = $_GET["folderid"];
+
+if (!isset($_POST["folderid"]) || !is_numeric($_POST["folderid"]) || intval($_POST["folderid"]) < 1) {
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("folder_title", array("foldername" => getMLText("invalid_folder_id"))), getMLText("invalid_folder_id"));
+}
+$folderid = $_POST["folderid"];
 $folder = $dms->getFolder($folderid);
 
 if (!is_object($folder)) {
-	UI::exitError(getMLText("folder_title", array("foldername" => getMLText("invalid_folder_id"))),getMLText("invalid_folder_id"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("folder_title", array("foldername" => getMLText("invalid_folder_id"))), getMLText("invalid_folder_id"));
 }
 
 if ($folderid == $settings->_rootFolderID || !$folder->getParent()) {
-	UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("cannot_rm_root"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("folder_title", array("foldername" => $folder->getName())), getMLText("cannot_rm_root"));
 }
 
 if ($folder->getAccessMode($user) < M_ALL) {
-	UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("access_denied"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("folder_title", array("foldername" => $folder->getName())), getMLText("access_denied"));
 }
 
-$parent=$folder->getParent();
+
+$parent = $folder->getParent();
+
+/* Register a callback which removes each document from the fulltext index
+ * The callback must return true other the removal will be canceled.
+ */
+
 
 if ($folder->remove()) {
 	// Send notification to subscribers.
 	if ($notifier) {
 		$folder->getNotifyList();
-		$subject = "###SITENAME###: ".$folder->_name." - ".getMLText("folder_deleted_email");
-		$message = getMLText("folder_deleted_email")."\r\n";
-		$message .= 
-			getMLText("name").": ".$folder->_name."\r\n".
-			getMLText("folder").": ".$folder->getFolderPathPlain()."\r\n".
-			getMLText("comment").": ".$folder->_comment."\r\n".
-			"URL: ###URL_PREFIX###out/out.ViewFolder.php?folderid=".$folder->_id."\r\n";
+		$subject = "###SITENAME###: " . $folder->getName() . " - " . getMLText("folder_deleted_email");
+		$message = getMLText("folder_deleted_email") . "\r\n";
+		$message .=
+			getMLText("name") . ": " . $folder->getName() . "\r\n" .
+			getMLText("folder") . ": " . $folder->getFolderPathPlain() . "\r\n" .
+			getMLText("comment") . ": " . $folder->getComment() . "\r\n" .
+			"URL: ###URL_PREFIX###out/out.ViewFolder.php?folderid=" . $folder->getID() . "\r\n";
 
-		$subject=mydmsDecodeString($subject);
-		$message=mydmsDecodeString($message);
-		
 		$notifier->toList($user, $folder->_notifyList["users"], $subject, $message);
 		foreach ($folder->_notifyList["groups"] as $grp) {
 			$notifier->toGroup($user, $grp, $subject, $message);
 		}
 	}
 } else {
-	UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("error_occured"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("folder_title", array("foldername" => $folder->getName())), getMLText("error_occured"));
 }
 
 add_log_line();
 
-header("Location:../out/out.ViewFolder.php?folderid=".$parent->getID()."&showtree=".$_GET["showtree"]);
-
-?>
+header("Location:../out/out.ViewFolder.php?folderid=" . $parent->getID() . "&showtree=" . $_POST["showtree"]);

@@ -42,7 +42,49 @@ define ("O_GTEQ", ">=");
 define ("O_LTEQ", "<=");
 define ("O_EQ", "=");
 
+/**
+ * Folder notification
+ */
 define("T_FOLDER", 1);		//TargetType = Folder
+
+/**
+ * Document notification
+ */
 define("T_DOCUMENT", 2);	//    "      = Document
+
+/**
+ * Notify on all actions on the folder/document
+ */
+define("N_ALL", 0);
+
+/**
+ * Notify when object has been deleted
+ */
+define("N_DELETE", 1);
+
+/**
+ * Notify when object has been moved
+ */
+define("N_MOVE", 2);
+
+/**
+ * Notify when object has been updated (no new version)
+ */
+define("N_UPDATE", 3);
+
+/**
+ * Notify when document has new version
+ */
+define("N_NEW_VERSION", 4);
+
+/**
+ * Notify when version of document was deleted
+ */
+define("N_DELETE_VERSION", 5);
+
+/**
+ * Notify when version of document was deleted
+ */
+define("N_ADD_DOCUMENT", 6);
 
 ?>

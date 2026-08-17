@@ -27,32 +27,37 @@ include("../inc/inc.ClassUI.php");
 include("../inc/inc.ClassEmail.php");
 include("../inc/inc.Authentication.php");
 
+/* Check if the form data comes for a trusted request */
+if(!checkFormKey('editcomment')) {
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => getMLText("invalid_request_token"))),getMLText("invalid_request_token"));
+}
+
 if (!isset($_POST["documentid"]) || !is_numeric($_POST["documentid"]) || intval($_POST["documentid"])<1) {
-	UI::exitError(getMLText("document_title", array("documentname" => getMLText("invalid_doc_id"))),getMLText("invalid_doc_id"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => getMLText("invalid_doc_id"))),getMLText("invalid_doc_id"));
 }
 
 $documentid = $_POST["documentid"];
 $document = $dms->getDocument($documentid);
 
 if (!is_object($document)) {
-	UI::exitError(getMLText("document_title", array("documentname" => getMLText("invalid_doc_id"))),getMLText("invalid_doc_id"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => getMLText("invalid_doc_id"))),getMLText("invalid_doc_id"));
 }
 
 $folder = $document->getFolder();
 $docPathHTML = getFolderPathHTML($folder, true). " / <a href=\"../out/out.ViewDocument.php?documentid=".$documentid."\">".$document->getName()."</a>";
 
 if ($document->getAccessMode($user) < M_READWRITE) {
-	UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("access_denied"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("access_denied"));
 }
 
 $versionid = $_POST["version"];
 $version = $document->getContentByVersion($versionid);
 
 if (!is_object($version)) {
-	UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("invalid_version"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("invalid_version"));
 }
 
-$comment =  sanitizeString($_POST["comment"]);
+$comment =  $_POST["comment"];
 
 if (($oldcomment = $version->getComment()) != $comment) {
 	if($version->setComment($comment)) {
@@ -60,15 +65,15 @@ if (($oldcomment = $version->getComment()) != $comment) {
 		if($notifier) {
 			$subject = "###SITENAME###: ".$document->getName().", v.".$version->_version." - ".getMLText("comment_changed_email");
 			$message = getMLText("comment_changed_email")."\r\n";
-			$message .= 
+			$message .=
 				getMLText("document").": ".$document->getName()."\r\n".
 				getMLText("version").": ".$version->_version."\r\n".
 				getMLText("comment").": ".$comment."\r\n".
 				getMLText("user").": ".$user->getFullName()." <". $user->getEmail() .">\r\n".
 				"URL: ###URL_PREFIX###out/out.ViewDocument.php?documentid=".$document->getID()."&version=".$version->_version."\r\n";
 
-			$subject=mydmsDecodeString($subject);
-			$message=mydmsDecodeString($message);
+//			$subject=mydmsDecodeString($subject);
+//			$message=mydmsDecodeString($message);
 
 			if(isset($document->_notifyList["users"])) {
 				$notifier->toList($user, $document->_notifyList["users"], $subject, $message);
@@ -81,7 +86,7 @@ if (($oldcomment = $version->getComment()) != $comment) {
 		}
 	}
 	else {
-		UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("error_occured"));
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("error_occured"));
 	}
 }
 

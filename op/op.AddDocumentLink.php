@@ -27,21 +27,21 @@ include("../inc/inc.ClassEmail.php");
 include("../inc/inc.Authentication.php");
 
 if (!isset($_GET["documentid"]) || !is_numeric($_GET["documentid"]) || intval($_GET["documentid"])<1) {
-	UI::exitError(getMLText("document_title", array("documentname" => getMLText("invalid_doc_id"))),getMLText("invalid_doc_id"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => getMLText("invalid_doc_id"))),getMLText("invalid_doc_id"));
 }
 
 $documentid = $_GET["documentid"];
 $document = $dms->getDocument($documentid);
 
 if (!is_object($document)) {
-	UI::exitError(getMLText("document_title", array("documentname" => getMLText("invalid_doc_id"))),getMLText("invalid_doc_id"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => getMLText("invalid_doc_id"))),getMLText("invalid_doc_id"));
 }
 
 $folder = $document->getFolder();
 $docPathHTML = getFolderPathHTML($folder, true). " / <a href=\"../out/out.ViewDocument.php?documentid=".$documentid."\">".$document->getName()."</a>";
 
 if ($document->getAccessMode($user) < M_READ) {
-	UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("access_denied"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("access_denied"));
 }
 
 $public = (isset($_GET["public"]) && $_GET["public"] == "true") ? true : false;
@@ -50,18 +50,18 @@ if ($public && ($document->getAccessMode($user) == M_READ)) {
 }
 
 if (!isset($_GET["docidform1"]) || !is_numeric($_GET["docidform1"]) || intval($_GET["docidform1"])<1) {
-	UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("invalid_target_doc_id"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("invalid_target_doc_id"));
 }
 
 $docid = $_GET["docidform1"];
 $doc = $dms->getDocument($docid);
 
 if (!is_object($doc)) {
-	UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("invalid_doc_id"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("invalid_doc_id"));
 }
 
 if (!$document->addDocumentLink($docid, $user->getID(), $public)){
-	UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("error_occured"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("error_occured"));
 }
 
 header("Location:../out/out.ViewDocument.php?documentid=".$documentid);

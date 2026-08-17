@@ -23,73 +23,16 @@ include("../inc/inc.ClassUI.php");
 include("../inc/inc.Authentication.php");
 
 if (!$user->isAdmin()) {
-	UI::exitError(getMLText("admin_tools"),getMLText("access_denied"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("access_denied"));
 }
 
-UI::htmlStartPage(getMLText("admin_tools"));
-UI::globalNavigation();
-UI::pageNavigation(getMLText("admin_tools"), "admin_tools");
-UI::contentHeading(getMLText("user_list"));
-UI::contentContainerStart();
+$allUsers = $dms->getAllUsers($settings->_sortUsersInList);
 
-$users = getAllUsers();
-for ($i = 0; $i < count($users); $i++) {
-	$currUser = $users[$i];
-	if ($currUser->isGuest())
-		continue;
-
-	UI::contentSubHeading(getMLText("user") . ": \"" . $currUser->getFullName() . "\"");
-?>
-	<table border="0">
-		<tr>
-			<td><?php printMLText("user_login");?>:</td>
-			<td><?php print $currUser->getLogin();?></td>
-		</tr>
-	<tr>
-			<td><?php printMLText("user_name");?>:</td>
-			<td><?php print $currUser->getFullName();?></td>
-		</tr>
-		<tr>
-			<td><?php printMLText("email");?>:</td>
-			<td><a href="mailto:<?php print $currUser->getEmail();?>"><?php print $currUser->getEmail();?></a></td>
-		</tr>
-		<tr>
-			<td><?php printMLText("comment");?>:</td>
-			<td><?php print $currUser->getComment();?></td>
-		</tr>
-		<tr>
-			<td><?php printMLText("groups");?>:</td>
-			<td>
-				<?php
-					$groups = $currUser->getGroups();
-					if (count($groups) == 0) {
-						printMLText("no_groups");
-					}
-					else {
-						for ($j = 0; $j < count($groups); $j++)	{
-							print $groups[$j]->getName();
-							if ($j +1 < count($groups))
-								print ", ";
-						}
-					}
-				?>
-			</td>
-		</tr>
-		<tr>
-			<td><?php printMLText("user_image");?>:</td>
-			<td>
-				<?php
-					if ($currUser->hasImage())
-						print "<img src=\"".$settings->_httpRoot . "out/out.UserImage.php?userid=".$currUser->getId()."\">";
-					else
-						printMLText("no_user_image");
-				?>
-			</td>
-		</tr>
-	</table>
-<?php
+$tmp = explode('.', basename($_SERVER['SCRIPT_FILENAME']));
+$view = (new UI($GLOBALS['theme'] ?? 'bootstrap'))->factory($theme, $tmp[1], array('dms'=>$dms, 'user'=>$user, 'allusers'=>$allUsers, 'httproot'=>$settings->_httpRoot));
+if($view) {
+	$view->show();
+	exit;
 }
 
-UI::contentContainerEnd();
-UI::htmlEndPage();
 ?>

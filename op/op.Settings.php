@@ -38,7 +38,7 @@ function getBoolValue($post_name)
 }
 
 if (!$user->isAdmin()) {
-	UI::exitError(getMLText("admin_tools"),getMLText("access_denied"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("access_denied"));
 }
 
 if (isset($_POST["action"])) $action=$_POST["action"];
@@ -66,7 +66,10 @@ if ($action == "saveSettings")
   $settings->_enableUsersView = getBoolValue("enableUsersView");
   $settings->_enableFullSearch = getBoolValue("enableFullSearch");
   $settings->_enableFolderTree = getBoolValue("enableFolderTree");
+  $settings->_enableLanguageSelector = getBoolValue("enableLanguageSelector");
   $settings->_expandFolderTree = intval($_POST["expandFolderTree"]);
+	$settings->_stopWordsFile = $_POST["stopWordsFile"];
+	$settings->_sortUsersInList = $_POST["sortUsersInList"];
 
   // SETTINGS - SITE - CALENDAR
   $settings->_enableCalendar = getBoolValue("enableCalendar");
@@ -77,10 +80,14 @@ if ($action == "saveSettings")
   $settings->_rootDir = $_POST["rootDir"];
   $settings->_httpRoot = $_POST["httpRoot"];
   $settings->_contentDir = $_POST["contentDir"];
+  $settings->_cacheDir = $_POST["cacheDir"];
   $settings->_stagingDir = $_POST["stagingDir"];
   $settings->_luceneDir = $_POST["luceneDir"];
+  $settings->_extraPath = $_POST["extraPath"];
+  $settings->_dropFolderDir = $_POST["dropFolderDir"];
   $settings->_logFileEnable = getBoolValue("logFileEnable");
   $settings->_logFileRotation = $_POST["logFileRotation"];
+  $settings->_enableLargeFileUpload = getBoolValue("enableLargeFileUpload");
   $settings->_partitionSize = $_POST["partitionSize"];
 
   // SETTINGS - SYSTEM - AUTHENTICATION
@@ -88,11 +95,19 @@ if ($action == "saveSettings")
   $settings->_restricted = getBoolValue("restricted");
   $settings->_enableUserImage = getBoolValue("enableUserImage");
   $settings->_disableSelfEdit = getBoolValue("disableSelfEdit");
+  $settings->_enablePasswordForgotten = getBoolValue("enablePasswordForgotten");
+  $settings->_passwordStrength = intval($_POST["passwordStrength"]);
+  $settings->_passwordStrengthAlgorithm = strval($_POST["passwordStrengthAlgorithm"]);
+  $settings->_passwordExpiration = intval($_POST["passwordExpiration"]);
+  $settings->_passwordHistory = intval($_POST["passwordHistory"]);
+  $settings->_loginFailure = intval($_POST["loginFailure"]);
+  $settings->_quota = intval($_POST["quota"]);
+  $settings->_encryptionKey = strval($_POST["encryptionKey"]);
+  $settings->_cookieLifetime = intval($_POST["cookieLifetime"]);
 
   // TODO Connectors
 
   // SETTINGS - SYSTEM - DATABASE
-  $settings->_ADOdbPath = $_POST["ADOdbPath"];
   $settings->_dbDriver = $_POST["dbDriver"];
   $settings->_dbHostname = $_POST["dbHostname"];
   $settings->_dbDatabase = $_POST["dbDatabase"];
@@ -115,7 +130,15 @@ if ($action == "saveSettings")
 
   // SETTINGS - ADVANCED - EDITION
   $settings->_versioningFileName = $_POST["versioningFileName"];
+  $settings->_workflowMode = $_POST["workflowMode"];
   $settings->_enableAdminRevApp = getBoolValue("enableAdminRevApp");
+  $settings->_enableVersionDeletion = getBoolValue("enableVersionDeletion");
+  $settings->_enableVersionModification = getBoolValue("enableVersionModification");
+  $settings->_enableDuplicateDocNames = getBoolValue("enableDuplicateDocNames");
+
+  // SETTINGS - ADVANCED - NOTIFICATION
+  $settings->_enableOwnerNotification = getBoolValue("enableOwnerNotification");
+  $settings->_enableNotificationAppRev = getBoolValue("enableNotificationAppRev");
 
   // SETTINGS - ADVANCED - SERVER
   $settings->_coreDir = $_POST["coreDir"];
@@ -125,16 +148,19 @@ if ($action == "saveSettings")
   $settings->_updateNotifyTime = intval($_POST["updateNotifyTime"]);
   $settings->_maxExecutionTime = intval($_POST["maxExecutionTime"]);
 
+  // SETTINGS - ADVANCED - INDEX CMD
+  $settings->_converters = $_POST["converters"];
+
   // -------------------------------------------------------------------------
   // save
   // -------------------------------------------------------------------------
   if (!$settings->save())
-    UI::exitError(getMLText("admin_tools"),getMLText("settings_SaveError"));
+    (new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("settings_SaveError"));
 
 	add_log_line(".php&action=savesettings");
 }
 
 
-header("Location:../out/out.AdminTools.php");
+header("Location:../out/out.Settings.php");
 
 ?>

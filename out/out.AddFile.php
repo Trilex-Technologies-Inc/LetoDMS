@@ -26,84 +26,26 @@ include("../inc/inc.ClassUI.php");
 include("../inc/inc.Authentication.php");
 
 if (!isset($_GET["documentid"]) || !is_numeric($_GET["documentid"]) || intval($_GET["documentid"]<1)) {
-	UI::exitError(getMLText("document_title", array("documentname" => getMLText("invalid_doc_id"))),getMLText("invalid_doc_id"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => getMLText("invalid_doc_id"))),getMLText("invalid_doc_id"));
 }
 
-$documentid = $_GET["documentid"];
-$document = $dms->getDocument($documentid);
+$document = $dms->getDocument($_GET["documentid"]);
 
 if (!is_object($document)) {
-	UI::exitError(getMLText("document_title", array("documentname" => getMLText("invalid_doc_id"))),getMLText("invalid_doc_id"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => getMLText("invalid_doc_id"))),getMLText("invalid_doc_id"));
 }
 
 $folder = $document->getFolder();
-$docPathHTML = getFolderPathHTML($folder, true). " / <a href=\"../out/out.ViewDocument.php?documentid=".$documentid."\">".$document->getName()."</a>";
 
 if ($document->getAccessMode($user) < M_READWRITE) {
-	UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("access_denied"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => htmlspecialchars($document->getName()))),getMLText("access_denied"));
 }
 
-UI::htmlStartPage(getMLText("document_title", array("documentname" => $document->getName())));
-UI::globalNavigation($folder);
-UI::pageNavigation($docPathHTML, "view_document");
-
-?>
-<script language="JavaScript">
-function checkForm()
-{
-	msg = "";
-	if (document.form1.userfile.value == "") msg += "<?php printMLText("js_no_file");?>\n";
-	if (document.form1.name.value == "") msg += "<?php printMLText("js_no_name");?>\n";
-<?php
-	if (isset($settings->_strictFormCheck) && $settings->_strictFormCheck) {
-	?>
-	if (document.form1.comment.value == "") msg += "<?php printMLText("js_no_comment");?>\n";
-<?php
-	}
-?>
-	if (msg != "")
-	{
-		alert(msg);
-		return false;
-	}
-	else
-		return true;
+$tmp = explode('.', basename($_SERVER['SCRIPT_FILENAME']));
+$view = (new UI($GLOBALS['theme'] ?? 'bootstrap'))->factory($theme, $tmp[1], array('dms'=>$dms, 'user'=>$user, 'folder'=>$folder, 'document'=>$document, 'strictformcheck'=>$settings->_strictFormCheck, 'enablelargefileupload'=>$settings->_enableLargeFileUpload));
+if($view) {
+	$view->show();
+	exit;
 }
-</script>
-<?php
-UI::contentHeading(getMLText("linked_files"));
-UI::contentContainerStart();
 
-?>
-<table>
-<tr>
-	<td class="warning"><?php echo getMLText("max_upload_size")." : ".ini_get( "upload_max_filesize"); ?></td>
-</tr>
-<tr>
-  <td><?php printf(getMLText('link_alt_updatedocument'), "out.AddFile2.php?documentid=".$documentid); ?></td>
-</tr>
-</table><br>
-
-<form action="../op/op.AddFile.php" enctype="multipart/form-data" method="post" name="form1" onsubmit="return checkForm();">
-<input type="Hidden" name="documentid" value="<?php print $documentid; ?>">
-<table>
-<tr>
-	<td><?php printMLText("local_file");?>:</td>
-	<td><input type="File" name="userfile" size="60"></td>
-</tr>
-<tr>
-	<td><?php printMLText("name");?>:</td>
-	<td><input name="name" size="60"></td>
-</tr>
-<tr>
-	<td><?php printMLText("comment");?>:</td>
-	<td><textarea name="comment" rows="4" cols="80"></textarea></td>
-</tr>
-</table>
-
-	<p><input type="Submit" value="<?php printMLText("add");?>"></p>
-</form>
-<?php
-UI::contentContainerEnd();
-UI::htmlEndPage();
 ?>

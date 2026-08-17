@@ -24,78 +24,27 @@ include("../inc/inc.Calendar.php");
 include("../inc/inc.Authentication.php");
 
 if ($user->isGuest()) {
-	UI::exitError(getMLText("edit_event"),getMLText("access_denied"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("edit_event"),getMLText("access_denied"));
 }
 
 if (!isset($_GET["id"]) || !is_numeric($_GET["id"]) || intval($_GET["id"])<1) {
-	UI::exitError(getMLText("edit_event"),getMLText("error_occured"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("edit_event"),getMLText("error_occured"));
 }
 
 $event=getEvent($_GET["id"]);
 
 if (is_bool($event)&&!$event){
-	UI::exitError(getMLText("edit_event"),getMLText("error_occured"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("edit_event"),getMLText("error_occured"));
 }
-if (($user->getID()!=$event["userID"])&&(!$user->isAdmin())){
-	UI::exitError(getMLText("edit_event"),getMLText("access_denied"));
+if (($user->getID()!=$event["userID"])&&(!$user->isAdmin())){
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("edit_event"),getMLText("access_denied"));
 }
 
-UI::htmlStartPage(getMLText("calendar"));
-UI::globalNavigation();
-UI::pageNavigation(getMLText("calendar"), "calendar");
-
-UI::contentHeading(getMLText("edit_event"));
-UI::contentContainerStart();
-?>
-<script language="JavaScript">
-function checkForm()
-{
-	msg = "";
-	if (document.form1.name.value == "") msg += "<?php printMLText("js_no_name");?>\n";
-<?php
-	if (isset($settings->_strictFormCheck) && $settings->_strictFormCheck) {
-	?>
-	if (document.form1.comment.value == "") msg += "<?php printMLText("js_no_comment");?>\n";
-<?php
-	}
-?>
-	if (msg != "")
-	{
-		alert(msg);
-		return false;
-	}
-	else
-		return true;
+$tmp = explode('.', basename($_SERVER['SCRIPT_FILENAME']));
+$view = (new UI($GLOBALS['theme'] ?? 'bootstrap'))->factory($theme, $tmp[1], array('dms'=>$dms, 'user'=>$user, 'event'=>$event, 'strictformcheck'=>$settings->_strictFormCheck));
+if($view) {
+	$view->show();
+	exit;
 }
-</script>
 
-<form action="../op/op.EditEvent.php" name="form1" onsubmit="return checkForm();" method="POST">
-
-	<input type="Hidden" name="eventid" value="<?php echo $_GET["id"]; ?>">
-
-	<table>
-		<tr>
-			<td><?php printMLText("from");?>:</td>
-			<td><?php UI::printDateChooser($event["start"], "from");?></td>
-		</tr>
-		<tr>
-			<td><?php printMLText("to");?>:</td>
-			<td><?php UI::printDateChooser($event["stop"], "to");?></td>
-		</tr>
-		<tr>
-			<td class="inputDescription"><?php printMLText("name");?>:</td>
-			<td><input name="name" value="<?php echo $event["name"];?>" size="60"></td>
-		</tr>
-		<tr>
-			<td valign="top" class="inputDescription"><?php printMLText("comment");?>:</td>
-			<td><textarea name="comment" rows="4" cols="80"><?php echo $event["comment"]?></textarea></td>
-		</tr>
-		<tr>
-			<td colspan="2"><br><input type="Submit" value="<?php printMLText("edit_event");?>"></td>
-		</tr>
-	</table>
-</form>
-<?php
-UI::contentContainerEnd();
-UI::htmlEndPage();
 ?>

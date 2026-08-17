@@ -19,85 +19,73 @@
 //    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 include("../inc/inc.Settings.php");
+include("../inc/inc.Utils.php");
 include("../inc/inc.ClassEmail.php");
 include("../inc/inc.DBInit.php");
-include("../inc/inc.Utils.php");
 include("../inc/inc.Language.php");
 include("../inc/inc.ClassUI.php");
 include("../inc/inc.Authentication.php");
 
-if (!isset($_POST["documentid"]) || !is_numeric($_POST["documentid"]) || intval($_POST["documentid"])<1) {
-	UI::exitError(getMLText("document_title", array("documentname" => getMLText("invalid_doc_id"))),getMLText("invalid_doc_id"));
+/* Check if the form data comes for a trusted request */
+if(!checkFormKey('reviewdocument')) {
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => getMLText("invalid_request_token"))),getMLText("invalid_request_token"));
 }
+
+if (!isset($_POST["documentid"]) || !is_numeric($_POST["documentid"]) || intval($_POST["documentid"])<1) {
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => getMLText("invalid_doc_id"))),getMLText("invalid_doc_id"));
+}
+
 $documentid = $_POST["documentid"];
 $document = $dms->getDocument($documentid);
 
 if (!is_object($document)) {
-	UI::exitError(getMLText("document_title", array("documentname" => getMLText("invalid_doc_id"))),getMLText("invalid_doc_id"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => getMLText("invalid_doc_id"))),getMLText("invalid_doc_id"));
 }
 
 if ($document->getAccessMode($user) < M_READ) {
-	UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("access_denied"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("access_denied"));
 }
 
 if (!isset($_POST["version"]) || !is_numeric($_POST["version"]) || intval($_POST["version"])<1) {
-	UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("invalid_version"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("invalid_version"));
 }
 
 $version = $_POST["version"];
 $content = $document->getContentByVersion($version);
 
 if (!is_object($content)) {
-	UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("invalid_version"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("invalid_version"));
 }
 
-// operation is admitted only for last deocument version
+// operation is only allowed for the last document version
 $latestContent = $document->getLatestContent();
 if ($latestContent->getVersion()!=$version) {
-	UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("invalid_version"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("invalid_version"));
 }
+
 // verify if document has expired
 if ($document->hasExpired()){
-	UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("access_denied"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("access_denied"));
 }
 
 if (!isset($_POST["reviewStatus"]) || !is_numeric($_POST["reviewStatus"]) ||
 		(intval($_POST["reviewStatus"])!=1 && intval($_POST["reviewStatus"])!=-1)) {
-	UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("invalid_review_status"));
-}
-
-// retrieve the review status for the current user.
-$reviewStatus = $user->getReviewStatus($documentid, $version);
-if (count($reviewStatus["indstatus"]) == 0 && count($reviewStatus["grpstatus"]) == 0) {
-	UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("access_denied"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("invalid_review_status"));
 }
 
 if ($_POST["reviewType"] == "ind") {
 
-	$indReviewer = true;
-	if (count($reviewStatus["indstatus"])==0) {
-		UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("access_denied"));
-	}
-	if ($reviewStatus["indstatus"][0]["status"]==-2) {
-		UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("access_denied"));
-	}
-
-	// User is eligible to make this update.
-
-	$comment = sanitizeString($_POST["comment"]);
-	$queryStr = "INSERT INTO `tblDocumentReviewLog` (`reviewID`, `status`, `comment`, `date`, `userID`) ".
-		"VALUES ('". $reviewStatus["indstatus"][0]["reviewID"] ."', '".
-		$_POST["reviewStatus"] ."', '". $comment ."', NOW(), '". $user->getID() ."')";
-	$res=$db->getResult($queryStr);
-	if (is_bool($res) && !res) {
-		UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("review_update_failed"));
+	$comment = $_POST["comment"];
+	$reviewLogID = $latestContent->setReviewByInd($user, $user, $_POST["reviewStatus"], $comment);
+	if(0 > $reviewLogID) {
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("review_update_failed"));
 	}
 	else {
 		// Send an email notification to the document updater.
 		if($notifier) {
 			$subject = $settings->_siteName.": ".$document->getName().", v.".$version." - ".getMLText("review_submit_email");
 			$message = getMLText("review_submit_email")."\r\n";
-			$message .= 
+			$message .=
 				getMLText("name").": ".$document->getName()."\r\n".
 				getMLText("version").": ".$version."\r\n".
 				getMLText("user").": ".$user->getFullName()." <". $user->getEmail() .">\r\n".
@@ -105,9 +93,9 @@ if ($_POST["reviewType"] == "ind") {
 				getMLText("comment").": ".$comment."\r\n".
 				"URL: http".((isset($_SERVER['HTTPS']) && (strcmp($_SERVER['HTTPS'],'off')!=0)) ? "s" : "")."://".$_SERVER['HTTP_HOST'].$settings->_httpRoot."out/out.ViewDocument.php?documentid=".$documentid."\r\n";
 
-			$subject=mydmsDecodeString($subject);
-			$message=mydmsDecodeString($message);
-			
+//			$subject=mydmsDecodeString($subject);
+//			$message=mydmsDecodeString($message);
+
 			$notifier->toIndividual($user, $content->getUser(), $subject, $message);
 
 			// Send notification to subscribers.
@@ -120,39 +108,18 @@ if ($_POST["reviewType"] == "ind") {
 	}
 }
 else if ($_POST["reviewType"] == "grp") {
-	$grpReviewer=false;
-	foreach ($reviewStatus["grpstatus"] as $gs) {
-		if ($_POST["reviewGroup"] == $gs["required"]) {
-			if ($gs["status"]==-2) {
-				UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("access_denied"));
-			}
-			$grpStatus=$gs;
-			$grpReviewer=true;
-			break;
-		}
-	}
-	if (!$grpReviewer) {
-		UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("access_denied"));
-	}
-
-	// User is eligible to make this update.
-
-	$comment = sanitizeString($_POST["comment"]);
-	$queryStr = "INSERT INTO `tblDocumentReviewLog` (`reviewID`, `status`, `comment`, `date`, `userID`) ".
-		"VALUES ('". $grpStatus["reviewID"] ."', '".
-		$_POST["reviewStatus"] ."', '". $comment ."', NOW(), '". $user->getID() ."')";
-	$res=$db->getResult($queryStr);
-	if (is_bool($res) && !res) {
-		UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("review_update_failed"));
+	$comment = $_POST["comment"];
+	$group = $dms->getGroup($_POST['reviewGroup']);
+	$reviewLogID = $latestContent->setReviewByGrp($group, $user, $_POST["reviewStatus"], $comment);
+	if(0 > $reviewLogID) {
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("review_update_failed"));
 	}
 	else {
 		// Send an email notification to the document updater.
-		$grp = $dms->getGroup($grpStatus["required"]);
-
 		if($notifier) {
 			$subject = $settings->_siteName.": ".$document->getName().", v.".$version." - ".getMLText("review_submit_email");
 			$message = getMLText("review_submit_email")."\r\n";
-			$message .= 
+			$message .=
 				getMLText("name").": ".$document->getName()."\r\n".
 				getMLText("user").": ".$user->getFullName()." <". $user->getEmail() .">\r\n".
 				getMLText("version").": ".$version."\r\n".
@@ -160,11 +127,11 @@ else if ($_POST["reviewType"] == "grp") {
 				getMLText("comment").": ".$comment."\r\n".
 				"URL: http".((isset($_SERVER['HTTPS']) && (strcmp($_SERVER['HTTPS'],'off')!=0)) ? "s" : "")."://".$_SERVER['HTTP_HOST'].$settings->_httpRoot."out/out.ViewDocument.php?documentid=".$documentid."\r\n";
 
-			$subject=mydmsDecodeString($subject);
-			$message=mydmsDecodeString($message);
-			
+//			$subject=mydmsDecodeString($subject);
+//			$message=mydmsDecodeString($message);
+
 			$notifier->toIndividual($user, $content->getUser(), $subject, $message);
-			
+
 			// Send notification to subscribers.
 			$nl=$document->getNotifyList();
 			$notifier->toList($user, $nl["users"], $subject, $message);
@@ -187,32 +154,32 @@ if ($_POST["reviewStatus"]==-1){
 		// Send notification to subscribers.
 		if($notifier) {
 			$folder = $document->getFolder();
-			$subject = "###SITENAME###: ".$document->_name." - ".getMLText("document_status_changed_email");
+			$subject = "###SITENAME###: ".$document->getName()." - ".getMLText("document_status_changed_email");
 			$message = getMLText("document_status_changed_email")."\r\n";
-			$message .= 
-				getMLText("document").": ".$document->_name."\r\n".
-				getMLText("status").": ".getOverallStatusText($status)."\r\n".
+			$message .=
+				getMLText("document").": ".$document->getName()."\r\n".
+				getMLText("status").": ".getOverallStatusText(S_REJECTED)."\r\n".
 				getMLText("folder").": ".$folder->getFolderPathPlain()."\r\n".
 				getMLText("comment").": ".$document->getComment()."\r\n".
 				"URL: ###URL_PREFIX###out/out.ViewDocument.php?documentid=".$document->getID()."&version=".$content->_version."\r\n";
 
-			$subject=mydmsDecodeString($subject);
-			$message=mydmsDecodeString($message);
-			
+//			$subject=mydmsDecodeString($subject);
+//			$message=mydmsDecodeString($message);
+
 			$notifier->toList($user, $nl["users"], $subject, $message);
 			foreach ($nl["groups"] as $grp) {
 				$notifier->toGroup($user, $grp, $subject, $message);
 			}
 		}
-		
+
 		// TODO: if user os not owner send notification to owner
 	}
 
 }else{
 
-	$docReviewStatus = $content->getReviewStatus(true);
+	$docReviewStatus = $content->getReviewStatus();
 	if (is_bool($docReviewStatus) && !$docReviewStatus) {
-		UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("cannot_retrieve_review_snapshot"));
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("cannot_retrieve_review_snapshot"));
 	}
 	$reviewCT = 0;
 	$reviewTotal = 0;
@@ -227,9 +194,9 @@ if ($_POST["reviewStatus"]==-1){
 	// If all reviews have been received and there are no rejections, retrieve a
 	// count of the approvals required for this document.
 	if ($reviewCT == $reviewTotal) {
-		$docApprovalStatus = $content->getApprovalStatus(true);
+		$docApprovalStatus = $content->getApprovalStatus();
 		if (is_bool($docApprovalStatus) && !$docApprovalStatus) {
-			UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("cannot_retrieve_approval_snapshot"));
+			(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("cannot_retrieve_approval_snapshot"));
 		}
 		$approvalCT = 0;
 		$approvalTotal = 0;
@@ -255,24 +222,24 @@ if ($_POST["reviewStatus"]==-1){
 			$nl=$document->getNotifyList();
 			if($notifier) {
 				$folder = $document->getFolder();
-				$subject = "###SITENAME###: ".$document->_name." - ".getMLText("document_status_changed_email");
+				$subject = "###SITENAME###: ".$document->getName()." - ".getMLText("document_status_changed_email");
 				$message = getMLText("document_status_changed_email")."\r\n";
-				$message .= 
-					getMLText("document").": ".$document->_name."\r\n".
-					getMLText("status").": ".getOverallStatusText($status)."\r\n".
+				$message .=
+					getMLText("document").": ".$document->getName()."\r\n".
+					getMLText("status").": ".getOverallStatusText($newStatus)."\r\n".
 					getMLText("folder").": ".$folder->getFolderPathPlain()."\r\n".
 					getMLText("comment").": ".$document->getComment()."\r\n".
 					"URL: ###URL_PREFIX###out/out.ViewDocument.php?documentid=".$document->getID()."&version=".$content->_version."\r\n";
 
-				$subject=mydmsDecodeString($subject);
-				$message=mydmsDecodeString($message);
-				
+//				$subject=mydmsDecodeString($subject);
+//				$message=mydmsDecodeString($message);
+
 				$notifier->toList($user, $nl["users"], $subject, $message);
 				foreach ($nl["groups"] as $grp) {
 					$notifier->toGroup($user, $grp, $subject, $message);
 				}
 			}
-			
+
 			// TODO: if user os not owner send notification to owner
 
 			// Notify approvers, if necessary.
@@ -282,25 +249,25 @@ if ($_POST["reviewStatus"]==-1){
 				if($notifier) {
 					$subject = $settings->_siteName.": ".$document->getName().", v.".$version." - ".getMLText("approval_request_email");
 					$message = getMLText("approval_request_email")."\r\n";
-					$message .= 
+					$message .=
 						getMLText("name").": ".$content->getOriginalFileName()."\r\n".
 						getMLText("version").": ".$version."\r\n".
 						getMLText("comment").": ".$content->getComment()."\r\n".
 						"URL: http".((isset($_SERVER['HTTPS']) && (strcmp($_SERVER['HTTPS'],'off')!=0)) ? "s" : "")."://".$_SERVER['HTTP_HOST'].$settings->_httpRoot."out/out.ViewDocument.php?documentid=".$documentid."&version=".$version."\r\n";
 
-					$subject=mydmsDecodeString($subject);
-					$message=mydmsDecodeString($message);
-					
+//					$subject=mydmsDecodeString($subject);
+//					$message=mydmsDecodeString($message);
+
 					foreach ($docApprovalStatus as $dastat) {
-					
+
 						if ($dastat["status"] == 0) {
 							if ($dastat["type"] == 0) {
-	
+
 								$approver = $dms->getUser($dastat["required"]);
 								$notifier->toIndividual($document->getOwner(), $approver, $subject, $message);
 							}
 							else if ($dastat["type"] == 1) {
-							
+
 								$group = $dms->getGroup($dastat["required"]);
 								$notifier->toGroup($document->getOwner(), $group, $subject, $message);
 							}

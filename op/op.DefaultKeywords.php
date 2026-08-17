@@ -25,144 +25,176 @@ include("../inc/inc.ClassEmail.php");
 include("../inc/inc.Authentication.php");
 
 if (!$user->isAdmin()) {
-	UI::exitError(getMLText("admin_tools"),getMLText("access_denied"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("access_denied"));
 }
 
-$action = $_GET["action"];
+if (isset($_POST["action"])) $action=$_POST["action"];
+else $action=NULL;
 
-//Neue Kategorie anlegen -----------------------------------------------------------------------------
+// Create new keyword category ------------------------------------------
 if ($action == "addcategory") {
-	
-	$name = sanitizeString($_GET["name"]);
+
+	/* Check if the form data comes for a trusted request */
+	if(!checkFormKey('addcategory')) {
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("invalid_request_token"));
+	}
+
+	$name = $_POST["name"];
 	if (is_object($dms->getKeywordCategoryByName($name, $user->getID()))) {
-		UI::exitError(getMLText("admin_tools"),getMLText("keyword_exists"));
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("keyword_exists"));
 	}
 	$newCategory = $dms->addKeywordCategory($user->getID(), $name);
 	if (!$newCategory) {
-		UI::exitError(getMLText("admin_tools"),getMLText("error_occured"));
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("error_occured"));
 	}
 	$categoryid=$newCategory->getID();
 }
 
-//Kategorie löschen ----------------------------------------------------------------------------------
+// Delete keyword categorie ---------------------------------------------
 else if ($action == "removecategory") {
 
-	if (!isset($_GET["categoryid"]) || !is_numeric($_GET["categoryid"]) || intval($_GET["categoryid"])<1) {
-		UI::exitError(getMLText("admin_tools"),getMLText("unknown_keyword_category"));
+	/* Check if the form data comes for a trusted request */
+	if(!checkFormKey('removecategory')) {
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("invalid_request_token"));
 	}
-	$categoryid = $_GET["categoryid"];
+
+	if (!isset($_POST["categoryid"]) || !is_numeric($_POST["categoryid"]) || intval($_POST["categoryid"])<1) {
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("unknown_keyword_category"));
+	}
+	$categoryid = $_POST["categoryid"];
 	$category = $dms->getKeywordCategory($categoryid);
 	if (!is_object($category)) {
-		UI::exitError(getMLText("admin_tools"),getMLText("unknown_keyword_category"));
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("unknown_keyword_category"));
 	}
 
 	$owner = $category->getOwner();
 	if (!$owner->isAdmin()) {
-		UI::exitError(getMLText("admin_tools"),getMLText("access_denied"));
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("access_denied"));
 	}
 	if (!$category->remove()) {
-		UI::exitError(getMLText("admin_tools"),getMLText("error_occured"));
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("error_occured"));
 	}
 	$categoryid=-1;
 }
 
-//Kategorie bearbeiten: Neuer Name --------------------------------------------------------------------
+// Modify keyword categorie: new name -----------------------------------
 else if ($action == "editcategory") {
 
-	if (!isset($_GET["categoryid"]) || !is_numeric($_GET["categoryid"]) || intval($_GET["categoryid"])<1) {
-		UI::exitError(getMLText("admin_tools"),getMLText("unknown_keyword_category"));
+	/* Check if the form data comes for a trusted request */
+	if(!checkFormKey('editcategory')) {
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("invalid_request_token"));
 	}
-	$categoryid = $_GET["categoryid"];
+
+	if (!isset($_POST["categoryid"]) || !is_numeric($_POST["categoryid"]) || intval($_POST["categoryid"])<1) {
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("unknown_keyword_category"));
+	}
+	$categoryid = $_POST["categoryid"];
 	$category = $dms->getKeywordCategory($categoryid);
 	if (!is_object($category)) {
-		UI::exitError(getMLText("admin_tools"),getMLText("unknown_keyword_category"));
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("unknown_keyword_category"));
 	}
 
 	$owner    = $category->getOwner();
 	if (!$owner->isAdmin()) {
-		UI::exitError(getMLText("admin_tools"),getMLText("access_denied"));
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("access_denied"));
 	}
 
-	$name = sanitizeString($_GET["name"]);
+	$name = $_POST["name"];
 	if (!$category->setName($name)) {
-		UI::exitError(getMLText("admin_tools"),getMLText("error_occured"));
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("error_occured"));
 	}
 }
 
-//Kategorie bearbeiten: Neue Stichwortliste  ----------------------------------------------------------
+// Modify keyword categorie: new list of keywords -----------------------
 else if ($action == "newkeywords") {
-	
-	$categoryid = sanitizeString($_GET["categoryid"]);
+
+	/* Check if the form data comes for a trusted request */
+	if(!checkFormKey('newkeywords')) {
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("invalid_request_token"));
+	}
+
+	$categoryid = (int) $_POST["categoryid"];
 	$category = $dms->getKeywordCategory($categoryid);
 	$owner    = $category->getOwner();
 	if (!$owner->isAdmin()) {
-		UI::exitError(getMLText("admin_tools"),getMLText("access_denied"));
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("access_denied"));
 	}
 
-	$keywords = sanitizeString($_GET["keywords"]);
-	
-	if (!$category->addKeywordList($keywords)) {
-		UI::exitError(getMLText("admin_tools"),getMLText("error_occured"));
+	$keywords = $_POST["keywords"];
+	if(trim($keywords)) {
+		if (!$category->addKeywordList($keywords)) {
+			(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("error_occured"));
+		}
 	}
 }
 
-//Kategorie bearbeiten: Stichwortliste bearbeiten ----------------------------------------------------------
+// Modify keyword categorie: modify list of keywords -------------------
 else if ($action == "editkeywords")
 {
-	if (!isset($_GET["categoryid"]) || !is_numeric($_GET["categoryid"]) || intval($_GET["categoryid"])<1) {
-		UI::exitError(getMLText("admin_tools"),getMLText("unknown_keyword_category"));
+	/* Check if the form data comes for a trusted request */
+	if(!checkFormKey('editkeywords')) {
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("invalid_request_token"));
 	}
-	$categoryid = $_GET["categoryid"];
+
+	if (!isset($_POST["categoryid"]) || !is_numeric($_POST["categoryid"]) || intval($_POST["categoryid"])<1) {
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("unknown_keyword_category"));
+	}
+	$categoryid = $_POST["categoryid"];
 	$category = $dms->getKeywordCategory($categoryid);
 	if (!is_object($category)) {
-		UI::exitError(getMLText("admin_tools"),getMLText("unknown_keyword_category"));
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("unknown_keyword_category"));
 
 	}
 
 	$owner    = $category->getOwner();
 	if (!$owner->isAdmin()) {
-		UI::exitError(getMLText("admin_tools"),getMLText("access_denied"));
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("access_denied"));
 	}
 
-	if (!isset($_GET["keywordsid"]) || !is_numeric($_GET["keywordsid"]) || intval($_GET["keywordsid"])<1) {
-		UI::exitError(getMLText("admin_tools"),getMLText("unknown_id"));
+	if (!isset($_POST["keywordsid"]) || !is_numeric($_POST["keywordsid"]) || intval($_POST["keywordsid"])<1) {
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("unknown_id"));
 	}
-	$keywordsid = $_GET["keywordsid"];
+	$keywordsid = $_POST["keywordsid"];
 
-	$keywords = sanitizeString($_GET["keywords"]);
+	$keywords = $_POST["keywords"];
 	if (!$category->editKeywordList($keywordsid, $keywords)) {
-		UI::exitError(getMLText("admin_tools"),getMLText("error_occured"));
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("error_occured"));
 	}
 }
 
-//Kategorie bearbeiten: Neue Stichwortliste löschen ----------------------------------------------------------
+// Modify keyword categorie: delete list of keywords --------------------
 else if ($action == "removekeywords") {
-	
-	if (!isset($_GET["categoryid"]) || !is_numeric($_GET["categoryid"]) || intval($_GET["categoryid"])<1) {
-		UI::exitError(getMLText("admin_tools"),getMLText("unknown_keyword_category"));
+
+	/* Check if the form data comes for a trusted request */
+	if(!checkFormKey('removekeywords')) {
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("invalid_request_token"));
 	}
-	$categoryid = $_GET["categoryid"];
+
+	if (!isset($_POST["categoryid"]) || !is_numeric($_POST["categoryid"]) || intval($_POST["categoryid"])<1) {
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("unknown_keyword_category"));
+	}
+	$categoryid = $_POST["categoryid"];
 	$category = $dms->getKeywordCategory($categoryid);
 	if (!is_object($category)) {
-		UI::exitError(getMLText("admin_tools"),getMLText("unknown_keyword_category"));
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("unknown_keyword_category"));
 	}
 
 	$owner    = $category->getOwner();
 	if (!$owner->isAdmin()) {
-		UI::exitError(getMLText("admin_tools"),getMLText("access_denied"));
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("access_denied"));
 	}
 
-	if (!isset($_GET["keywordsid"]) || !is_numeric($_GET["keywordsid"]) || intval($_GET["keywordsid"])<1) {
-		UI::exitError(getMLText("admin_tools"),getMLText("unknown_id"));
+	if (!isset($_POST["keywordsid"]) || !is_numeric($_POST["keywordsid"]) || intval($_POST["keywordsid"])<1) {
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("unknown_id"));
 	}
-	$keywordsid = $_GET["keywordsid"];
+	$keywordsid = $_POST["keywordsid"];
 
 	if (!$category->removeKeywordList($keywordsid)) {
-		UI::exitError(getMLText("admin_tools"),getMLText("error_occured"));
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("error_occured"));
 	}
 }
 else {
-	UI::exitError(getMLText("admin_tools"),getMLText("unknown_command"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("unknown_command"));
 }
 
 header("Location:../out/out.DefaultKeywords.php?categoryid=".$categoryid);

@@ -25,38 +25,14 @@ include("../inc/inc.ClassUI.php");
 include("../inc/inc.Authentication.php");
 
 if ($user->isGuest()) {
-	UI::exitError(getMLText("my_account"),getMLText("access_denied"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("my_account"),getMLText("access_denied"));
 }
 
-UI::htmlStartPage(getMLText("my_account"));
-UI::globalNavigation();
-UI::pageNavigation(getMLText("my_account"), "my_account");
-
-UI::contentHeading(getMLText("user_info"));
-UI::contentContainerStart();
-
-print "<table>\n";
-
-if ($settings->_enableUserImage){
-	print "<tr>\n";
-	print "<td rowspan=5 id=\"userImage\">".($user->hasImage() ? "<img class=\"userImage\" src=\"".$settings->_httpRoot . "out/out.UserImage.php?userid=".$user->getId()."\">" : getMLText("no_user_image"))."</td>\n";
-	print "</tr>\n";
+$tmp = explode('.', basename($_SERVER['SCRIPT_FILENAME']));
+$view = (new UI($GLOBALS['theme'] ?? 'bootstrap'))->factory($theme, $tmp[1], array('dms'=>$dms, 'user'=>$user, 'enableuserimage'=>$settings->_enableUserImage, 'passwordexpiration'=>$settings->_passwordExpiration, 'httproot'=>$settings->_httpRoot));
+if($view) {
+	$view->show();
+	exit;
 }
 
-print "<tr>\n";
-print "<td>".getMLText("name")." : </td>\n";
-print "<td>".$user->getFullName().($user->isAdmin() ? " (".getMLText("admin").")" : "")."</td>\n";
-print "</tr>\n<tr>\n";
-print "<td>".getMLText("user_login")." : </td>\n";
-print "<td>".$user->getLogin()."</td>\n";
-print "</tr>\n<tr>\n";
-print "<td>".getMLText("email")." : </td>\n";
-print "<td>".$user->getEmail()."</td>\n";
-print "</tr>\n<tr>\n";
-print "<td>".getMLText("comment")." : </td>\n";
-print "<td>".$user->getComment()."</td>\n";
-print"</tr>\n</table>\n";
-
-UI::contentContainerEnd();
-UI::htmlEndPage();
 ?>

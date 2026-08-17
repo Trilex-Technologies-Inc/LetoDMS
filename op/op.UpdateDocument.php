@@ -26,7 +26,7 @@ include("../inc/inc.ClassUI.php");
 include("../inc/inc.Authentication.php");
 
 if (!isset($_POST["documentid"]) || !is_numeric($_POST["documentid"]) || intval($_POST["documentid"])<1) {
-	UI::exitError(getMLText("document_title", array("documentname" => getMLText("invalid_doc_id"))),getMLText("invalid_doc_id"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => getMLText("invalid_doc_id"))),getMLText("invalid_doc_id"));
 }
 
 $documentid = $_POST["documentid"];
@@ -34,27 +34,57 @@ $document = $dms->getDocument($documentid);
 $folder = $document->getFolder();
 
 if (!is_object($document)) {
-	UI::exitError(getMLText("document_title", array("documentname" => getMLText("invalid_doc_id"))),getMLText("invalid_doc_id"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => getMLText("invalid_doc_id"))),getMLText("invalid_doc_id"));
 }
 
 if ($document->getAccessMode($user) < M_READWRITE) {
-	UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("access_denied"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("access_denied"));
 }
 
 if ($document->isLocked()) {
 	$lockingUser = $document->getLockingUser();
 	if (($lockingUser->getID() != $user->getID()) && ($document->getAccessMode($user) != M_ALL)) {
-		UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("no_update_cause_locked"));
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("no_update_cause_locked"));
 	}
 	else $document->setLocked(false);
 }
 
-if (is_uploaded_file($_FILES["userfile"]["tmp_name"]) && $_FILES["userfile"]["size"] > 0 && $_FILES['userfile']['error']==0) {
+$comment  = $_POST["comment"];
 
-	$comment  = sanitizeString($_POST["comment"]);
+if ($_FILES['userfile']['error'] == 0) {
+	if(!is_uploaded_file($_FILES["userfile"]["tmp_name"]))
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("error_occured"));
+
+	if($_FILES["userfile"]["size"] == 0)
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("uploading_zerosize"));
+
 	$userfiletmp = $_FILES["userfile"]["tmp_name"];
-	$userfiletype = sanitizeString($_FILES["userfile"]["type"]);
-	$userfilename = sanitizeString($_FILES["userfile"]["name"]);
+	$userfiletype = $_FILES["userfile"]["type"];
+	$userfilename = $_FILES["userfile"]["name"];
+} elseif($settings->_dropFolderDir) {
+	if($_POST['dropfolderfileform1']) {
+		$fullfile = $settings->_dropFolderDir.'/'.$user->getLogin().'/'.$_POST["dropfolderfileform1"];
+		if(file_exists($fullfile)) {
+			$finfo = finfo_open(FILEINFO_MIME);
+			$mimetype = explode(';', finfo_file($finfo, $fullfile));
+			$userfiletmp = $fullfile;
+			$userfiletype = $mimetype[0];
+			$userfilename= $_POST["dropfolderfileform1"];
+		} else {
+			(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("error_occured"));
+		}
+	} else {
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("error_occured"));
+	}
+} else {
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("uploading_failed"));
+}
+
+/* Check if the uploaded file is identical to last version */
+	$lc = $document->getLatestContent();
+	if($lc->getChecksum() == (new LetoDMS_Core_File())->checksum($userfiletmp)) {
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("identical_version"));
+	}
 
 	$lastDotIndex = strrpos(basename($userfilename), ".");
 	if (is_bool($lastDotIndex) && !$lastDotIndex)
@@ -97,7 +127,7 @@ if (is_uploaded_file($_FILES["userfile"]["tmp_name"]) && $_FILES["userfile"]["si
 	}
 
 	// add mandatory reviewers/approvers
-	$docAccess = $folder->getApproversList();
+	$docAccess = $folder->getReadAccessList();
 	$res=$user->getMandatoryReviewers();
 	foreach ($res as $r){
 
@@ -135,26 +165,27 @@ if (is_uploaded_file($_FILES["userfile"]["tmp_name"]) && $_FILES["userfile"]["si
 		}
 	}
 
+	$attributes = $_POST["attributes"];
 
-	$contentResult=$document->addContent($comment, $user, $userfiletmp, basename($userfilename), $fileType, $userfiletype, $reviewers, $approvers);
+	$contentResult=$document->addContent($comment, $user, $userfiletmp, basename($userfilename), $fileType, $userfiletype, $reviewers, $approvers, $version=0, $attributes);
 	if (is_bool($contentResult) && !$contentResult) {
-		UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("error_occured"));
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("error_occured"));
 	}
 	else {
 		// Send notification to subscribers.
 		$document->getNotifyList();
 		if ($notifier){
 			$folder = $document->getFolder();
-			$subject = "###SITENAME###: ".$document->_name." - ".getMLText("document_updated_email");
+			$subject = "###SITENAME###: ".$document->getName()." - ".getMLText("document_updated_email");
 			$message = getMLText("document_updated_email")."\r\n";
-			$message .= 
-				getMLText("document").": ".$document->_name."\r\n".
+			$message .=
+				getMLText("document").": ".$document->getName()."\r\n".
 				getMLText("folder").": ".$folder->getFolderPathPlain()."\r\n".
 				getMLText("comment").": ".$document->getComment()."\r\n".
-				"URL: ###URL_PREFIX###out/out.ViewDocument.php?documentid=".$document->_id."\r\n";
+				"URL: ###URL_PREFIX###out/out.ViewDocument.php?documentid=".$document->getID()."\r\n";
 
-			$subject=mydmsDecodeString($subject);
-			$message=mydmsDecodeString($message);
+//			$subject=mydmsDecodeString($subject);
+//			$message=mydmsDecodeString($message);
 
 			$notifier->toList($user, $document->_notifyList["users"], $subject, $message);
 			foreach ($document->_notifyList["groups"] as $grp) {
@@ -162,41 +193,47 @@ if (is_uploaded_file($_FILES["userfile"]["tmp_name"]) && $_FILES["userfile"]["si
 			}
 
 			// if user is not owner send notification to owner
-			if ($user->getID()!= $document->_ownerID)
+			if ($user->getID()!= $document->getOwner()->getID())
 				$notifier->toIndividual($user, $document->getOwner(), $subject, $message);
 		}
 
-		$expires = ($_POST["expires"] == "true") ? mktime(0,0,0, $_POST["expmonth"], $_POST["expday"], $_POST["expyear"]) : false;
-
-		if ($document->setExpires($expires)) {
-			$document->getNotifyList();
-			if($notifier) {
-				$folder = $document->getFolder();
-				// Send notification to subscribers.
-				$subject = "###SITENAME###: ".$document->_name." - ".getMLText("expiry_changed_email");
-				$message = getMLText("expiry_changed_email")."\r\n";
-				$message .= 
-					getMLText("document").": ".$document->_name."\r\n".
-					getMLText("folder").": ".$folder->getFolderPathPlain()."\r\n".
-					getMLText("comment").": ".$document->getComment()."\r\n".
-					"URL: ###URL_PREFIX###out/out.ViewDocument.php?documentid=".$document->_id."\r\n";
-
-				$subject=mydmsDecodeString($subject);
-				$message=mydmsDecodeString($message);
-
-				$notifier->toList($user, $document->_notifyList["users"], $subject, $message);
-				foreach ($document->_notifyList["groups"] as $grp) {
-					$notifier->toGroup($user, $grp, $subject, $message);
-				}
+		$expires = false;
+		if ($_POST["expires"] != "false") {
+			if($_POST["expdate"]) {
+				$tmp = explode('/', $_POST["expdate"]);
+				$expires = mktime(0,0,0, $tmp[1], $tmp[0], $tmp[2]);
+			} else {
+				$expires = mktime(0,0,0, $_POST["expmonth"], $_POST["expday"], $_POST["expyear"]);
 			}
-		} else {
-			UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("error_occured"));
+		}
+
+		if ($expires) {
+			if($document->setExpires($expires)) {
+				$document->getNotifyList();
+				if($notifier) {
+					$folder = $document->getFolder();
+					// Send notification to subscribers.
+					$subject = "###SITENAME###: ".$document->getName()." - ".getMLText("expiry_changed_email");
+					$message = getMLText("expiry_changed_email")."\r\n";
+					$message .=
+						getMLText("document").": ".$document->getName()."\r\n".
+						getMLText("folder").": ".$folder->getFolderPathPlain()."\r\n".
+						getMLText("comment").": ".$document->getComment()."\r\n".
+						"URL: ###URL_PREFIX###out/out.ViewDocument.php?documentid=".$document->getID()."\r\n";
+
+	//				$subject=mydmsDecodeString($subject);
+	//				$message=mydmsDecodeString($message);
+
+					$notifier->toList($user, $document->_notifyList["users"], $subject, $message);
+					foreach ($document->_notifyList["groups"] as $grp) {
+						$notifier->toGroup($user, $grp, $subject, $message);
+					}
+				}
+			} else {
+				(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("error_occured"));
+			}
 		}
 	}
-}
-else {
-	UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("error_occured"));
-}
 
 add_log_line("?documentid=".$documentid);
 header("Location:../out/out.ViewDocument.php?documentid=".$documentid);

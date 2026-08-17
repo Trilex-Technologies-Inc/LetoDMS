@@ -25,7 +25,7 @@ include("../inc/inc.ClassUI.php");
 include("../inc/inc.Authentication.php");
 
 if (!$user->isAdmin()) {
-	UI::exitError(getMLText("admin_tools"),getMLText("access_denied"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("access_denied"));
 }
 
 $dump_name = $settings->_contentDir.time().".sql";
@@ -33,7 +33,7 @@ $dump_name = $settings->_contentDir.time().".sql";
 $h=fopen($dump_name,"w");
 
 if (is_bool($h)&&!$h)
-	UI::exitError(getMLText("admin_tools"),getMLText("error_occured"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("error_occured"));
 
 $tables = $db->TableList('TABLES');
 
@@ -41,27 +41,29 @@ foreach ($tables as $table){
 
 	$query = "SELECT * FROM ".$table;
 	$records = $db->getResultArray($query);
-	
+
 	fwrite($h,"\n-- TABLE: ".$table."--\n\n");
-	
+
 	foreach ($records as $record){
-		
+
 		$values="";
-		for ($i=0;$i<(count($record)/2);$i++){
-			if (is_numeric($record[$i])) $values .= $record[$i];
-			else $values .= "'".$record[$i]."'";
-			
-			if ($i<(count($record)/2-1)) $values .= ",";
+		$i = 1;
+		foreach ($record as $column) {
+			if (is_numeric($column)) $values .= $column;
+			else $values .= "'".$column."'";
+
+			if ($i<(count($record))) $values .= ",";
+			$i++;
 		}
-		
+
 		fwrite($h, "INSERT INTO " . $table . " VALUES (" . $values . ");\n");
 	}
 }
 
 fclose($h);
 
-if (LetoDMS_Core_File::gzcompressfile($dump_name,9)) unlink($dump_name);
-else UI::exitError(getMLText("admin_tools"),getMLText("error_occured"));
+if ((new LetoDMS_Core_File())->gzcompressfile($dump_name,9)) unlink($dump_name);
+else (new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("error_occured"));
 
 add_log_line();
 

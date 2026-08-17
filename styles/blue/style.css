@@ -333,15 +333,15 @@ ul.reviewer li {
 ul.reviewer li.first {
 	border-top: none;
 }
-ul.actions {
+ul.actions, ul.documentDetail {
 	padding: 0;
 	margin: 0;
 }
-ul.actions li {
+ul.actions li, ul.documentDetail li {
 	list-style: none;
 	padding: 0 0 0.1em 0;
 }
-ul.actions li.first {
+ul.actions li.first, ul.documentDetail li.first {
 	border-top: none;
 }
 dl.documentDetail {
@@ -406,6 +406,16 @@ span.absSpacerTitle {
   font-size: 1.5em;
   padding-top: 0.2em;
   visibility: hidden;
+}
+
+div.error {
+	text-align: center;
+	margin: 20px;
+	padding: 20px;
+	border: 1px solid black;
+	border-radius: 15px;
+	background-color: #ff8787;
+	font-weight: bold;
 }
 
 .disclaimer {

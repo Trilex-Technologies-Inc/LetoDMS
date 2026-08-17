@@ -1,8 +1,8 @@
 <?php
 //    MyDMS. Document Management System
-//    Copyright (C) 2002-2005  Markus Westphal
+//    Copyright (C) 2002-2005 Markus Westphal
 //    Copyright (C) 2006-2008 Malcolm Cowe
-//    Copyright (C) 2010 Uwe Steinmann
+//    Copyright (C) 2010-2013 Uwe Steinmann
 //
 //    This program is free software; you can redistribute it and/or modify
 //    it under the terms of the GNU General Public License as published by
@@ -18,13 +18,12 @@
 //    along with this program; if not, write to the Free Software
 //    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-if(isset($settings->_ADOdbPath))
-	ini_set('include_path', $settings->_ADOdbPath. PATH_SEPARATOR .ini_get('include_path'));
 
+$settings->_coreDir='../LetoDMS_Core';
 if(!empty($settings->_coreDir))
 	require_once($settings->_coreDir.'/Core.php');
 else
-	require_once('LetoDMS/Core.php');
+	require_once('../LetoDMS_Core/Core.php');
 
 $db = new LetoDMS_Core_DatabaseAccess($settings->_dbDriver, $settings->_dbHostname, $settings->_dbUser, $settings->_dbPass, $settings->_dbDatabase);
 $db->connect() or die ("Could not connect to db-server \"" . $settings->_dbHostname . "\"");
@@ -37,6 +36,7 @@ if(!$dms->checkVersion()) {
 }
 
 $dms->setRootFolderID($settings->_rootFolderID);
+$dms->setMaxDirID($settings->_maxDirID);
 $dms->setEnableAdminRevApp($settings->_enableAdminRevApp);
 $dms->setEnableConverting($settings->_enableConverting);
 $dms->setViewOnlineFileTypes($settings->_viewOnlineFileTypes);

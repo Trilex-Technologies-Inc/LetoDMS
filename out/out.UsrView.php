@@ -23,60 +23,23 @@ include("../inc/inc.ClassUI.php");
 include("../inc/inc.Authentication.php");
 
 if ($user->isGuest()) {
-	UI::exitError(getMLText("my_account"),getMLText("access_denied"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("my_account"),getMLText("access_denied"));
 }
 
 if (!$settings->_enableUsersView) {
-	UI::exitError(getMLText("my_account"),getMLText("access_denied"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("my_account"),getMLText("access_denied"));
 }
 
 $users = $dms->getAllUsers();
-
 if (is_bool($users)) {
-	UI::exitError(getMLText("my_account"),getMLText("internal_error"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("my_account"),getMLText("internal_error"));
 }
 
-UI::htmlStartPage(getMLText("my_account"));
-UI::globalNavigation();
-UI::pageNavigation(getMLText("my_account"), "my_account");
-
-UI::contentHeading(getMLText("users"));
-UI::contentContainerStart();
-
-echo "<table class=\"userView\">\n";
-echo "<thead>\n<tr>\n";
-echo "<th>".getMLText("name")."</th>\n";
-echo "<th>".getMLText("email")."</th>\n";
-echo "<th>".getMLText("comment")."</th>\n";
-if ($settings->_enableUserImage) echo "<th>".getMLText("user_image")."</th>\n";
-echo "</tr>\n</thead>\n";
-
-foreach ($users as $currUser) {
-
-	if ($currUser->isGuest())
-		continue;
-		
-	if ($currUser->isHidden()=="1") continue;
-		
-	echo "<tr>\n";
-	
-	print "<td>".$currUser->getFullName()."</td>";
-	
-	print "<td><a href=\"mailto:".$currUser->getEmail()."\">".$currUser->getEmail()."</a></td>";
-	print "<td>".$currUser->getComment()."</td>";
-	
-	if ($settings->_enableUserImage){
-		print "<td>";
-		if ($currUser->hasImage()) print "<img src=\"".$settings->_httpRoot . "out/out.UserImage.php?userid=".$currUser->getId()."\">";
-		else printMLText("no_user_image");
-		print "</td>";	
-	}
-	
-	echo "</tr>\n";
+$tmp = explode('.', basename($_SERVER['SCRIPT_FILENAME']));
+$view = (new UI($GLOBALS['theme'] ?? 'bootstrap'))->factory($theme, $tmp[1], array('dms'=>$dms, 'user'=>$user, 'allusers'=>$users, 'enableuserimage'=>$settings->_enableUserImage, 'httproot'=>$settings->_httpRoot));
+if($view) {
+	$view->show();
+	exit;
 }
 
-echo "</table>\n";
-
-UI::contentContainerEnd();
-UI::htmlEndPage();
 ?>

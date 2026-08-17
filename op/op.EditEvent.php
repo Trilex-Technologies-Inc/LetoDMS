@@ -29,38 +29,53 @@ include("../inc/inc.Calendar.php");
 include("../inc/inc.Authentication.php");
 
 if ($user->isGuest()) {
-	UI::exitError(getMLText("edit_event"),getMLText("access_denied"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("edit_event"),getMLText("access_denied"));
 }
 
-if (!isset($_POST["frommonth"]) || !isset($_POST["fromday"]) || !isset($_POST["fromyear"]) ) {
-	UI::exitError(getMLText("edit_event"),getMLText("error_occured"));
+/* Check if the form data comes for a trusted request */
+if(!checkFormKey('editevent')) {
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("edit_event"),getMLText("invalid_request_token"));
 }
 
-if (!isset($_POST["tomonth"]) || !isset($_POST["today"]) || !isset($_POST["toyear"]) ) {
-	UI::exitError(getMLText("edit_event"),getMLText("error_occured"));
+if (!isset($_POST["from"]) && !(isset($_POST["frommonth"]) && isset($_POST["fromday"]) && isset($_POST["fromyear"])) ) {
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("edit_event"),getMLText("error_occured"));
+}
+
+if (!isset($_POST["to"]) && !(isset($_POST["tomonth"]) && isset($_POST["today"]) && isset($_POST["toyear"])) ) {
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("edit_event"),getMLText("error_occured"));
 }
 
 if (!isset($_POST["name"]) || !isset($_POST["comment"]) ) {
-	UI::exitError(getMLText("edit_event"),getMLText("error_occured"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("edit_event"),getMLText("error_occured"));
 }
 
 if (!isset($_POST["eventid"])) {
-	UI::exitError(getMLText("edit_event"),getMLText("error_occured"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("edit_event"),getMLText("error_occured"));
 }
 
-$name     = sanitizeString($_POST["name"]);
-$comment  = sanitizeString($_POST["comment"]);
-$from = mktime(0,0,0, intval($_POST["frommonth"]), intval($_POST["fromday"]), intval($_POST["fromyear"]));
-$to = mktime(23,59,59, intval($_POST["tomonth"]), intval($_POST["today"]), intval($_POST["toyear"]));
+$name     = $_POST["name"];
+$comment  = $_POST["comment"];
+if(isset($_POST["from"])) {
+	$tmp = explode('-', $_POST["from"]);
+	$from = mktime(0,0,0, $tmp[1], $tmp[0], $tmp[2]);
+} else {
+	$from = mktime(0,0,0, intval($_POST["frommonth"]), intval($_POST["fromday"]), intval($_POST["fromyear"]));
+}
+if(isset($_POST["to"])) {
+	$tmp = explode('-', $_POST["to"]);
+	$to = mktime(23,59,59, $tmp[1], $tmp[0], $tmp[2]);
+} else {
+	$to = mktime(23,59,59, intval($_POST["tomonth"]), intval($_POST["today"]), intval($_POST["toyear"]));
+}
 
-if ($to<$from){
-	$to= mktime(23,59,59, intval($_POST["frommonth"]), intval($_POST["fromday"]), intval($_POST["fromyear"]));
+if ($to<=$from){
+	$to = $from + 86400 -1;
 }
 
 $res = editEvent($_POST["eventid"], $from, $to, $name, $comment );
-                                
+
 if (is_bool($res) && !$res) {
-	UI::exitError(getMLText("edit_event"),getMLText("error_occured"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("edit_event"),getMLText("error_occured"));
 }
 
 add_log_line("?eventid=".$_POST["eventid"]."&name=".$name."&from=".$from."&to=".$to);

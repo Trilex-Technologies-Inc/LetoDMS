@@ -26,31 +26,31 @@ include("../inc/inc.ClassEmail.php");
 include("../inc/inc.Authentication.php");
 
 if (!isset($_GET["documentid"]) || !is_numeric($_GET["documentid"]) || intval($_GET["documentid"])<1) {
-	UI::exitError(getMLText("document_title", array("documentname" => getMLText("invalid_doc_id"))),getMLText("invalid_doc_id"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => getMLText("invalid_doc_id"))),getMLText("invalid_doc_id"));
 }
 
 $documentid = $_GET["documentid"];
 $document = $dms->getDocument($documentid);
 
 if (!is_object($document)) {
-	UI::exitError(getMLText("document_title", array("documentname" => getMLText("invalid_doc_id"))),getMLText("invalid_doc_id"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => getMLText("invalid_doc_id"))),getMLText("invalid_doc_id"));
 }
 
 $oldFolder = $document->getFolder();
 
 if (!isset($_GET["targetidform1"]) || !is_numeric($_GET["targetidform1"]) || $_GET["targetidform1"]<1) {
-	UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("invalid_target_folder"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("invalid_target_folder"));
 }
 
 $targetid = $_GET["targetidform1"];
 $targetFolder = $dms->getFolder($targetid);
 
 if (!is_object($targetFolder)) {
-	UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("invalid_target_folder"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("invalid_target_folder"));
 }
 
 if (($document->getAccessMode($user) < M_READWRITE) || ($targetFolder->getAccessMode($user) < M_READWRITE)) {
-	UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("access_denied"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("access_denied"));
 }
 
 if ($targetid != $oldFolder->getID()) {
@@ -58,30 +58,29 @@ if ($targetid != $oldFolder->getID()) {
 		$document->getNotifyList();
 		// Send notification to subscribers.
 		if($notifier) {
-			$folder = $document->getFolder();
-			$subject = "###SITENAME###: ".$document->_name." - ".getMLText("document_moved_email");
+			$subject = "###SITENAME###: ".$document->getName()." - ".getMLText("document_moved_email");
 			$message = getMLText("document_moved_email")."\r\n";
-			$message .= 
-				getMLText("document").": ".$document->_name."\r\n".
-				getMLText("folder").": ".$folder->getFolderPathPlain()."\r\n".
+			$message .=
+				getMLText("document").": ".$document->getName()."\r\n".
+				getMLText("folder").": ".$oldFolder->getFolderPathPlain()."\r\n".
 				getMLText("new_folder").": ".$targetFolder->getFolderPathPlain()."\r\n".
 				"URL: ###URL_PREFIX###out/out.ViewDocument.php?documentid=".$document->getID()."\r\n";
 
-			$subject=mydmsDecodeString($subject);
-			$message=mydmsDecodeString($message);
-			
+//			$subject=mydmsDecodeString($subject);
+//			$message=mydmsDecodeString($message);
+
 			$notifier->toList($user, $document->_notifyList["users"], $subject, $message);
 			foreach ($document->_notifyList["groups"] as $grp) {
 				$notifier->toGroup($user, $grp, $subject, $message);
 			}
-			
+
 			// if user is not owner send notification to owner
-			if ($user->getID()!= $document->getOwner()) 
-				$notifier->toIndividual($user, $document->getOwner(), $subject, $message);		
+			if ($user->getID()!= $document->getOwner())
+				$notifier->toIndividual($user, $document->getOwner(), $subject, $message);
 		}
 
 	} else {
-		UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("error_occured"));
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("error_occured"));
 	}
 }
 

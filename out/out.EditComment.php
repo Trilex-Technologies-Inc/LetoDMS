@@ -26,69 +26,25 @@ include("../inc/inc.ClassUI.php");
 include("../inc/inc.Authentication.php");
 
 if (!isset($_GET["documentid"]) || !is_numeric($_GET["documentid"]) || intval($_GET["documentid"])<1) {
-	UI::exitError(getMLText("document_title", array("documentname" => getMLText("invalid_doc_id"))),getMLText("invalid_doc_id"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => getMLText("invalid_doc_id"))),getMLText("invalid_doc_id"));
 }
-$documentid = $_GET["documentid"];
-$document = $dms->getDocument($documentid);
-
+$document = $dms->getDocument($_GET["documentid"]);
 if (!is_object($document)) {
-	UI::exitError(getMLText("document_title", array("documentname" => getMLText("invalid_doc_id"))),getMLText("invalid_doc_id"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => getMLText("invalid_doc_id"))),getMLText("invalid_doc_id"));
+}
+
+$version = $document->getContentByVersion($_GET["version"]);
+if (!is_object($version)) {
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => htmlspecialchars($document->getName()))),getMLText("invalid_version"));
 }
 
 $folder = $document->getFolder();
-$docPathHTML = getFolderPathHTML($folder, true). " / <a href=\"../out/out.ViewDocument.php?documentid=".$documentid."\">".$document->getName()."</a>";
 
-$versionid = $_GET["version"];
-$version = $document->getContentByVersion($versionid);
-
-if (!is_object($version)) {
-	UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("invalid_version"));
+$tmp = explode('.', basename($_SERVER['SCRIPT_FILENAME']));
+$view = (new UI($GLOBALS['theme'] ?? 'bootstrap'))->factory($theme, $tmp[1], array('dms'=>$dms, 'user'=>$user, 'folder'=>$folder, 'document'=>$document, 'version'=>$version, 'strictformcheck'=>$settings->_strictFormCheck));
+if($view) {
+	$view->show();
+	exit;
 }
 
-UI::htmlStartPage(getMLText("document_title", array("documentname" => $document->getName())));
-UI::globalNavigation($folder);
-UI::pageNavigation($docPathHTML, "view_document");
-
-?>
-<script language="JavaScript">
-function checkForm()
-{
-	msg = "";
-<?php
-	if (isset($settings->_strictFormCheck) && $settings->_strictFormCheck) {
-?>
-	if (document.form1.comment.value == "") msg += "<?php printMLText("js_no_comment");?>\n";
-<?php
-	}
-?>
-	if (msg != "")
-	{
-		alert(msg);
-		return false;
-	}
-	else return true;
-}
-</script>
-
-<?php
-
-UI::contentHeading(getMLText("edit_comment"));
-UI::contentContainerStart();
-?>
-<form action="../op/op.EditComment.php" name="form1" onsubmit="return checkForm();" method="POST">
-	<input type="Hidden" name="documentid" value="<?php print $documentid;?>">
-	<input type="Hidden" name="version" value="<?php print $versionid;?>">
-	<table cellpadding="3">
-		<tr>
-			<td valign="top" class="inputDescription"><?php printMLText("comment");?>:</td>
-			<td><textarea name="comment" rows="4" cols="80"><?php print $version->getComment();?></textarea></td>
-		</tr>
-		<tr>
-			<td colspan="2"><br><input type="Submit" value="<?php printMLText("save") ?>"></td>
-		</tr>
-	</table>
-</form>
-<?php
-UI::contentContainerEnd();
-UI::htmlEndPage();
 ?>

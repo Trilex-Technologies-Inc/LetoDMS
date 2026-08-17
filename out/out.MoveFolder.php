@@ -26,49 +26,42 @@ include("../inc/inc.ClassUI.php");
 include("../inc/inc.Authentication.php");
 
 if (!isset($_GET["folderid"]) || !is_numeric($_GET["folderid"]) || intval($_GET["folderid"])<1) {
-	UI::exitError(getMLText("folder_title", array("foldername" => getMLText("invalid_folder_id"))),getMLText("invalid_folder_id"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("folder_title", array("foldername" => getMLText("invalid_folder_id"))),getMLText("invalid_folder_id"));
 }
 
-$folderid = $_GET["folderid"];
-$folder = $dms->getFolder($folderid);
+$folder = $dms->getFolder($_GET["folderid"]);
 
 if (!is_object($folder)) {
-	UI::exitError(getMLText("folder_title", array("foldername" => getMLText("invalid_folder_id"))),getMLText("invalid_folder_id"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("folder_title", array("foldername" => getMLText("invalid_folder_id"))),getMLText("invalid_folder_id"));
 }
 
-$folderPathHTML = getFolderPathHTML($folder, true);
-
-if ($folderid == $settings->_rootFolderID || !$folder->getParent()) {
-	UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("cannot_move_root"));
+if ($folder->getID() == $settings->_rootFolderID || !$folder->getParent()) {
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("folder_title", array("foldername" => htmlspecialchars($folder->getName()))),getMLText("cannot_move_root"));
 }
 
 if ($folder->getAccessMode($user) < M_READWRITE) {
-	UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("access_denied"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("folder_title", array("foldername" => htmlspecialchars($folder->getName()))),getMLText("access_denied"));
 }
 
-UI::htmlStartPage(getMLText("folder_title", array("foldername" => $folder->getName())));
-UI::globalNavigation($folder);
-UI::pageNavigation($folderPathHTML, "view_folder", $folder);
-UI::contentHeading(getMLText("move_folder"));
-UI::contentContainerStart();
+if(isset($_GET['targetid']) && $_GET['targetid']) {
+	$target = $dms->getFolder($_GET["targetid"]);
+	if (!is_object($target)) {
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("invalid_target_folder"));
+	}
 
-?>
-<form action="../op/op.MoveFolder.php" name="form1">
-	<input type="Hidden" name="folderid" value="<?php print $folderid;?>">
-	<input type="Hidden" name="showtree" value="<?php echo showtree();?>">
-	<table>
-		<tr>
-			<td><?php printMLText("choose_target_folder");?>:</td>
-			<td><?php UI::printFolderChooser("form1", M_READWRITE, $folder->getID());?></td>
-		</tr>
-		<tr>
-			<td colspan="2"><input type="Submit" value="<?php printMLText("move_folder"); ?>"></td>
-		</tr>
-	</table>
-	</form>
+	if ($target->getAccessMode($user) < M_READWRITE) {
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => htmlspecialchars($document->getName()))),getMLText("access_denied"));
+	}
 
+} else {
+	$target = null;
+}
 
-<?php
-UI::contentContainerEnd();
-UI::htmlEndPage();
+$tmp = explode('.', basename($_SERVER['SCRIPT_FILENAME']));
+$view = (new UI($GLOBALS['theme'] ?? 'bootstrap'))->factory($theme, $tmp[1], array('dms'=>$dms, 'user'=>$user, 'folder'=>$folder, 'target'=>$target));
+if($view) {
+	$view->show();
+	exit;
+}
+
 ?>

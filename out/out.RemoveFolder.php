@@ -25,42 +25,28 @@ include("../inc/inc.ClassUI.php");
 include("../inc/inc.Authentication.php");
 
 if (!isset($_GET["folderid"]) || !is_numeric($_GET["folderid"]) || intval($_GET["folderid"])<1) {
-	UI::exitError(getMLText("folder_title", array("foldername" => getMLText("invalid_folder_id"))),getMLText("invalid_folder_id"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("folder_title", array("foldername" => getMLText("invalid_folder_id"))),getMLText("invalid_folder_id"));
 }
 
-$folderid = $_GET["folderid"];
-$folder = $dms->getFolder($folderid);
+$folder = $dms->getFolder($_GET["folderid"]);
 
 if (!is_object($folder)) {
-	UI::exitError(getMLText("folder_title", array("foldername" => getMLText("invalid_folder_id"))),getMLText("invalid_folder_id"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("folder_title", array("foldername" => getMLText("invalid_folder_id"))),getMLText("invalid_folder_id"));
 }
 
-$folderPathHTML = getFolderPathHTML($folder, true);
-
-if ($folderid == $settings->_rootFolderID || !$folder->getParent()) {
-	UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("cannot_rm_root"));
+if ($folder->getID() == $settings->_rootFolderID || !$folder->getParent()) {
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("folder_title", array("foldername" => htmlspecialchars($folder->getName()))),getMLText("cannot_rm_root"));
 }
 
 if ($folder->getAccessMode($user) < M_ALL) {
-	UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("access_denied"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("folder_title", array("foldername" => htmlspecialchars($folder->getName()))),getMLText("access_denied"));
 }
 
-UI::htmlStartPage(getMLText("folder_title", array("foldername" => $folder->getName())));
-UI::globalNavigation($folder);
-UI::pageNavigation($folderPathHTML, "view_folder", $folder);
-UI::contentHeading(getMLText("rm_folder"));
-UI::contentContainerStart();
+$tmp = explode('.', basename($_SERVER['SCRIPT_FILENAME']));
+$view = (new UI($GLOBALS['theme'] ?? 'bootstrap'))->factory($theme, $tmp[1], array('dms'=>$dms, 'user'=>$user, 'folder'=>$folder));
+if($view) {
+	$view->show();
+	exit;
+}
 
-?>
-<form action="../op/op.RemoveFolder.php" name="form1">
-	<input type="Hidden" name="folderid" value="<?php print $folderid;?>">
-	<input type="Hidden" name="showtree" value="<?php echo showtree();?>">
-	<p>
-	<?php printMLText("confirm_rm_folder", array ("foldername" => $folder->getName()));?>
-	</p>
-	<p><input type="Submit" value="<?php printMLText("rm_folder");?>"></p>
-</form>
-<?php
-UI::contentContainerEnd();
-UI::htmlEndPage();
 ?>

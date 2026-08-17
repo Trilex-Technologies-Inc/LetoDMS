@@ -2,7 +2,7 @@
 //    MyDMS. Document Management System
 //    Copyright (C) 2002-2005  Markus Westphal
 //    Copyright (C) 2006-2008 Malcolm Cowe
-//    Copyright (C) 2006-2008 Malcolm Cowe
+//    Copyright (C) 2010-2012 Uwe Steinmann
 //
 //    This program is free software; you can redistribute it and/or modify
 //    it under the terms of the GNU General Public License as published by
@@ -25,58 +25,30 @@ include("../inc/inc.ClassUI.php");
 include("../inc/inc.Authentication.php");
 
 if (!$user->isAdmin()) {
-	UI::exitError(getMLText("admin_tools"),getMLText("access_denied"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("access_denied"));
 }
 
 if (!isset($_GET["userid"]) || !is_numeric($_GET["userid"]) || intval($_GET["userid"])<1) {
-	UI::exitError(getMLText("rm_user"),getMLText("invalid_user_id"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("rm_user"),getMLText("invalid_user_id"));
 }
 
-$userid = $_GET["userid"];
-$currUser = $dms->getUser($userid);
+$rmuser = $dms->getUser(intval($_GET["userid"]));
 
-if ($userid==$user->getID()) {
-	UI::exitError(getMLText("rm_user"),getMLText("access_denied"));
+if ($rmuser->getID()==$user->getID()) {
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("rm_user"),getMLText("access_denied"));
 }
 
-if (!is_object($currUser)) {
-	UI::exitError(getMLText("rm_user"),getMLText("invalid_user_id"));
+if (!is_object($rmuser)) {
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("rm_user"),getMLText("invalid_user_id"));
 }
 
-UI::htmlStartPage(getMLText("admin_tools"));
-UI::globalNavigation();
-UI::pageNavigation(getMLText("admin_tools"), "admin_tools");
-UI::contentHeading(getMLText("rm_user"));
-UI::contentContainerStart();
+$allusers = $dms->getAllUsers($settings->_sortUsersInList);
 
-?>
-<form action="../op/op.UsrMgr.php" name="form1" method="POST">
-<input type="Hidden" name="userid" value="<?php print $userid;?>">
-<input type="Hidden" name="action" value="removeuser">
-<p>
-<?php printMLText("confirm_rm_user", array ("username" => $currUser->getFullName()));?>
-</p>
+$tmp = explode('.', basename($_SERVER['SCRIPT_FILENAME']));
+$view = (new UI($GLOBALS['theme'] ?? 'bootstrap'))->factory($theme, $tmp[1], array('dms'=>$dms, 'user'=>$user, 'rmuser'=>$rmuser, 'allusers'=>$allusers));
+if($view) {
+	$view->show();
+	exit;
+}
 
-<p>
-<?php printMLText("assign_user_property_to"); ?> :
-<select name="assignTo">
-<?php
-	$users = $dms->getAllUsers();
-	foreach ($users as $currUser) {
-		if ($currUser->isGuest() || ($currUser->getID() == $userid) )
-			continue;
-
-		if (isset($_GET["userid"]) && $currUser->getID()==$_GET["userid"]) $selected=$count;
-		print "<option value=\"".$currUser->getID()."\">" . $currUser->getLogin();
-	}
-?>
-</select>
-</p>
-
-<p><input type="Submit" value="<?php printMLText("rm_user");?>"></p>
-
-</form>
-<?php
-UI::contentContainerEnd();
-UI::htmlEndPage();
 ?>

@@ -27,31 +27,36 @@ include("../inc/inc.ClassEmail.php");
 include("../inc/inc.Authentication.php");
 
 if (!isset($_POST["documentid"]) || !is_numeric($_POST["documentid"]) || intval($_POST["documentid"])<1) {
-	UI::exitError(getMLText("document_title", array("documentname" => getMLText("invalid_doc_id"))),getMLText("invalid_doc_id"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => getMLText("invalid_doc_id"))),getMLText("invalid_doc_id"));
 }
 
 $documentid = $_POST["documentid"];
 $document = $dms->getDocument($documentid);
 
 if (!is_object($document)) {
-	UI::exitError(getMLText("document_title", array("documentname" => getMLText("invalid_doc_id"))),getMLText("invalid_doc_id"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => getMLText("invalid_doc_id"))),getMLText("invalid_doc_id"));
 }
 
 $folder = $document->getFolder();
 $docPathHTML = getFolderPathHTML($folder, true). " / <a href=\"../out/out.ViewDocument.php?documentid=".$documentid."\">".$document->getName()."</a>";
 
 if ($document->getAccessMode($user) < M_READWRITE) {
-	UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("access_denied"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("access_denied"));
 }
 
-$name =     sanitizeString($_POST["name"]);
-$comment =  sanitizeString($_POST["comment"]);
-$keywords = sanitizeString($_POST["keywords"]);
-$categories = sanitizeString($_POST["categoryidform1"]);
+$name =     $_POST["name"];
+$comment =  $_POST["comment"];
+$keywords = $_POST["keywords"];
+if(isset($_POST['categoryidform1'])) {
+	$categories = explode(',', preg_replace('/[^0-9,]+/', '', $_POST["categoryidform1"]));
+} else {
+	$categories = $_POST["categories"];
+}
 $sequence = $_POST["sequence"];
 if (!is_numeric($sequence)) {
 	$sequence="keep";
 }
+$attributes = $_POST["attributes"];
 
 if (($oldname = $document->getName()) != $name) {
 	if($document->setName($name)) {
@@ -59,31 +64,31 @@ if (($oldname = $document->getName()) != $name) {
 		$document->getNotifyList();
 		if($notifier) {
 			$folder = $document->getFolder();
-			$subject = "###SITENAME###: ".$document->_name." - ".getMLText("document_renamed_email");
+			$subject = "###SITENAME###: ".$document->getName()." - ".getMLText("document_renamed_email");
 			$message = getMLText("document_renamed_email")."\r\n";
-			$message .= 
+			$message .=
 				getMLText("old").": ".$oldname."\r\n".
 				getMLText("new").": ".$name."\r\n".
 				getMLText("folder").": ".$folder->getFolderPathPlain()."\r\n".
 				getMLText("comment").": ".$document->getComment()."\r\n".
 				"URL: ###URL_PREFIX###out/out.ViewDocument.php?documentid=".$document->getID()."\r\n";
 
-			$subject=mydmsDecodeString($subject);
-			$message=mydmsDecodeString($message);
+//			$subject=mydmsDecodeString($subject);
+//			$message=mydmsDecodeString($message);
 
 			$notifier->toList($user, $document->_notifyList["users"], $subject, $message);
 			foreach ($document->_notifyList["groups"] as $grp) {
 				$notifier->toGroup($user, $grp, $subject, $message);
 			}
-			
+
 			// if user is not owner send notification to owner
-			if ($user->getID()!= $document->_ownerID) 
-				$notifier->toIndividual($user, $document->getOwner(), $subject, $message);		
+			if ($user->getID() != $document->getOwner()->getID())
+				$notifier->toIndividual($user, $document->getOwner(), $subject, $message);
 		}
 
 	}
 	else {
-		UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("error_occured"));
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("error_occured"));
 	}
 }
 
@@ -95,27 +100,27 @@ if (($oldcomment = $document->getComment()) != $comment) {
 			$folder = $document->getFolder();
 			$subject = "###SITENAME###: ".$document->getName()." - ".getMLText("comment_changed_email");
 			$message = getMLText("comment_changed_email")."\r\n";
-			$message .= 
+			$message .=
 				getMLText("document").": ".$document->getName()."\r\n".
 				getMLText("folder").": ".$folder->getFolderPathPlain()."\r\n".
 				getMLText("comment").": ".$comment."\r\n".
 				"URL: ###URL_PREFIX###out/out.ViewDocument.php?documentid=".$document->getID()."\r\n";
 
-			$subject=mydmsDecodeString($subject);
-			$message=mydmsDecodeString($message);
-			
+//			$subject=mydmsDecodeString($subject);
+//			$message=mydmsDecodeString($message);
+
 			$notifier->toList($user, $document->_notifyList["users"], $subject, $message);
 			foreach ($document->_notifyList["groups"] as $grp) {
 				$notifier->toGroup($user, $grp, $subject, $message);
 			}
 
 			// if user is not owner send notification to owner
-			if ($user->getID() != $document->getOwner()) 
-				$notifier->toIndividual($user, $document->getOwner(), $subject, $message);		
+			if ($user->getID() != $document->getOwner())
+				$notifier->toIndividual($user, $document->getOwner(), $subject, $message);
 		}
 	}
 	else {
-		UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("error_occured"));
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("error_occured"));
 	}
 }
 
@@ -123,17 +128,17 @@ if (($oldkeywords = $document->getKeywords()) != $keywords) {
 	if($document->setKeywords($keywords)) {
 	}
 	else {
-		UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("error_occured"));
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("error_occured"));
 	}
 }
 
 if($categories) {
 	$categoriesarr = array();
-	foreach(explode(',', $categories) as $catid) {
+	foreach($categories as $catid) {
 		if($cat = $dms->getDocumentCategory($catid)) {
 			$categoriesarr[] = $cat;
 		}
-		
+
 	}
 	$oldcategories = $document->getCategories();
 	$oldcatsids = array();
@@ -141,10 +146,25 @@ if($categories) {
 		$oldcatsids[] = $oldcategory->getID();
 
 	if (count($categoriesarr) != count($oldcategories) ||
-			array_diff(explode(',', $categories), $oldcatsids)) {
+			array_diff($categories, $oldcatsids)) {
 		if($document->setCategories($categoriesarr)) {
 		} else {
-			UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("error_occured"));
+			(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("error_occured"));
+		}
+	}
+} else {
+	if($document->setCategories(array())) {
+	} else {
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("error_occured"));
+	}
+}
+
+if($attributes) {
+	$oldattributes = $document->getAttributes();
+	foreach($attributes as $attrdefid=>$attribute) {
+		if(!isset($oldattributes[$attrdefid]) || $attribute != $oldattributes[$attrdefid]->getValue()) {
+			if(!$document->setAttributeValue($dms->getAttributeDefinition($attrdefid), $attribute))
+				(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("error_occured"));
 		}
 	}
 }
@@ -153,7 +173,7 @@ if($sequence != "keep") {
  	if($document->setSequence($sequence)) {
 	}
 	else {
-		UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("error_occured"));
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("error_occured"));
 	}
 }
 

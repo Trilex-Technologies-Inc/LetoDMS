@@ -24,83 +24,18 @@ include("../inc/inc.ClassUI.php");
 include("../inc/inc.Authentication.php");
 
 if (!$user->isAdmin()) {
-	UI::exitError(getMLText("admin_tools"),getMLText("access_denied"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("access_denied"));
 }
 
 if (isset($_GET["logname"])) $logname=$_GET["logname"];
 else $logname=NULL;
 
-
-UI::htmlStartPage(getMLText("backup_tools"));
-UI::globalNavigation();
-UI::pageNavigation(getMLText("admin_tools"), "admin_tools");
-
-UI::contentHeading(getMLText("log_management"));
-UI::contentContainerStart();
-
-$print_header=true;
-
-$handle = opendir($settings->_contentDir);
-$entries = array();
-while ($e = readdir($handle)){
-	if (is_dir($settings->_contentDir.$e)) continue;
-	if (strpos($e,".log")==FALSE) continue;
-	if (strcmp($e,"current.log")==0) continue;
-	$entries[] = $e;
-}
-closedir($handle);
-
-sort($entries);
-$entries = array_reverse($entries);
-
-foreach ($entries as $entry){
-	
-	if ($print_header){
-		print "<table class=\"folderView\">\n";
-		print "<thead>\n<tr>\n";
-		print "<th></th>\n";
-		print "<th>".getMLText("creation_date")."</th>\n";
-		print "<th>".getMLText("file_size")."</th>\n";
-		print "<th></th>\n";
-		print "</tr>\n</thead>\n<tbody>\n";
-		$print_header=false;
-	}
-			
-	print "<tr>\n";
-	print "<td><a href=\"out.LogManagement.php?logname=".$entry."\">".$entry."</a></td>\n";
-	print "<td>".getLongReadableDate(filectime($settings->_contentDir.$entry))."</td>\n";
-	print "<td>".formatted_size(filesize($settings->_contentDir.$entry))."</td>\n";
-	print "<td><ul class=\"actions\">";
-	
-	print "<li><a href=\"out.RemoveLog.php?logname=".$entry."\">".getMLText("rm_file")."</a></li>";
-	
-	print "<li><a href=\"../op/op.Download.php?logname=".$entry."\">".getMLText("download")."</a></li>";
-		
-	print "</ul></td>\n";	
-	print "</tr>\n";
-}
-
-if ($print_header) printMLText("empty_notify_list");
-else print "</table>\n";
-
-UI::contentContainerEnd();
-
-if ($logname && file_exists($settings->_contentDir.$logname)){
-
-	UI::contentHeading("&nbsp;");
-	UI::contentContainerStart();
-	
-	UI::contentSubHeading($logname);
-
-	echo "<div class=\"logview\">";
-	echo "<pre>\n";
-	readfile($settings->_contentDir.$logname);
-	echo "</pre>\n";
-	echo "</div>";
-
-	UI::contentContainerEnd();
+$tmp = explode('.', basename($_SERVER['SCRIPT_FILENAME']));
+$view = (new UI($GLOBALS['theme'] ?? 'bootstrap'))->factory($theme, $tmp[1], array('dms'=>$dms, 'user'=>$user, 'logname'=>$logname, 'contentdir'=>$settings->_contentDir));
+if($view) {
+	$view->show();
+	exit;
 }
 
 
-UI::htmlEndPage();
 ?>

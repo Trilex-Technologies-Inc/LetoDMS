@@ -26,6 +26,11 @@ include("../inc/inc.ClassUI.php");
 include("../inc/inc.Authentication.php");
 
 $file_param_name = 'file';
+if(!isset($_POST['partitionIndex']) || !isset($_POST['partitionCount']) || !isset($_POST['fileId'])) {
+	$_POST['partitionIndex'] = 0;
+	$_POST['partitionCount'] = 1;
+	$_POST['fileId'] = uniqid('dropzone_', false);
+}
 $file_name = $_FILES[ $file_param_name ][ 'name' ];
 $source_file_path = $_FILES[ $file_param_name ][ 'tmp_name' ];
 $target_file_path =$settings->_stagingDir.$_POST['fileId']."-".$_POST['partitionIndex'];
@@ -60,10 +65,10 @@ if( move_uploaded_file( $source_file_path, $target_file_path ) ) {
 		$userfiletype = $_FILES[ $file_param_name ]["type"];
 		$userfilename = $_FILES[ $file_param_name ]["name"];
 
-		$name     = sanitizeString($_POST["name"]);
+		$name     = $_POST["name"];
 		if(!$name)
 			$name = $userfilename;
-		$comment  = sanitizeString($_POST["comment"]);
+		$comment  = $_POST["comment"];
 
 		$lastDotIndex = strrpos(basename($userfilename), ".");
 		if (is_bool($lastDotIndex) && !$lastDotIndex)
@@ -71,26 +76,26 @@ if( move_uploaded_file( $source_file_path, $target_file_path ) ) {
 		else
 			$fileType = substr($userfilename, $lastDotIndex);
 
-		$res = $document->addDocumentFile($name, $comment, $user, $userfiletmp, 
+		$res = $document->addDocumentFile($name, $comment, $user, $userfiletmp,
 																			basename($userfilename),$fileType, $userfiletype );
-																		
+
 		if (is_bool($res) && !$res) {
-			UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("error_occured"));
+			(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("error_occured"));
 		} else {
 			$document->getNotifyList();
 			// Send notification to subscribers.
 			if($notifier) {
-				$subject = "###SITENAME###: ".$document->_name." - ".getMLText("new_file_email");
+				$subject = "###SITENAME###: ".$document->getName()." - ".getMLText("new_file_email");
 				$message = getMLText("new_file_email")."\r\n";
-				$message .= 
+				$message .=
 					getMLText("name").": ".$name."\r\n".
 					getMLText("comment").": ".$comment."\r\n".
-					getMLText("user").": ".$user->getFullName()." <". $user->getEmail() .">\r\n".	
+					getMLText("user").": ".$user->getFullName()." <". $user->getEmail() .">\r\n".
 					"URL: ###URL_PREFIX###out/out.ViewDocument.php?documentid=".$document->getID()."\r\n";
 
-				$subject=mydmsDecodeString($subject);
-				$message=mydmsDecodeString($message);
-				
+				$subject=$subject;
+				$message=$message;
+
 				$notifier->toList($user, $document->_notifyList["users"], $subject, $message);
 				foreach ($document->_notifyList["groups"] as $grp) {
 					$notifier->toGroup($user, $grp, $subject, $message);

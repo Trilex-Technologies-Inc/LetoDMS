@@ -25,99 +25,26 @@ include("../inc/inc.ClassUI.php");
 include("../inc/inc.Authentication.php");
 
 if (!isset($_GET["documentid"]) || !is_numeric($_GET["documentid"]) || intval($_GET["documentid"])<1) {
-	UI::exitError(getMLText("document_title", array("documentname" => getMLText("invalid_doc_id"))),getMLText("invalid_doc_id"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => getMLText("invalid_doc_id"))),getMLText("invalid_doc_id"));
 }
-$documentid = $_GET["documentid"];
-$document = $dms->getDocument($documentid);
+$document = $dms->getDocument($_GET["documentid"]);
 
 if (!is_object($document)) {
-	UI::exitError(getMLText("document_title", array("documentname" => getMLText("invalid_doc_id"))),getMLText("invalid_doc_id"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => getMLText("invalid_doc_id"))),getMLText("invalid_doc_id"));
+}
+
+if ($document->getAccessMode($user) < M_READWRITE) {
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => htmlspecialchars($document->getName()))),getMLText("access_denied"));
 }
 
 $folder = $document->getFolder();
-$docPathHTML = getFolderPathHTML($folder, true). " / <a href=\"../out/out.ViewDocument.php?documentid=".$documentid."\">".$document->getName()."</a>";
+$attrdefs = $dms->getAllAttributeDefinitions(array(LetoDMS_Core_AttributeDefinition::objtype_document, LetoDMS_Core_AttributeDefinition::objtype_all));
 
-if ($document->getAccessMode($user) < M_READWRITE) {
-	UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("access_denied"));
+$tmp = explode('.', basename($_SERVER['SCRIPT_FILENAME']));
+$view = (new UI($GLOBALS['theme'] ?? 'bootstrap'))->factory($theme, $tmp[1], array('dms'=>$dms, 'user'=>$user, 'folder'=>$folder, 'document'=>$document, 'attrdefs'=>$attrdefs, 'strictformcheck'=>$settings->_strictFormCheck));
+if($view) {
+	$view->show();
+	exit;
 }
 
-UI::htmlStartPage(getMLText("document_title", array("documentname" => $document->getName())));
-UI::globalNavigation($folder);
-UI::pageNavigation($docPathHTML, "view_document");
-
-?>
-<script language="JavaScript">
-function checkForm()
-{
-	msg = "";
-	if (document.form1.name.value == "") msg += "<?php printMLText("js_no_name");?>\n";
-<?php
-	if (isset($settings->_strictFormCheck) && $settings->_strictFormCheck) {
-	?>
-	if (document.form1.comment.value == "") msg += "<?php printMLText("js_no_comment");?>\n";
-	if (document.form1.keywords.value == "") msg += "<?php printMLText("js_no_keywords");?>\n";
-<?php
-	}
-?>
-	if (msg != "")
-	{
-		alert(msg);
-		return false;
-	}
-	else
-		return true;
-}
-</script>
-
-<?php
-UI::contentHeading(getMLText("edit_document_props") . ": " . $document->getName());
-UI::contentContainerStart();
-?>
-<form action="../op/op.EditDocument.php" name="form1" onsubmit="return checkForm();" method="POST">
-	<input type="hidden" name="documentid" value="<?= $documentid ?>">
-	<table cellpadding="3">
-		<tr>
-			<td class="inputDescription"><?php printMLText("name");?>:</td>
-			<td><input name="name" value="<?php print $document->getName();?>" size="60"></td>
-		</tr>
-		<tr>
-			<td valign="top" class="inputDescription"><?php printMLText("comment");?>:</td>
-			<td><textarea name="comment" rows="4" cols="80"><?php print $document->getComment();?></textarea></td>
-		</tr>
-		<tr>
-			<td valign="top" class="inputDescription"><?php printMLText("keywords");?>:</td>
-			<td class="standardText">
-				<textarea name="keywords" rows="2" cols="80"><?php print $document->getKeywords();?></textarea><br>
-				<a href="javascript:chooseKeywords('form1.keywords');"><?php printMLText("use_default_keywords");?></a>
-				<script language="JavaScript">
-					var openDlg;
-					
-					function chooseKeywords(target) {
-						openDlg = open("out.KeywordChooser.php?target="+target, "openDlg", "width=500,height=400,scrollbars=yes,resizable=yes");
-					}
-				</script>
-			</td>
-		</tr>
-		<tr>
-			<td><?php printMLText("categories")?>:</td>
-			<td><?php UI::printCategoryChooser("form1", $document->getCategories());?></td>
-		</tr>
-		<?php
-			if ($folder->getAccessMode($user) > M_READ)
-			{
-				print "<tr>";
-				print "<td class=\"inputDescription\">" . getMLText("sequence") . ":</td>";
-				print "<td>";
-				UI::printSequenceChooser($folder->getDocuments(), $document->getID());
-				print "</td></tr>";
-			}
-		?>
-		<tr>
-			<td colspan="2"><br><input type="Submit" value="<?php printMLText("save") ?>"></td>
-		</tr>
-	</table>
-</form>
-<?php
-UI::contentContainerEnd();
-UI::htmlEndPage();
 ?>

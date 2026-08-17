@@ -28,41 +28,66 @@ include("../inc/inc.Authentication.php");
 $documentid = $_GET["documentid"];
 
 if (!isset($documentid) || !is_numeric($documentid) || intval($documentid)<1) {
-	UI::exitError(getMLText("document_title", array("documentname" => getMLText("invalid_doc_id"))),getMLText("invalid_doc_id"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => getMLText("invalid_doc_id"))),getMLText("invalid_doc_id"));
 }
 
 $document = $dms->getDocument($documentid);
 
 if (!is_object($document)) {
-	UI::exitError(getMLText("document_title", array("documentname" => getMLText("invalid_doc_id"))),getMLText("invalid_doc_id"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => getMLText("invalid_doc_id"))),getMLText("invalid_doc_id"));
 }
 
 if ($document->getAccessMode($user) < M_READ) {
-	UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("access_denied"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("access_denied"));
 }
 
-$version = $_GET["version"];
+if(isset($_GET["version"])) {
+	$version = $_GET["version"];
 
-if (!isset($version) || !is_numeric($version) || intval($version)<1) {
-	UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("invalid_version"));
+	if (!isset($version) || !is_numeric($version) || intval($version)<1) {
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("invalid_version"));
+	}
+
+	$content = $document->getContentByVersion($version);
+
+	if (!is_object($content)) {
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("invalid_version"));
+	}
+
+	if (isset($settings->_viewOnlineFileTypes) && is_array($settings->_viewOnlineFileTypes) && in_array(strtolower($content->getFileType()), $settings->_viewOnlineFileTypes)) {
+		header("Content-Type: " . $content->getMimeType());
+	}
+	header("Content-Disposition: filename=\"" . $document->getName().$content->getFileType()) . "\"";
+	header("Content-Length: " . filesize($dms->contentDir . $content->getPath()));
+	header("Expires: 0");
+	header("Cache-Control: no-cache, must-revalidate");
+	header("Pragma: no-cache");
+
+	readfile($dms->contentDir . $content->getPath());
+} elseif(isset($_GET["file"])) {
+	$fileid = $_GET["file"];
+
+	if (!is_numeric($fileid) || intval($fileid)<1) {
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("invalid_version"));
+	}
+
+	$file = $document->getDocumentFile($fileid);
+
+	if (!is_object($file)) {
+		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("invalid_file_id"));
+	}
+
+	if (isset($settings->_viewOnlineFileTypes) && is_array($settings->_viewOnlineFileTypes) && in_array(strtolower($file->getFileType()), $settings->_viewOnlineFileTypes)) {
+		header("Content-Type: " . $file->getMimeType());
+	}
+	header("Content-Disposition: filename=\"" . $file->getOriginalFileName()) . "\"";
+	header("Content-Length: " . filesize($dms->contentDir . $file->getPath() ));
+	header("Expires: 0");
+	header("Cache-Control: no-cache, must-revalidate");
+	header("Pragma: no-cache");
+
+	readfile($dms->contentDir . $file->getPath());
 }
-
-$content = $document->getContentByVersion($version);
-
-if (!is_object($content)) {
-	UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("invalid_version"));
-}
-
-if (isset($settings->_viewOnlineFileTypes) && is_array($settings->_viewOnlineFileTypes) && in_array(strtolower($content->getFileType()), $settings->_viewOnlineFileTypes)) {
-	header("Content-Type: " . $content->getMimeType());
-}
-header("Content-Disposition: filename=\"" . mydmsDecodeString( $document->getName().$content->getFileType()) . "\"");
-header("Content-Length: " . filesize($dms->contentDir . $content->getPath()));
-header("Expires: 0");
-header("Cache-Control: no-cache, must-revalidate");
-header("Pragma: no-cache");
-
-readfile($dms->contentDir . $content->getPath());
 
 add_log_line();
 exit;

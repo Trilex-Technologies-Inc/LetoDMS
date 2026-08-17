@@ -25,46 +25,27 @@ include("../inc/inc.Language.php");
 include("../inc/inc.ClassUI.php");
 include("../inc/inc.Authentication.php");
 
-if (!isset($_GET["folderid"]) || !is_numeric($_GET["folderid"]) || intval($_GET["folderid"])<1) {
-	UI::exitError(getMLText("folder_title", array("foldername" => getMLText("invalid_folder_id"))),getMLText("invalid_folder_id"));
-}
-$folderid = $_GET["folderid"];
-$folder = $dms->getFolder($folderid);
-if (!is_object($folder)) {
-	UI::exitError(getMLText("folder_title", array("foldername" => getMLText("invalid_folder_id"))),getMLText("invalid_folder_id"));
+if(!$settings->_enableLargeFileUpload) {
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("folder_title", array("foldername" => getMLText("invalid_folder_id"))),getMLText("access_denied"));
 }
 
-$folderPathHTML = getFolderPathHTML($folder, true);
+if (!isset($_GET["folderid"]) || !is_numeric($_GET["folderid"]) || intval($_GET["folderid"])<1) {
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("folder_title", array("foldername" => getMLText("invalid_folder_id"))),getMLText("invalid_folder_id"));
+}
+$folder = $dms->getFolder($_GET['folderid']);
+if (!is_object($folder)) {
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("folder_title", array("foldername" => getMLText("invalid_folder_id"))),getMLText("invalid_folder_id"));
+}
 
 if ($folder->getAccessMode($user) < M_READWRITE) {
-	UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("access_denied"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("folder_title", array("foldername" => htmlspecialchars($folder->getName()))),getMLText("access_denied"));
 }
 
-UI::htmlStartPage(getMLText("folder_title", array("foldername" => $folder->getName())));
-UI::globalNavigation($folder);
-UI::pageNavigation($folderPathHTML, "view_folder", $folder);
-
-?>
-<script language="JavaScript">
-var openDlg;
-function chooseKeywords(target) {
-	openDlg = open("out.KeywordChooser.php?target="+target, "openDlg", "width=500,height=400,scrollbars=yes,resizable=yes");
+$tmp = explode('.', basename($_SERVER['SCRIPT_FILENAME']));
+$view = (new UI($GLOBALS['theme'] ?? 'bootstrap'))->factory($theme, $tmp[1], array('dms'=>$dms, 'user'=>$user, 'folder'=>$folder));
+if($view) {
+	$view->show();
+	exit;
 }
-function chooseCategory(form, cats) {
-	openDlg = open("out.CategoryChooser.php?form="+form+"&cats="+cats, "openDlg", "width=480,height=480,scrollbars=yes,resizable=yes,status=yes");
-}
-</script>
 
-<?php
-UI::contentHeading(getMLText("add_document"));
-UI::contentContainerStart();
-
-// Retrieve a list of all users and groups that have review / approve
-// privileges.
-$docAccess = $folder->getApproversList();
-
-UI::printUploadApplet('../op/op.AddMultiDocument.php', array('folderid'=>$folderid));
-
-UI::contentContainerEnd();
-UI::htmlEndPage();
 ?>

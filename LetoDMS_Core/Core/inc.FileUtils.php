@@ -25,29 +25,73 @@
  * @version    Release: @package_version@
  */
 class LetoDMS_Core_File {
-	function renameFile($old, $new) {
+	static function renameFile($old, $new) { /* {{{ */
 		return @rename($old, $new);
-	}
+	} /* }}} */
 
-	function removeFile($file) {
+	static function removeFile($file) { /* {{{ */
 		return @unlink($file);
-	}
+	} /* }}} */
 
-	function copyFile($source, $target) {
+	static function copyFile($source, $target) { /* {{{ */
 		return @copy($source, $target);
-	}
+	} /* }}} */
 
-	function moveFile($source, $target) {
-		if (!@copyFile($source, $target))
+	static function moveFile($source, $target) { /* {{{ */
+		if (!self::copyFile($source, $target))
 			return false;
-		return @removeFile($source);
-	}
+		return self::removeFile($source);
+	} /* }}} */
 
-	function renameDir($old, $new) {
+	static function fileSize($file) { /* {{{ */
+		if(!$a = fopen($file, 'r'))
+			return false;
+		fseek($a, 0, SEEK_END);
+		$filesize = ftell($a);
+		fclose($a);
+		return $filesize;
+	} /* }}} */
+
+	static function format_filesize($size, $sizes = array('Bytes', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB', 'EiB', 'ZiB', 'YiB')) { /* {{{ */
+		if ($size == 0) return('0 Bytes');
+		return (round($size/pow(1024, ($i = floor(log($size, 1024)))), 2) . ' ' . $sizes[$i]);
+	} /* }}} */
+
+	static function parse_filesize($str) { /* {{{ */
+		preg_replace('/\s\s+/', ' ', $str);
+		if(strtoupper(substr($str, -1)) == 'B') {
+			$value = (int) substr($str, 0, -2);
+			$unit = substr($str, -2, 1);
+		} else {
+			$value = (int) substr($str, 0, -1);
+			$unit = substr($str, -1);
+		}
+		switch(strtoupper($unit)) {
+			case 'G':
+				return $value * 1024 * 1024 * 1024;
+				break;
+			case 'M':
+				return $value * 1024 * 1024;
+				break;
+			case 'K':
+				return $value * 1024;
+				break;
+			default;
+				return $value;
+				break;
+		}
+		return false;
+	} /* }}} */
+
+	static function checksum($file) { /* {{{ */
+		return md5_file($file);
+	} /* }}} */
+
+	static function renameDir($old, $new) { /* {{{ */
 		return @rename($old, $new);
-	}
+	} /* }}} */
 
-	function makeDir($path) {
+	static function makeDir($path) { /* {{{ */
 		
 		if( !is_dir( $path ) ){
 			$res=@mkdir( $path , 0777, true);
@@ -100,9 +144,9 @@ class LetoDMS_Core_File {
 
 		return true;
 */
-	}
+	} /* }}} */
 
-	function removeDir($path) {
+	static function removeDir($path) { /* {{{ */
 		$handle = @opendir($path);
 		while ($entry = @readdir($handle) )
 		{
@@ -110,7 +154,7 @@ class LetoDMS_Core_File {
 				continue;
 			else if (is_dir($path . $entry))
 			{
-				if (!removeDir($path . $entry . "/"))
+				if (!self::removeDir($path . $entry . "/"))
 					return false;
 			}
 			else
@@ -121,16 +165,16 @@ class LetoDMS_Core_File {
 		}
 		@closedir($handle);
 		return @rmdir($path);
-	}
+	} /* }}} */
 
-	function copyDir($sourcePath, $targetPath) {
+	static function copyDir($sourcePath, $targetPath) { /* {{{ */
 		if (mkdir($targetPath, 0777)) {
 			$handle = @opendir($sourcePath);
 			while ($entry = @readdir($handle) ) {
 				if ($entry == ".." || $entry == ".")
 					continue;
 				else if (is_dir($sourcePath . $entry)) {
-					if (!copyDir($sourcePath . $entry . "/", $targetPath . $entry . "/"))
+					if (!self::copyDir($sourcePath . $entry . "/", $targetPath . $entry . "/"))
 						return false;
 				} else {
 					if (!@copy($sourcePath . $entry, $targetPath . $entry))
@@ -143,16 +187,16 @@ class LetoDMS_Core_File {
 			return false;
 
 		return true;
-	}
+	} /* }}} */
 
-	function moveDir($sourcePath, $targetPath) {
-		if (!copyDir($sourcePath, $targetPath))
+	static function moveDir($sourcePath, $targetPath) { /* {{{ */
+		if (!self::copyDir($sourcePath, $targetPath))
 			return false;
-		return removeDir($sourcePath);
-	}
+		return self::removeDir($sourcePath);
+	} /* }}} */
 
 	// code by Kioob (php.net manual)
-	function gzcompressfile($source,$level=false) {
+	static function gzcompressfile($source,$level=false) { /* {{{ */
 		$dest=$source.'.gz';
 		$mode='wb'.$level;
 		$error=false;
@@ -169,6 +213,6 @@ class LetoDMS_Core_File {
 
 		if($error) return false;
 		else return $dest;
-	}
+	} /* }}} */
 }
 ?>

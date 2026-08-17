@@ -14,16 +14,17 @@
 /**
  * Include some files
  */
-require_once("inc.DBAccess.php");
 require_once("inc.AccessUtils.php");
 require_once("inc.FileUtils.php");
 require_once("inc.ClassAccess.php");
+require_once("inc.ClassObject.php");
 require_once("inc.ClassFolder.php");
 require_once("inc.ClassDocument.php");
 require_once("inc.ClassGroup.php");
 require_once("inc.ClassUser.php");
 require_once("inc.ClassKeywords.php");
 require_once("inc.ClassNotification.php");
+require_once("inc.ClassAttribute.php");
 
 /**
  * Class to represent the complete document management system.
@@ -40,12 +41,12 @@ require_once("inc.ClassNotification.php");
  *
  * This class does not enforce any access rights on documents and folders
  * by design. It is up to the calling application to use the methods
- * {@link LetoDMS_Core_Folder::getAccessMode} and
- * {@link LetoDMS_Core_Document::getAccessMode} and interpret them as desired.
+ * {@link LetoDMS_Core_Folder::getAccessMode()} and
+ * {@link LetoDMS_Core_Document::getAccessMode()} and interpret them as desired.
  * Though, there are two convinient functions to filter a list of
  * documents/folders for which users have access rights for. See
- * {@link LetoDMS_Core_DMS::filterAccess}
- * and {@link LetoDMS_Core_DMS::filterUsersByAccess}
+ * {@link LetoDMS_Core_DMS::filterAccess()}
+ * and {@link LetoDMS_Core_DMS::filterUsersByAccess()}
  *
  * Though, this class has two methods to set the currently logged in user
  * ({@link setUser} and {@link login}), none of them need to be called, because
@@ -126,6 +127,47 @@ class LetoDMS_Core_DMS {
 	public $version;
 
 	/**
+	 * @var array $callbacks list of methods called when certain operations,
+	 * like removing a document, are executed. Set a callback with
+	 * {@link LetoDMS_Core_DMS::setCallback()}.
+	 * The key of the array is the internal callback function name. Each
+	 * array element is an array with two elements: the function name
+	 * and the parameter passed to the function.
+	 *
+	 * Currently implemented callbacks are:
+	 *
+	 * onPreRemoveDocument($user_param, $document);
+	 *   called before deleting a document. If this function returns false
+	 *   the document will not be deleted.
+	 *
+	 * onPostRemoveDocument($user_param, $document_id);
+	 *   called after the successful deletion of a document.
+	 *
+	 * @access public
+	 */
+	public $callbacks;
+
+
+	/**
+	 * Checks if two objects are equal by comparing its ID
+	 *
+	 * The regular php check done by '==' compares all attributes of
+	 * two objects, which isn't required. The method will first check
+	 * if the objects are instances of the same class.
+	 *
+	 * @param object $object1
+	 * @param object $object2
+	 * @return boolean true if objects are equal, otherwise false
+	 */
+	static function checkIfEqual($object1, $object2) { /* {{{ */
+		if(get_class($object1) != get_class($object2))
+			return false;
+		if($object1->getID() != $object2->getID())
+			return false;
+		return true;
+	} /* }}} */
+
+	/**
 	 * Filter objects out which are not accessible in a given mode by a user.
 	 *
 	 * @param array $objArr list of objects (either documents or folders)
@@ -169,7 +211,7 @@ class LetoDMS_Core_DMS {
 	 * @param object $db object to access the underlying database
 	 * @param string $contentDir path in filesystem containing the data store
 	 *        all document contents is stored
-	 * @return object instance of LetoDMS_Core_DMS
+	 * @return object instance of {@link LetoDMS_Core_DMS}
 	 */
 	function __construct($db, $contentDir) { /* {{{ */
 		$this->db = $db;
@@ -178,12 +220,13 @@ class LetoDMS_Core_DMS {
 		else
 			$this->contentDir = $contentDir.'/';
 		$this->rootFolderID = 1;
+		$this->maxDirID = 0; //31998;
 		$this->enableAdminRevApp = false;
 		$this->enableConverting = false;
 		$this->convertFileTypes = array();
 		$this->version = '@package_version@';
 		if($this->version[0] == '@')
-			$this->version = '3.2.0';
+			$this->version = '4.0.0';
 	} /* }}} */
 
 	function getDB() { /* {{{ */
@@ -214,13 +257,14 @@ class LetoDMS_Core_DMS {
 	 * Check if the version in the database is the same as of this package
 	 * Only the major and minor version number will be checked.
 	 *
-	 * @return boolean returns false if versions do not match
+	 * @return boolean returns false if versions do not match, but returns
+	 *         true if version matches or table tblVersion does not exists.
 	 */
 	function checkVersion() { /* {{{ */
 		$tbllist = $this->db->TableList();
 		$tbllist = explode(',',strtolower(join(',',$tbllist)));
 		if(!array_search('tblversion', $tbllist))
-			return false;
+			return true;
 		$queryStr = "SELECT * FROM tblVersion order by major,minor,subminor limit 1";
 		$resArr = $this->db->getResultArray($queryStr);
 		if (is_bool($resArr) && $resArr == false)
@@ -237,12 +281,32 @@ class LetoDMS_Core_DMS {
 	/**
 	 * Set id of root folder
 	 * This function must be called right after creating an instance of
-	 * LetoDMS_Core_DMS
+	 * {@link LetoDMS_Core_DMS}
 	 *
 	 * @param interger $id id of root folder
 	 */
 	function setRootFolderID($id) { /* {{{ */
 		$this->rootFolderID = $id;
+	} /* }}} */
+
+	/**
+	 * Set maximum number of subdirectories per directory
+	 *
+	 * The value of maxDirID is quite crucial because, all documents are
+	 * associated with a directory in the filesystem. Consequently, there is
+	 * maximum number of documents, because depending on the file system
+	 * the maximum number of subdirectories is limited. Since version 3.3.0 of
+	 * letodms an additional directory level has been introduced. All documents
+	 * from 1 to maxDirID-1 will be saved in 1/<docid>, documents from maxDirID
+	 * to 2*maxDirID-1 are stored in 2/<docid> and so on.
+	 *
+	 * This function must be called right after creating an instance of
+	 * {@link LetoDMS_Core_DMS}
+	 *
+	 * @param interger $id id of root folder
+	 */
+	function setMaxDirID($id) { /* {{{ */
+		$this->maxDirID = $id;
 	} /* }}} */
 
 	/**
@@ -282,7 +346,7 @@ class LetoDMS_Core_DMS {
 	 * @param string $username login name of user
 	 * @param string $password password of user
 	 *
-	 * @return object instance of class LetoDMS_Core_User or false
+	 * @return object instance of class {@link LetoDMS_Core_User} or false
 	 */
 	function login($username, $password) { /* {{{ */
 	} /* }}} */
@@ -306,12 +370,12 @@ class LetoDMS_Core_DMS {
 	 * This function retrieves a document from the database by its id.
 	 *
 	 * @param integer $id internal id of document
-	 * @return object instance of LetoDMS_Core_Document or false
+	 * @return object instance of {@link LetoDMS_Core_Document} or false
 	 */
 	function getDocument($id) { /* {{{ */
 		if (!is_numeric($id)) return false;
 
-		$queryStr = "SELECT * FROM tblDocuments WHERE id = " . $id;
+		$queryStr = "SELECT * FROM tblDocuments WHERE id = " . (int) $id;
 		$resArr = $this->db->getResultArray($queryStr);
 		if (is_bool($resArr) && $resArr == false)
 			return false;
@@ -320,7 +384,7 @@ class LetoDMS_Core_DMS {
 		$resArr = $resArr[0];
 
 		// New Locking mechanism uses a separate table to track the lock.
-		$queryStr = "SELECT * FROM tblDocumentLocks WHERE document = " . $id;
+		$queryStr = "SELECT * FROM tblDocumentLocks WHERE document = " . (int) $id;
 		$lockArr = $this->db->getResultArray($queryStr);
 		if ((is_bool($lockArr) && $lockArr==false) || (count($lockArr)==0)) {
 			// Could not find a lock on the selected document.
@@ -343,22 +407,19 @@ class LetoDMS_Core_DMS {
 	 * @return array list of documents
 	 */
 	function getDocumentsByUser($user) { /* {{{ */
-		$queryStr = "SELECT `tblDocuments`.*, `tblDocumentLocks`.`userID` as `lockUser` ".
-			"FROM `tblDocuments` ".
-			"LEFT JOIN `tblDocumentLocks` ON `tblDocuments`.`id`=`tblDocumentLocks`.`document` ".
-			"WHERE `tblDocuments`.`owner` = " . $user->getID() . " ORDER BY `sequence`";
+		return $user->getDocuments();
+	} /* }}} */
 
-		$resArr = $this->db->getResultArray($queryStr);
-		if (is_bool($resArr) && !$resArr)
-			return false;
-
-		$documents = array();
-		foreach ($resArr as $row) {
-			$document = new LetoDMS_Core_Document($row["id"], $row["name"], $row["comment"], $row["date"], $row["expires"], $row["owner"], $row["folder"], $row["inheritAccess"], $row["defaultAccess"], $row["lockUser"], $row["keywords"], $row["sequence"]);
-			$document->setDMS($this);
-			$documents[] = $document;
-		}
-		return $documents;
+	/**
+	 * Returns all documents locked by a given user
+	 * FIXME: Not full implemented. Do not use, because it still requires the
+	 * temporary tables!
+	 *
+	 * @param object $user
+	 * @return array list of documents
+	 */
+	function getDocumentsLockedByUser($user) { /* {{{ */
+		return $user->getDocumentsLocked();
 	} /* }}} */
 
 	/**
@@ -377,7 +438,7 @@ class LetoDMS_Core_DMS {
 		$queryStr = "SELECT `tblDocuments`.*, `tblDocumentLocks`.`userID` as `lockUser` ".
 			"FROM `tblDocuments` ".
 			"LEFT JOIN `tblDocumentLocks` ON `tblDocuments`.`id`=`tblDocumentLocks`.`document` ".
-			"WHERE `tblDocuments`.`name` = '" . $name . "'";
+			"WHERE `tblDocuments`.`name` = " . $this->db->qstr($name);
 		if($folder)
 			$queryStr .= " AND `tblDocuments`.`folder` = ". $folder->getID();
 		$queryStr .= " LIMIT 1";
@@ -395,22 +456,73 @@ class LetoDMS_Core_DMS {
 		return $document;
 	} /* }}} */
 
+	static function makeTimeStamp($hour, $min, $sec, $year, $month, $day) {
+		$thirtyone = array (1, 3, 5, 7, 8, 10, 12);
+		$thirty = array (4, 6, 9, 11);
+
+		// Very basic check that the terms are valid. Does not fail for illegal
+		// dates such as 31 Feb.
+		if (!is_numeric($hour) || !is_numeric($min) || !is_numeric($sec) || !is_numeric($year) || !is_numeric($month) || !is_numeric($day) || $month<1 || $month>12 || $day<1 || $day>31 || $hour<0 || $hour>23 || $min<0 || $min>59 || $sec<0 || $sec>59) {
+			return false;
+		}
+		$year = (int) $year;
+		$month = (int) $month;
+		$day = (int) $day;
+
+		if (array_search($month, $thirtyone)) {
+			$max=31;
+		}
+		else if (array_search($month, $thirty)) {
+			$max=30;
+		}
+		else {
+			$max=(($year % 4 == 0) && ($year % 100 != 0 || $year % 400 == 0)) ? 29 : 28;
+		}
+
+		// If the date falls out of bounds, set it to the maximum for the given
+		// month. Makes assumption about the user's intention, rather than failing
+		// for absolutely everything.
+		if ($day>$max) {
+			$day=$max;
+		}
+
+		return mktime($hour, $min, $sec, $month, $day, $year);
+	}
+
 	/*
 	 * Search the database for documents
+	 *
+	 * Note: the creation date will be used to check againts the
+	 * date saved with the document
+	 * or folder. The modification date will only be used for documents. It
+	 * is checked against the creation date of the document content. This
+	 * meanѕ that updateѕ of a document will only result in a searchable
+	 * modification if a new version is uploaded.
 	 *
 	 * @param query string seach query with space separated words
 	 * @param limit integer number of items in result set
 	 * @param offset integer index of first item in result set
-	 * @param mode string either AND or OR
+	 * @param logicalmode string either AND or OR
 	 * @param searchin array() list of fields to search in
+	 *        1 = keywords, 2=name, 3=comment
 	 * @param startFolder object search in the folder only (null for root folder)
 	 * @param owner object search for documents owned by this user
 	 * @param status array list of status
 	 * @param creationstartdate array search for documents created after this date
 	 * @param creationenddate array search for documents created before this date
+	 * @param modificationstartdate array search for documents modified after this date
+	 * @param modificationenddate array search for documents modified before this date
+	 * @param categories array list of categories the documents must have assigned
+	 * @param attributes array list of attributes
+	 * @param mode int decide whether to search for documents/folders
+	 *        0x1 = documents only
+	 *        0x2 = folders only
+	 *        0x3 = both
+	 * @param expirationstartdate array search for documents expiring after this date
+	 * @param expirationenddate array search for documents expiring before this date
 	 * @return array containing the elements total and docs
 	 */
-	function search($query, $limit=0, $offset=0, $mode='AND', $searchin=array(), $startFolder=null, $owner=null, $status = array(), $creationstartdate=array(), $creationenddate=array(), $categories=array()) { /* {{{ */
+	function search($query, $limit=0, $offset=0, $logicalmode='AND', $searchin=array(), $startFolder=null, $owner=null, $status = array(), $creationstartdate=array(), $creationenddate=array(), $modificationstartdate=array(), $modificationenddate=array(), $categories=array(), $attributes=array(), $mode=0x3, $expirationstartdate=array(), $expirationenddate=array()) { /* {{{ */
 		// Split the search string into constituent keywords.
 		$tkeys=array();
 		if (strlen($query)>0) {
@@ -419,156 +531,360 @@ class LetoDMS_Core_DMS {
 
 		// if none is checkd search all
 		if (count($searchin)==0)
-			$searchin=array( 0, 1, 2, 3);
+			$searchin=array(1, 2, 3, 4);
 
-		$searchKey = "";
-		// Assemble the arguments for the concatenation function. This allows the
-		// search to be carried across all the relevant fields.
-		$concatFunction = "";
-		if (in_array(1, $searchin)) {
-			$concatFunction = "`tblDocuments`.`keywords`";
-		}
-		if (in_array(2, $searchin)) {
-			$concatFunction = (strlen($concatFunction) == 0 ? "" : $concatFunction.", ")."`tblDocuments`.`name`";
-		}
-		if (in_array(3, $searchin)) {
-			$concatFunction = (strlen($concatFunction) == 0 ? "" : $concatFunction.", ")."`tblDocuments`.`comment`";
-		}
+		/*--------- Do it all over again for folders -------------*/
+		if($mode & 0x2) {
+			$searchKey = "";
+			if (in_array(2, $searchin)) {
+				$searchFields[] = "`tblFolders`.`name`";
+			}
+			if (in_array(3, $searchin)) {
+				$searchFields[] = "`tblFolders`.`comment`";
+			}
+			if (in_array(4, $searchin)) {
+				$searchFields[] = "`tblFolderAttributes`.`value`";
+			}
 
-		if (strlen($concatFunction)>0 && count($tkeys)>0) {
-			$concatFunction = "CONCAT_WS(' ', ".$concatFunction.")";
-			foreach ($tkeys as $key) {
-				$key = trim($key);
-				if (strlen($key)>0) {
-					$searchKey = (strlen($searchKey)==0 ? "" : $searchKey." ".$mode." ").$concatFunction." LIKE '%".$key."%'";
+			if (count($searchFields)>0) {
+				foreach ($tkeys as $key) {
+					$key = trim($key);
+					if (strlen($key)>0) {
+						$searchKey = (strlen($searchKey)==0 ? "" : $searchKey." ".$logicalmode." ")."(".implode(" like ".$this->db->qstr("%".$key."%")." OR ", $searchFields)." like ".$this->db->qstr("%".$key."%").")";
+					}
 				}
 			}
-		}
 
-		// Check to see if the search has been restricted to a particular sub-tree in
-		// the folder hierarchy.
-		$searchFolder = "";
-		if ($startFolder) {
-			$searchFolder = "`tblDocuments`.`folderList` LIKE '%:".$startFolder->getID().":%'";
-		}
-
-		// Check to see if the search has been restricted to a particular
-		// document owner.
-		$searchOwner = "";
-		if ($owner) {
-			$searchOwner = "`tblDocuments`.`owner` = '".$owner->getId()."'";
-		}
-
-		// Check to see if the search has been restricted to a particular
-		// document category.
-		$searchCategories = "";
-		if ($categories) {
-			$catids = array();
-			foreach($categories as $category)
-				$catids[] = $category->getId();
-			$searchCategories = "`tblDocumentCategory`.`categoryID` in (".implode(',', $catids).")";
-		}
-
-		// Is the search restricted to documents created between two specific dates?
-		$searchCreateDate = "";
-		if ($creationstartdate) {
-			$startdate = makeTimeStamp(0, 0, 0, $creationstartdate['year'], $creationstartdate["month"], $creationstartdate["day"]);
-			if ($startdate) {
-				$searchCreateDate .= "`tblDocuments`.`date` >= ".$startdate;
+			// Check to see if the search has been restricted to a particular sub-tree in
+			// the folder hierarchy.
+			$searchFolder = "";
+			if ($startFolder) {
+				$searchFolder = "`tblFolders`.`folderList` LIKE '%:".$startFolder->getID().":%'";
 			}
-		}
-		if ($creationenddate) {
-			$stopdate = makeTimeStamp(23, 59, 59, $creationenddate["year"], $creationenddate["month"], $creationenddate["day"]);
-			if ($stopdate) {
-				if($startdate)
-					$searchCreateDate .= " AND ";
-				$searchCreateDate .= "`tblDocuments`.`date` <= ".$stopdate;
+
+			// Check to see if the search has been restricted to a particular
+			// document owner.
+			$searchOwner = "";
+			if ($owner) {
+				$searchOwner = "`tblFolders`.`owner` = '".$owner->getId()."'";
 			}
+
+			// Is the search restricted to documents created between two specific dates?
+			$searchCreateDate = "";
+			if ($creationstartdate) {
+				$startdate = $this->makeTimeStamp($creationstartdate['hour'], $creationstartdate['minute'], $creationstartdate['second'], $creationstartdate['year'], $creationstartdate["month"], $creationstartdate["day"]);
+				if ($startdate) {
+					$searchCreateDate .= "`tblFolders`.`date` >= ".$startdate;
+				}
+			}
+			if ($creationenddate) {
+				$stopdate = $this->makeTimeStamp($creationenddate['hour'], $creationstartdate['minute'], $creationstartdate['second'], $creationenddate["year"], $creationenddate["month"], $creationenddate["day"]);
+				if ($stopdate) {
+					if($startdate)
+						$searchCreateDate .= " AND ";
+					$searchCreateDate .= "`tblFolders`.`date` <= ".$stopdate;
+				}
+			}
+
+			$searchQuery = "FROM `tblFolders` LEFT JOIN `tblFolderAttributes` on `tblFolders`.`id`=`tblFolderAttributes`.`folder` WHERE 1=1";
+
+			if (strlen($searchKey)>0) {
+				$searchQuery .= " AND (".$searchKey.")";
+			}
+			if (strlen($searchFolder)>0) {
+				$searchQuery .= " AND ".$searchFolder;
+			}
+			if (strlen($searchOwner)>0) {
+				$searchQuery .= " AND (".$searchOwner.")";
+			}
+			if (strlen($searchCreateDate)>0) {
+				$searchQuery .= " AND (".$searchCreateDate.")";
+			}
+
+			/* Do not search for folders if not at least a search for a key,
+			 * an owner, or creation date is requested.
+			 */
+			if($searchKey || $searchOwner || $searchCreateDate) {
+				// Count the number of rows that the search will produce.
+				$resArr = $this->db->getResultArray("SELECT COUNT(*) AS num ".$searchQuery);
+				$totalFolders = 0;
+				if ($resArr && isset($resArr[0]) && is_numeric($resArr[0]["num"]) && $resArr[0]["num"]>0) {
+					$totalFolders = (integer)$resArr[0]["num"];
+				}
+
+				// If there are no results from the count query, then there is no real need
+				// to run the full query. TODO: re-structure code to by-pass additional
+				// queries when no initial results are found.
+
+				// Only search if the offset is not beyond the number of folders
+				if($totalFolders > $offset) {
+					// Prepare the complete search query, including the LIMIT clause.
+					$searchQuery = "SELECT DISTINCT `tblFolders`.* ".$searchQuery." GROUP BY `tblFolders`.`id`";
+
+					if($limit) {
+						$searchQuery .= " LIMIT ".$offset.",".$limit;
+					}
+
+					// Send the complete search query to the database.
+					$resArr = $this->db->getResultArray($searchQuery);
+				} else {
+					$resArr = array();
+				}
+
+				// ------------------- Ausgabe der Ergebnisse ----------------------------
+				$numResults = count($resArr);
+				if ($numResults == 0) {
+					$folderresult = array('totalFolders'=>$totalFolders, 'folders'=>array());
+				} else {
+					foreach ($resArr as $folderArr) {
+						$folders[] = $this->getFolder($folderArr['id']);
+					}
+					$folderresult = array('totalFolders'=>$totalFolders, 'folders'=>$folders);
+				}
+			} else {
+				$folderresult = array('totalFolders'=>0, 'folders'=>array());
+			}
+		} else {
+			$folderresult = array('totalFolders'=>0, 'folders'=>array());
 		}
 
-		// ---------------------- Suche starten ----------------------------------
+		/*--------- Do it all over again for documents -------------*/
 
-		//
-		// Construct the SQL query that will be used to search the database.
-		//
+		if($mode & 0x1) {
+			$searchKey = "";
+			$searchFields = array();
+			if (in_array(1, $searchin)) {
+				$searchFields[] = "`tblDocuments`.`keywords`";
+			}
+			if (in_array(2, $searchin)) {
+				$searchFields[] = "`tblDocuments`.`name`";
+			}
+			if (in_array(3, $searchin)) {
+				$searchFields[] = "`tblDocuments`.`comment`";
+			}
+			if (in_array(4, $searchin)) {
+				$searchFields[] = "`tblDocumentAttributes`.`value`";
+				$searchFields[] = "`tblDocumentContentAttributes`.`value`";
+			}
 
-		if (!$this->db->createTemporaryTable("ttcontentid") || !$this->db->createTemporaryTable("ttstatid")) {
-			return false;
+
+			if (count($searchFields)>0) {
+				foreach ($tkeys as $key) {
+					$key = trim($key);
+					if (strlen($key)>0) {
+						$searchKey = (strlen($searchKey)==0 ? "" : $searchKey." ".$logicalmode." ")."(".implode(" like ".$this->db->qstr("%".$key."%")." OR ", $searchFields)." like ".$this->db->qstr("%".$key."%").")";
+					}
+				}
+			}
+
+			// Check to see if the search has been restricted to a particular sub-tree in
+			// the folder hierarchy.
+			$searchFolder = "";
+			if ($startFolder) {
+				$searchFolder = "`tblDocuments`.`folderList` LIKE '%:".$startFolder->getID().":%'";
+			}
+
+			// Check to see if the search has been restricted to a particular
+			// document owner.
+			$searchOwner = "";
+			if ($owner) {
+				$searchOwner = "`tblDocuments`.`owner` = '".$owner->getId()."'";
+			}
+
+			// Check to see if the search has been restricted to a particular
+			// document category.
+			$searchCategories = "";
+			if ($categories) {
+				$catids = array();
+				foreach($categories as $category)
+					$catids[] = $category->getId();
+				$searchCategories = "`tblDocumentCategory`.`categoryID` in (".implode(',', $catids).")";
+			}
+
+			// Check to see if the search has been restricted to a particular
+			// attribute.
+			$searchAttributes = array();
+			if ($attributes) {
+				foreach($attributes as $attrdefid=>$attribute) {
+					if($attribute) {
+						$attrdef = $this->getAttributeDefinition($attrdefid);
+						if($attrdef->getObjType() == LetoDMS_Core_AttributeDefinition::objtype_document) {
+							if($attrdef->getValueSet())
+								$searchAttributes[] = "`tblDocumentAttributes`.`attrdef`=".$attrdefid." AND `tblDocumentAttributes`.`value`='".$attribute."'";
+							else
+								$searchAttributes[] = "`tblDocumentAttributes`.`attrdef`=".$attrdefid." AND `tblDocumentAttributes`.`value` like '%".$attribute."%'";
+						} elseif($attrdef->getObjType() == LetoDMS_Core_AttributeDefinition::objtype_documentcontent) {
+							if($attrdef->getValueSet())
+								$searchAttributes[] = "`tblDocumentContentAttributes`.`attrdef`=".$attrdefid." AND `tblDocumentContentAttributes`.`value`='".$attribute."'";
+							else
+								$searchAttributes[] = "`tblDocumentContentAttributes`.`attrdef`=".$attrdefid." AND `tblDocumentContentAttributes`.`value` like '%".$attribute."%'";
+						}
+					}
+				}
+			}
+
+			// Is the search restricted to documents created between two specific dates?
+			$searchCreateDate = "";
+			if ($creationstartdate) {
+				$startdate = $this->makeTimeStamp($creationstartdate['hour'], $creationstartdate['minute'], $creationstartdate['second'], $creationstartdate['year'], $creationstartdate["month"], $creationstartdate["day"]);
+				if ($startdate) {
+					$searchCreateDate .= "`tblDocuments`.`date` >= ".$startdate;
+				}
+			}
+			if ($creationenddate) {
+				$stopdate = $this->makeTimeStamp($creationenddate['hour'], $creationenddate['minute'], $creationenddate['second'], $creationenddate["year"], $creationenddate["month"], $creationenddate["day"]);
+				if ($stopdate) {
+					if($searchCreateDate)
+						$searchCreateDate .= " AND ";
+					$searchCreateDate .= "`tblDocuments`.`date` <= ".$stopdate;
+				}
+			}
+			if ($modificationstartdate) {
+				$startdate = $this->makeTimeStamp($modificationstartdate['hour'], $modificationstartdate['minute'], $modificationstartdate['second'], $modificationstartdate['year'], $modificationstartdate["month"], $modificationstartdate["day"]);
+				if ($startdate) {
+					if($searchCreateDate)
+						$searchCreateDate .= " AND ";
+					$searchCreateDate .= "`tblDocumentContent`.`date` >= ".$startdate;
+				}
+			}
+			if ($modificationenddate) {
+				$stopdate = $this->makeTimeStamp($modificationenddate['hour'], $modificationenddate['minute'], $modificationenddate['second'], $modificationenddate["year"], $modificationenddate["month"], $modificationenddate["day"]);
+				if ($stopdate) {
+					if($searchCreateDate)
+						$searchCreateDate .= " AND ";
+					$searchCreateDate .= "`tblDocumentContent`.`date` <= ".$stopdate;
+				}
+			}
+			$searchExpirationDate = '';
+			if ($expirationstartdate) {
+				$startdate = $this->makeTimeStamp($expirationstartdate['hour'], $expirationstartdate['minute'], $expirationstartdate['second'], $expirationstartdate['year'], $expirationstartdate["month"], $expirationstartdate["day"]);
+				if ($startdate) {
+					if($searchExpirationDate)
+						$searchExpirationDate .= " AND ";
+					$searchExpirationDate .= "`tblDocuments`.`expires` >= ".$startdate;
+				}
+			}
+			if ($expirationenddate) {
+				$stopdate = $this->makeTimeStamp($expirationenddate['hour'], $expirationenddate['minute'], $expirationenddate['second'], $expirationenddate['year'], $expirationenddate["month"], $expirationenddate["day"]);
+				if ($stopdate) {
+					if($searchExpirationDate)
+						$searchExpirationDate .= " AND ";
+					$searchExpirationDate .= "`tblDocuments`.`expires` <= ".$stopdate;
+				}
+			}
+
+			// ---------------------- Suche starten ----------------------------------
+
+			//
+			// Construct the SQL query that will be used to search the database.
+			//
+
+			if (!$this->db->createTemporaryTable("ttcontentid") || !$this->db->createTemporaryTable("ttstatid")) {
+				return false;
+			}
+
+			$searchQuery = "FROM `tblDocumentContent` ".
+				"LEFT JOIN `tblDocuments` ON `tblDocuments`.`id` = `tblDocumentContent`.`document` ".
+				"LEFT JOIN `tblDocumentAttributes` ON `tblDocuments`.`id` = `tblDocumentAttributes`.`document` ".
+				"LEFT JOIN `tblDocumentContentAttributes` ON `tblDocumentContent`.`id` = `tblDocumentContentAttributes`.`content` ".
+				"LEFT JOIN `tblDocumentStatus` ON `tblDocumentStatus`.`documentID` = `tblDocumentContent`.`document` ".
+				"LEFT JOIN `tblDocumentStatusLog` ON `tblDocumentStatusLog`.`statusID` = `tblDocumentStatus`.`statusID` ".
+				"LEFT JOIN `ttstatid` ON `ttstatid`.`maxLogID` = `tblDocumentStatusLog`.`statusLogID` ".
+				"LEFT JOIN `ttcontentid` ON `ttcontentid`.`maxVersion` = `tblDocumentStatus`.`version` AND `ttcontentid`.`document` = `tblDocumentStatus`.`documentID` ".
+				"LEFT JOIN `tblDocumentLocks` ON `tblDocuments`.`id`=`tblDocumentLocks`.`document` ".
+				"LEFT JOIN `tblDocumentCategory` ON `tblDocuments`.`id`=`tblDocumentCategory`.`documentID` ".
+				"WHERE `ttstatid`.`maxLogID`=`tblDocumentStatusLog`.`statusLogID` ".
+				"AND `ttcontentid`.`maxVersion` = `tblDocumentContent`.`version`";
+
+			if (strlen($searchKey)>0) {
+				$searchQuery .= " AND (".$searchKey.")";
+			}
+			if (strlen($searchFolder)>0) {
+				$searchQuery .= " AND ".$searchFolder;
+			}
+			if (strlen($searchOwner)>0) {
+				$searchQuery .= " AND (".$searchOwner.")";
+			}
+			if (strlen($searchCategories)>0) {
+				$searchQuery .= " AND (".$searchCategories.")";
+			}
+			if (strlen($searchCreateDate)>0) {
+				$searchQuery .= " AND (".$searchCreateDate.")";
+			}
+			if (strlen($searchExpirationDate)>0) {
+				$searchQuery .= " AND (".$searchExpirationDate.")";
+			}
+			if ($searchAttributes) {
+				$searchQuery .= " AND (".implode(" AND ", $searchAttributes).")";
+			}
+
+			// status
+			if ($status) {
+				$searchQuery .= " AND `tblDocumentStatusLog`.`status` IN (".implode(',', $status).")";
+			}
+
+			// Count the number of rows that the search will produce.
+			$resArr = $this->db->getResultArray("SELECT COUNT(*) AS num FROM (SELECT DISTINCT `tblDocuments`.id ".$searchQuery.") a");
+			$totalDocs = 0;
+			if (is_numeric($resArr[0]["num"]) && $resArr[0]["num"]>0) {
+				$totalDocs = (integer)$resArr[0]["num"];
+			}
+
+			// If there are no results from the count query, then there is no real need
+			// to run the full query. TODO: re-structure code to by-pass additional
+			// queries when no initial results are found.
+
+			// Prepare the complete search query, including the LIMIT clause.
+			$searchQuery = "SELECT DISTINCT `tblDocuments`.*, ".
+				"`tblDocumentContent`.`version`, ".
+				"`tblDocumentStatusLog`.`status`, `tblDocumentLocks`.`userID` as `lockUser` ".$searchQuery;
+
+			// calculate the remaining entrїes of the current page
+			// If page is not full yet, get remaining entries
+			if($limit) {
+				$remain = $limit - count($folderresult['folders']);
+				if($remain) {
+					if($remain == $limit)
+						$offset -= $totalFolders;
+					else
+						$offset = 0;
+					if($limit)
+						$searchQuery .= " LIMIT ".$offset.",".$remain;
+
+					// Send the complete search query to the database.
+					$resArr = $this->db->getResultArray($searchQuery);
+				} else {
+					$resArr = array();
+				}
+			} else {
+				// Send the complete search query to the database.
+				$resArr = $this->db->getResultArray($searchQuery);
+			}
+
+			// ------------------- Ausgabe der Ergebnisse ----------------------------
+			$numResults = count($resArr);
+			if ($numResults == 0) {
+				$docresult = array('totalDocs'=>$totalDocs, 'docs'=>array());
+			} else {
+				foreach ($resArr as $docArr) {
+					$docs[] = $this->getDocument($docArr['id']);
+				}
+				$docresult = array('totalDocs'=>$totalDocs, 'docs'=>$docs);
+			}
+		} else {
+			$docresult = array('totalDocs'=>0, 'docs'=>array());
 		}
 
-		$searchQuery = "FROM `tblDocumentContent` ".
-			"LEFT JOIN `tblDocuments` ON `tblDocuments`.`id` = `tblDocumentContent`.`document` ".
-			"LEFT JOIN `tblDocumentStatus` ON `tblDocumentStatus`.`documentID` = `tblDocumentContent`.`document` ".
-			"LEFT JOIN `tblDocumentStatusLog` ON `tblDocumentStatusLog`.`statusID` = `tblDocumentStatus`.`statusID` ".
-			"LEFT JOIN `ttstatid` ON `ttstatid`.`maxLogID` = `tblDocumentStatusLog`.`statusLogID` ".
-			"LEFT JOIN `ttcontentid` ON `ttcontentid`.`maxVersion` = `tblDocumentStatus`.`version` AND `ttcontentid`.`document` = `tblDocumentStatus`.`documentID` ".
-			"LEFT JOIN `tblDocumentLocks` ON `tblDocuments`.`id`=`tblDocumentLocks`.`document` ".
-			"LEFT JOIN `tblDocumentCategory` ON `tblDocuments`.`id`=`tblDocumentCategory`.`documentID` ".
-			"WHERE `ttstatid`.`maxLogID`=`tblDocumentStatusLog`.`statusLogID` ".
-			"AND `ttcontentid`.`maxVersion` = `tblDocumentContent`.`version`";
-
-		if (strlen($searchKey)>0) {
-			$searchQuery .= " AND (".$searchKey.")";
-		}
-		if (strlen($searchFolder)>0) {
-			$searchQuery .= " AND ".$searchFolder;
-		}
-		if (strlen($searchOwner)>0) {
-			$searchQuery .= " AND (".$searchOwner.")";
-		}
-		if (strlen($searchCategories)>0) {
-			$searchQuery .= " AND (".$searchCategories.")";
-		}
-		if (strlen($searchCreateDate)>0) {
-			$searchQuery .= " AND (".$searchCreateDate.")";
-		}
-
-		// status
-		if ($status) {
-			$searchQuery .= " AND `tblDocumentStatusLog`.`status` IN (".implode(',', $status).")";
-		}
-
-		// Count the number of rows that the search will produce.
-		$resArr = $this->db->getResultArray("SELECT COUNT(*) AS num ".$searchQuery);
-		$totalDocs = 0;
-		if (is_numeric($resArr[0]["num"]) && $resArr[0]["num"]>0) {
-			$totalDocs = (integer)$resArr[0]["num"];
-		}
 		if($limit) {
-			$totalPages = (integer)($totalDocs/$limit);
-			if (($totalDocs%$limit) > 0) {
+			$totalPages = (integer)(($totalDocs+$totalFolders)/$limit);
+			if ((($totalDocs+$totalFolders)%$limit) > 0) {
 				$totalPages++;
 			}
 		} else {
 			$totalPages = 1;
 		}
 
-		// If there are no results from the count query, then there is no real need
-		// to run the full query. TODO: re-structure code to by-pass additional
-		// queries when no initial results are found.
-
-		// Prepare the complete search query, including the LIMIT clause.
-		$searchQuery = "SELECT `tblDocuments`.*, ".
-			"`tblDocumentContent`.`version`, ".
-			"`tblDocumentStatusLog`.`status`, `tblDocumentLocks`.`userID` as `lockUser` ".$searchQuery;
-
-		if($limit) {
-			$searchQuery .= " LIMIT ".$offset.",".$limit;
-		}
-
-		// Send the complete search query to the database.
-		$resArr = $this->db->getResultArray($searchQuery);
-
-		// ------------------- Ausgabe der Ergebnisse ----------------------------
-		$numResults = count($resArr);
-		if ($numResults == 0) {
-			return array('totalDocs'=>$totalDocs, 'totalPages'=>$totalPages, 'docs'=>array());
-		}
-
-		foreach ($resArr as $docArr) {
-			$docs[] = $this->getDocument($docArr['id']);
-		}
-		return(array('totalDocs'=>$totalDocs, 'totalPages'=>$totalPages, 'docs'=>$docs));
+		return array_merge($docresult, $folderresult, array('totalPages'=>$totalPages));
 	} /* }}} */
 
 	/**
@@ -582,7 +898,7 @@ class LetoDMS_Core_DMS {
 	function getFolder($id) { /* {{{ */
 		if (!is_numeric($id)) return false;
 
-		$queryStr = "SELECT * FROM tblFolders WHERE id = " . $id;
+		$queryStr = "SELECT * FROM tblFolders WHERE id = " . (int) $id;
 		$resArr = $this->db->getResultArray($queryStr);
 
 		if (is_bool($resArr) && $resArr == false)
@@ -611,7 +927,7 @@ class LetoDMS_Core_DMS {
 	function getFolderByName($name, $folder=null) { /* {{{ */
 		if (!$name) return false;
 
-		$queryStr = "SELECT * FROM tblFolders WHERE name = '" . $name . "'";
+		$queryStr = "SELECT * FROM tblFolders WHERE name = " . $this->db->qstr($name);
 		if($folder)
 			$queryStr .= " AND `parent` = ". $folder->getID();
 		$queryStr .= " LIMIT 1";
@@ -635,13 +951,13 @@ class LetoDMS_Core_DMS {
 	 * This function retrieves a user from the database by its id.
 	 *
 	 * @param integer $id internal id of user
-	 * @return object instance of LetoDMS_Core_User or false
+	 * @return object instance of {@link LetoDMS_Core_User} or false
 	 */
 	function getUser($id) { /* {{{ */
 		if (!is_numeric($id))
 			return false;
 
-		$queryStr = "SELECT * FROM tblUsers WHERE id = " . $id;
+		$queryStr = "SELECT * FROM tblUsers WHERE id = " . (int) $id;
 		$resArr = $this->db->getResultArray($queryStr);
 
 		if (is_bool($resArr) && $resArr == false) return false;
@@ -649,7 +965,7 @@ class LetoDMS_Core_DMS {
 
 		$resArr = $resArr[0];
 
-		$user = new LetoDMS_Core_User($resArr["id"], $resArr["login"], $resArr["pwd"], $resArr["fullName"], $resArr["email"], $resArr["language"], $resArr["theme"], $resArr["comment"], $resArr["role"], $resArr["hidden"]);
+		$user = new LetoDMS_Core_User($resArr["id"], $resArr["login"], $resArr["pwd"], $resArr["fullName"], $resArr["email"], $resArr["language"], $resArr["theme"], $resArr["comment"], $resArr["role"], $resArr["hidden"], $resArr["disabled"], $resArr["pwdExpiration"], $resArr["loginfailures"], $resArr["quota"]);
 		$user->setDMS($this);
 		return $user;
 	} /* }}} */
@@ -658,12 +974,17 @@ class LetoDMS_Core_DMS {
 	 * Return a user by its login
 	 *
 	 * This function retrieves a user from the database by its login.
+	 * If the second optional parameter $email is not empty, the user must
+	 * also have the given email.
 	 *
-	 * @param integer $login internal login of user
-	 * @return object instance of LetoDMS_Core_User or false
+	 * @param string $login internal login of user
+	 * @param string $email email of user
+	 * @return object instance of {@link LetoDMS_Core_User} or false
 	 */
-	function getUserByLogin($login) { /* {{{ */
-		$queryStr = "SELECT * FROM tblUsers WHERE login = '".$login."'";
+	function getUserByLogin($login, $email='') { /* {{{ */
+		$queryStr = "SELECT * FROM tblUsers WHERE login = ".$this->db->qstr($login);
+		if($email)
+			$queryStr .= " AND email=".$this->db->qstr($email);
 		$resArr = $this->db->getResultArray($queryStr);
 
 		if (is_bool($resArr) && $resArr == false) return false;
@@ -671,7 +992,30 @@ class LetoDMS_Core_DMS {
 
 		$resArr = $resArr[0];
 
-		$user = new LetoDMS_Core_User($resArr["id"], $resArr["login"], $resArr["pwd"], $resArr["fullName"], $resArr["email"], $resArr["language"], $resArr["theme"], $resArr["comment"], $resArr["role"], $resArr["hidden"]);
+		$user = new LetoDMS_Core_User($resArr["id"], $resArr["login"], $resArr["pwd"], $resArr["fullName"], $resArr["email"], $resArr["language"], $resArr["theme"], $resArr["comment"], $resArr["role"], $resArr["hidden"], $resArr["disabled"], $resArr["pwdExpiration"], $resArr["loginfailures"], $resArr["quota"]);
+		$user->setDMS($this);
+		return $user;
+	} /* }}} */
+
+	/**
+	 * Return a user by its email
+	 *
+	 * This function retrieves a user from the database by its email.
+	 * It is needed when the user requests a new password.
+	 *
+	 * @param integer $email email address of user
+	 * @return object instance of {@link LetoDMS_Core_User} or false
+	 */
+	function getUserByEmail($email) { /* {{{ */
+		$queryStr = "SELECT * FROM tblUsers WHERE email = ".$this->db->qstr($email);
+		$resArr = $this->db->getResultArray($queryStr);
+
+		if (is_bool($resArr) && $resArr == false) return false;
+		if (count($resArr) != 1) return false;
+
+		$resArr = $resArr[0];
+
+		$user = new LetoDMS_Core_User($resArr["id"], $resArr["login"], $resArr["pwd"], $resArr["fullName"], $resArr["email"], $resArr["language"], $resArr["theme"], $resArr["comment"], $resArr["role"], $resArr["hidden"], $resArr["disabled"], $resArr["pwdExpiration"], $resArr["loginfailures"], $resArr["quota"]);
 		$user->setDMS($this);
 		return $user;
 	} /* }}} */
@@ -679,10 +1023,13 @@ class LetoDMS_Core_DMS {
 	/**
 	 * Return list of all users
 	 *
-	 * @return array of instances of LetoDMS_Core_User or false
+	 * @return array of instances of {@link LetoDMS_Core_User} or false
 	 */
-	function getAllUsers() { /* {{{ */
-		$queryStr = "SELECT * FROM tblUsers ORDER BY login";
+	function getAllUsers($orderby = '') { /* {{{ */
+		if($orderby == 'fullname')
+			$queryStr = "SELECT * FROM tblUsers ORDER BY fullname";
+		else
+			$queryStr = "SELECT * FROM tblUsers ORDER BY login";
 		$resArr = $this->db->getResultArray($queryStr);
 
 		if (is_bool($resArr) && $resArr == false)
@@ -691,7 +1038,7 @@ class LetoDMS_Core_DMS {
 		$users = array();
 
 		for ($i = 0; $i < count($resArr); $i++) {
-			$user = new LetoDMS_Core_User($resArr[$i]["id"], $resArr[$i]["login"], $resArr[$i]["pwd"], $resArr[$i]["fullName"], $resArr[$i]["email"], (isset($resArr["language"])?$resArr["language"]:NULL), (isset($resArr["theme"])?$resArr["theme"]:NULL), $resArr[$i]["comment"], $resArr[$i]["role"], $resArr[$i]["hidden"]);
+			$user = new LetoDMS_Core_User($resArr[$i]["id"], $resArr[$i]["login"], $resArr[$i]["pwd"], $resArr[$i]["fullName"], $resArr[$i]["email"], (isset($resArr["language"])?$resArr["language"]:NULL), (isset($resArr["theme"])?$resArr["theme"]:NULL), $resArr[$i]["comment"], $resArr[$i]["role"], $resArr[$i]["hidden"], $resArr[$i]["disabled"], $resArr[$i]["pwdExpiration"], $resArr[$i]["loginfailures"], $resArr[$i]["quota"]);
 			$user->setDMS($this);
 			$users[$i] = $user;
 		}
@@ -710,13 +1057,19 @@ class LetoDMS_Core_DMS {
 	 * @param integer $role role of new user (can be 0=normal, 1=admin, 2=guest)
 	 * @param integer $isHidden hide user in all lists, if this is set login
 	 *        is still allowed
-	 * @return object of LetoDMS_Core_User
+	 * @param integer $isDisabled disable user and prevent login
+	 * @return object of {@link LetoDMS_Core_User}
 	 */
-	function addUser($login, $pwd, $fullName, $email, $language, $theme, $comment, $role=0, $isHidden=0) { /* {{{ */
-		if (is_object($this->getUserByLogin($login))) {
-			return false;
-		}
-		$queryStr = "INSERT INTO tblUsers (login, pwd, fullName, email, language, theme, comment, role, hidden) VALUES ('".$login."', '".$pwd."', '".$fullName."', '".$email."', '".$language."', '".$theme."', '".$comment."', '".$role."', '".$isHidden."')";
+		function addUser($login, $pwd, $fullName, $email, $language, $theme, $comment, $role='0', $isHidden=0, $isDisabled=0, $pwdexpiration='') { /* {{{ */
+			$db = $this->db;
+			if (is_object($this->getUserByLogin($login))) {
+				return false;
+			}
+			if($role == '')
+				$role = '0';
+			$pwdexpiration = trim((string) $pwdexpiration);
+			$pwdExpirationSQL = ($pwdexpiration === '') ? "NULL" : $db->qstr($pwdexpiration);
+			$queryStr = "INSERT INTO tblUsers (login, pwd, fullName, email, language, theme, comment, role, hidden, disabled, pwdExpiration) VALUES (".$db->qstr($login).", ".$db->qstr($pwd).", ".$db->qstr($fullName).", ".$db->qstr($email).", '".$language."', '".$theme."', ".$db->qstr($comment).", '".intval($role)."', '".intval($isHidden)."', '".intval($isDisabled)."', ".$pwdExpirationSQL.")";
 		$res = $this->db->getResult($queryStr);
 		if (!$res)
 			return false;
@@ -734,7 +1087,7 @@ class LetoDMS_Core_DMS {
 		if (!is_numeric($id))
 			return false;
 
-		$queryStr = "SELECT * FROM tblGroups WHERE id = " . $id;
+		$queryStr = "SELECT * FROM tblGroups WHERE id = " . (int) $id;
 		$resArr = $this->db->getResultArray($queryStr);
 
 		if (is_bool($resArr) && $resArr == false)
@@ -756,7 +1109,7 @@ class LetoDMS_Core_DMS {
 	 * @return object/boolean group or false if no group was found
 	 */
 	function getGroupByName($name) { /* {{{ */
-		$queryStr = "SELECT `tblGroups`.* FROM `tblGroups` WHERE `tblGroups`.`name` = '".$name."'";
+		$queryStr = "SELECT `tblGroups`.* FROM `tblGroups` WHERE `tblGroups`.`name` = ".$this->db->qstr($name);
 		$resArr = $this->db->getResultArray($queryStr);
 
 		if (is_bool($resArr) && $resArr == false)
@@ -808,7 +1161,7 @@ class LetoDMS_Core_DMS {
 			return false;
 		}
 
-		$queryStr = "INSERT INTO tblGroups (name, comment) VALUES ('".$name."', '" . $comment . "')";
+		$queryStr = "INSERT INTO tblGroups (name, comment) VALUES (".$this->db->qstr($name).", ".$this->db->qstr($comment).")";
 		if (!$this->db->getResult($queryStr))
 			return false;
 
@@ -819,7 +1172,7 @@ class LetoDMS_Core_DMS {
 		if (!is_numeric($id))
 			return false;
 
-		$queryStr = "SELECT * FROM tblKeywordCategories WHERE id = " . $id;
+		$queryStr = "SELECT * FROM tblKeywordCategories WHERE id = " . (int) $id;
 		$resArr = $this->db->getResultArray($queryStr);
 		if ((is_bool($resArr) && !$resArr) || (count($resArr) != 1))
 			return false;
@@ -830,8 +1183,8 @@ class LetoDMS_Core_DMS {
 		return $cat;
 	} /* }}} */
 
-	function getKeywordCategoryByName($name, $owner) { /* {{{ */
-		$queryStr = "SELECT * FROM tblKeywordCategories WHERE name = '" . $name . "' AND owner = '" . $owner. "'";
+	function getKeywordCategoryByName($name, $userID) { /* {{{ */
+		$queryStr = "SELECT * FROM tblKeywordCategories WHERE name = " . $this->db->qstr($name) . " AND owner = " . (int) $userID;
 		$resArr = $this->db->getResultArray($queryStr);
 		if ((is_bool($resArr) && !$resArr) || (count($resArr) != 1))
 			return false;
@@ -861,10 +1214,13 @@ class LetoDMS_Core_DMS {
 		return $categories;
 	} /* }}} */
 
+	/**
+	 * This function should be replaced by getAllKeywordCategories()
+	 */
 	function getAllUserKeywordCategories($userID) { /* {{{ */
 		$queryStr = "SELECT * FROM tblKeywordCategories";
 		if ($userID != -1)
-			$queryStr .= " WHERE owner = " . $userID;
+			$queryStr .= " WHERE owner = " . (int) $userID;
 
 		$resArr = $this->db->getResultArray($queryStr);
 		if (is_bool($resArr) && !$resArr)
@@ -880,11 +1236,11 @@ class LetoDMS_Core_DMS {
 		return $categories;
 	} /* }}} */
 
-	function addKeywordCategory($owner, $name) { /* {{{ */
-		if (is_object($this->getKeywordCategoryByName($name, $owner))) {
+	function addKeywordCategory($userID, $name) { /* {{{ */
+		if (is_object($this->getKeywordCategoryByName($name, $userID))) {
 			return false;
 		}
-		$queryStr = "INSERT INTO tblKeywordCategories (owner, name) VALUES ($owner, '$name')";
+		$queryStr = "INSERT INTO tblKeywordCategories (owner, name) VALUES (".(int) $userID.", ".$this->db->qstr($name).")";
 		if (!$this->db->getResult($queryStr))
 			return false;
 
@@ -895,7 +1251,7 @@ class LetoDMS_Core_DMS {
 		if (!is_numeric($id))
 			return false;
 
-		$queryStr = "SELECT * FROM tblCategory WHERE id = " . $id;
+		$queryStr = "SELECT * FROM tblCategory WHERE id = " . (int) $id;
 		$resArr = $this->db->getResultArray($queryStr);
 		if ((is_bool($resArr) && !$resArr) || (count($resArr) != 1))
 			return false;
@@ -929,11 +1285,12 @@ class LetoDMS_Core_DMS {
 	 * The name of a category is by default unique.
 	 *
 	 * @param string $name human readable name of category
-	 * @return object instance of LetoDMS_Core_DocumentCategory
+	 * @return object instance of {@link LetoDMS_Core_DocumentCategory}
 	 */
 	function getDocumentCategoryByName($name) { /* {{{ */
-		$queryStr = "SELECT * FROM tblCategory where name='".$name."'";
+		if (!$name) return false;
 
+		$queryStr = "SELECT * FROM tblCategory where name=".$this->db->qstr($name);
 		$resArr = $this->db->getResultArray($queryStr);
 		if (!$resArr)
 			return false;
@@ -949,7 +1306,7 @@ class LetoDMS_Core_DMS {
 		if (is_object($this->getDocumentCategoryByName($name))) {
 			return false;
 		}
-		$queryStr = "INSERT INTO tblCategory (name) VALUES ('$name')";
+		$queryStr = "INSERT INTO tblCategory (name) VALUES (".$this->db->qstr($name).")";
 		if (!$this->db->getResult($queryStr))
 			return false;
 
@@ -967,7 +1324,7 @@ class LetoDMS_Core_DMS {
 		$queryStr = "SELECT `tblNotify`.* FROM `tblNotify` ".
 		 "WHERE `tblNotify`.`groupID` = ". $group->getID();
 		if($type) {
-			$queryStr .= " AND `tblNotify`.`targetType` = ".$type;
+			$queryStr .= " AND `tblNotify`.`targetType` = ". (int) $type;
 		}
 
 		$resArr = $this->db->getResultArray($queryStr);
@@ -991,11 +1348,11 @@ class LetoDMS_Core_DMS {
 	 * @param integer $type type of item (T_DOCUMENT or T_FOLDER)
 	 * @return array array of notifications
 	 */
-	function getNotificationsByUser($user, $type) { /* {{{ */
+	function getNotificationsByUser($user, $type=0) { /* {{{ */
 		$queryStr = "SELECT `tblNotify`.* FROM `tblNotify` ".
 		 "WHERE `tblNotify`.`userID` = ". $user->getID();
 		if($type) {
-			$queryStr .= " AND `tblNotify`.`targetType` = ".$type;
+			$queryStr .= " AND `tblNotify`.`targetType` = ". (int) $type;
 		}
 
 		$resArr = $this->db->getResultArray($queryStr);
@@ -1010,6 +1367,551 @@ class LetoDMS_Core_DMS {
 		}
 
 		return $notifications;
+	} /* }}} */
+
+	/**
+	 * Create a token to request a new password.
+	 * This function will not delete the password but just creates an entry
+	 * in tblUserRequestPassword indicating a password request.
+	 *
+	 * @return string hash value of false in case of an error
+	 */
+	function createPasswordRequest($user) { /* {{{ */
+		$hash = md5(uniqid(time()));
+		$queryStr = "INSERT INTO tblUserPasswordRequest (userID, hash, `date`) VALUES (" . $user->getId() . ", " . $this->db->qstr($hash) .", CURRENT_TIMESTAMP)";
+		$resArr = $this->db->getResult($queryStr);
+		if (is_bool($resArr) && !$resArr) return false;
+		return $hash;
+
+	} /* }}} */
+
+	/**
+	 * Check if hash for a password request is valid.
+	 * This function searches a previously create password request and
+	 * returns the user.
+	 *
+	 * @param string $hash
+	 */
+	function checkPasswordRequest($hash) { /* {{{ */
+		/* Get the password request from the database */
+		$queryStr = "SELECT * FROM tblUserPasswordRequest where hash=".$this->db->qstr($hash);
+		$resArr = $this->db->getResultArray($queryStr);
+		if (is_bool($resArr) && !$resArr)
+			return false;
+
+		if (count($resArr) != 1)
+			return false;
+		$resArr = $resArr[0];
+
+		return $this->getUser($resArr['userID']);
+
+	} /* }}} */
+
+	/**
+	 * Delete a password request
+	 *
+	 * @param string $hash
+	 */
+	function deletePasswordRequest($hash) { /* {{{ */
+		/* Delete the request, so nobody can use it a second time */
+		$queryStr = "DELETE FROM tblUserPasswordRequest WHERE hash=".$this->db->qstr($hash);
+		if (!$this->db->getResult($queryStr))
+			return false;
+		return true;
+	} /* }}} */
+
+	/**
+	 * Return a attribute definition by its id
+	 *
+	 * This function retrieves a attribute definitionr from the database by
+	 * its id.
+	 *
+	 * @param integer $id internal id of attribute defintion
+	 * @return object instance of {@link LetoDMS_Core_AttributeDefinition} or false
+	 */
+	function getAttributeDefinition($id) { /* {{{ */
+		if (!is_numeric($id))
+			return false;
+
+		$queryStr = "SELECT * FROM tblAttributeDefinitions WHERE id = " . (int) $id;
+		$resArr = $this->db->getResultArray($queryStr);
+
+		if (is_bool($resArr) && $resArr == false) return false;
+		if (count($resArr) != 1) return false;
+
+		$resArr = $resArr[0];
+
+		$attrdef = new LetoDMS_Core_AttributeDefinition($resArr["id"], $resArr["name"], $resArr["objtype"], $resArr["type"], $resArr["multiple"], $resArr["minvalues"], $resArr["maxvalues"], $resArr["valueset"]);
+		$attrdef->setDMS($this);
+		return $attrdef;
+	} /* }}} */
+
+	/**
+	 * Return a attribute definition by its name
+	 *
+	 * This function retrieves an attribute def. from the database by its name.
+	 *
+	 * @param string $name internal name of attribute def.
+	 * @return object instance of {@link LetoDMS_Core_AttributeDefinition} or false
+	 */
+	function getAttributeDefinitionByName($name) { /* {{{ */
+		if (!$name) return false;
+
+		$queryStr = "SELECT * FROM tblAttributeDefinitions WHERE name = " . $this->db->qstr($name);
+		$resArr = $this->db->getResultArray($queryStr);
+
+		if (is_bool($resArr) && $resArr == false) return false;
+		if (count($resArr) != 1) return false;
+
+		$resArr = $resArr[0];
+
+		$attrdef = new LetoDMS_Core_AttributeDefinition($resArr["id"], $resArr["name"], $resArr["objtype"], $resArr["type"], $resArr["multiple"], $resArr["minvalues"], $resArr["maxvalues"], $resArr["valueset"]);
+		$attrdef->setDMS($this);
+		return $attrdef;
+	} /* }}} */
+
+	/**
+	 * Return list of all attributes definitions
+	 *
+	 * @param integer $objtype select those attributes defined for an object type
+	 * @return array of instances of {@link LetoDMS_Core_AttributeDefinition} or false
+	 */
+	function getAllAttributeDefinitions($objtype=0) { /* {{{ */
+		$queryStr = "SELECT * FROM tblAttributeDefinitions";
+		if($objtype) {
+			if(is_array($objtype))
+				$queryStr .= ' WHERE objtype in (\''.implode("','", $objtype).'\')';
+			else
+				$queryStr .= ' WHERE objtype='.intval($objtype);
+		}
+		$queryStr .= ' ORDER BY name';
+		$resArr = $this->db->getResultArray($queryStr);
+
+		if (is_bool($resArr) && $resArr == false)
+			return false;
+
+		$attrdefs = array();
+
+		for ($i = 0; $i < count($resArr); $i++) {
+			$attrdef = new LetoDMS_Core_AttributeDefinition($resArr[$i]["id"], $resArr[$i]["name"], $resArr[$i]["objtype"], $resArr[$i]["type"], $resArr[$i]["multiple"], $resArr[$i]["minvalues"], $resArr[$i]["maxvalues"], $resArr[$i]["valueset"]);
+			$attrdef->setDMS($this);
+			$attrdefs[$i] = $attrdef;
+		}
+
+		return $attrdefs;
+	} /* }}} */
+
+	/**
+	 * Add a new attribute definition
+	 *
+	 * @param string $name name of attribute
+	 * @param string $type type of attribute
+	 * @param boolean $multiple set to 1 if attribute has multiple attributes
+	 * @param integer $minvalues minimum number of values
+	 * @param integer $maxvalues maximum number of values if multiple is set
+	 * @param string $valueset list of allowed values (csv format)
+	 * @return object of {@link LetoDMS_Core_User}
+	 */
+	function addAttributeDefinition($name, $objtype, $type, $multiple=0, $minvalues=0, $maxvalues=1, $valueset='') { /* {{{ */
+		if (is_object($this->getAttributeDefinitionByName($name))) {
+			return false;
+		}
+		if(!$type)
+			return false;
+		$queryStr = "INSERT INTO tblAttributeDefinitions (name, objtype, type, multiple, minvalues, maxvalues, valueset) VALUES (".$this->db->qstr($name).", ".intval($objtype).", ".intval($type).", ".intval($multiple).", ".intval($minvalues).", ".intval($maxvalues).", ".$this->db->qstr($valueset).")";
+		$res = $this->db->getResult($queryStr);
+		if (!$res)
+			return false;
+
+		return $this->getAttributeDefinition($this->db->getInsertID());
+	} /* }}} */
+
+	/**
+	 * Return list of all workflows
+	 *
+	 * @return array of instances of {@link LetoDMS_Core_Workflow} or false
+	 */
+	function getAllWorkflows() { /* {{{ */
+		$queryStr = "SELECT * FROM tblWorkflows ORDER BY name";
+		$resArr = $this->db->getResultArray($queryStr);
+
+		if (is_bool($resArr) && $resArr == false)
+			return false;
+
+		$queryStr = "SELECT * FROM tblWorkflowStates ORDER BY name";
+		$ressArr = $this->db->getResultArray($queryStr);
+
+		if (is_bool($ressArr) && $ressArr == false)
+			return false;
+
+		for ($i = 0; $i < count($ressArr); $i++) {
+			$wkfstates[$ressArr[$i]["id"]] = new LetoDMS_Core_Workflow_State($ressArr[$i]["id"], $ressArr[$i]["name"], $ressArr[$i]["maxtime"], $ressArr[$i]["precondfunc"], $ressArr[$i]["documentstatus"]);
+		}
+
+		$workflows = array();
+		for ($i = 0; $i < count($resArr); $i++) {
+			$workflow = new LetoDMS_Core_Workflow($resArr[$i]["id"], $resArr[$i]["name"], $wkfstates[$resArr[$i]["initstate"]]);
+			$workflow->setDMS($this);
+			$workflows[$i] = $workflow;
+		}
+
+		return $workflows;
+	} /* }}} */
+
+	/**
+	 * Return workflow by its Id
+	 *
+	 * @return object of instances of {@link LetoDMS_Core_Workflow} or false
+	 */
+	function getWorkflow($id) { /* {{{ */
+		$queryStr = "SELECT * FROM tblWorkflows WHERE id=".intval($id);
+		$resArr = $this->db->getResultArray($queryStr);
+
+		if (is_bool($resArr) && $resArr == false)
+			return false;
+
+		if(!$resArr)
+			return false;
+
+		$initstate = $this->getWorkflowState($resArr[0]['initstate']);
+
+		$workflow = new LetoDMS_Core_Workflow($resArr[0]["id"], $resArr[0]["name"], $initstate);
+		$workflow->setDMS($this);
+
+		return $workflow;
+	} /* }}} */
+
+	/**
+	 * Return workflow by its name
+	 *
+	 * @return object of instances of {@link LetoDMS_Core_Workflow} or false
+	 */
+	function getWorkflowByName($name) { /* {{{ */
+		if (!$name) return false;
+
+		$queryStr = "SELECT * FROM tblWorkflows WHERE name=".$this->db->qstr($name);
+		$resArr = $this->db->getResultArray($queryStr);
+
+		if (is_bool($resArr) && $resArr == false)
+			return false;
+
+		if(!$resArr)
+			return false;
+
+		$initstate = $this->getWorkflowState($resArr[0]['initstate']);
+
+		$workflow = new LetoDMS_Core_Workflow($resArr[0]["id"], $resArr[0]["name"], $initstate);
+		$workflow->setDMS($this);
+
+		return $workflow;
+	} /* }}} */
+
+	function addWorkflow($name, $initstate) { /* {{{ */
+		$db = $this->db;
+		if (is_object($this->getWorkflowByName($name))) {
+			return false;
+		}
+		$queryStr = "INSERT INTO tblWorkflows (name, initstate) VALUES (".$db->qstr($name).", ".$initstate->getID().")";
+		$res = $db->getResult($queryStr);
+		if (!$res)
+			return false;
+
+		return $this->getWorkflow($db->getInsertID());
+	} /* }}} */
+
+	/**
+	 * Return a workflow state by its id
+	 *
+	 * This function retrieves a workflow state from the database by its id.
+	 *
+	 * @param integer $id internal id of workflow state
+	 * @return object instance of {@link LetoDMS_Core_Workflow_State} or false
+	 */
+	function getWorkflowState($id) { /* {{{ */
+		if (!is_numeric($id))
+			return false;
+
+		$queryStr = "SELECT * FROM tblWorkflowStates WHERE id = " . (int) $id;
+		$resArr = $this->db->getResultArray($queryStr);
+
+		if (is_bool($resArr) && $resArr == false) return false;
+		if (count($resArr) != 1) return false;
+
+		$resArr = $resArr[0];
+
+		$state = new LetoDMS_Core_Workflow_State($resArr["id"], $resArr["name"], $resArr["maxtime"], $resArr["precondfunc"], $resArr["documentstatus"]);
+		$state->setDMS($this);
+		return $state;
+	} /* }}} */
+
+	/**
+	 * Return workflow state by its name
+	 *
+	 * @param string $name name of workflow state
+	 * @return object of instances of {@link LetoDMS_Core_Workflow_State} or false
+	 */
+	function getWorkflowStateByName($name) { /* {{{ */
+		if (!$name) return false;
+
+		$queryStr = "SELECT * FROM tblWorkflowStates WHERE name=".$this->db->qstr($name);
+		$resArr = $this->db->getResultArray($queryStr);
+
+		if (is_bool($resArr) && $resArr == false)
+			return false;
+
+		if(!$resArr)
+			return false;
+
+		$resArr = $resArr[0];
+
+		$state = new LetoDMS_Core_Workflow_State($resArr["id"], $resArr["name"], $resArr["maxtime"], $resArr["precondfunc"], $resArr["documentstatus"]);
+		$state->setDMS($this);
+
+		return $state;
+	} /* }}} */
+
+	/**
+	 * Return list of all workflow states
+	 *
+	 * @return array of instances of {@link LetoDMS_Core_Workflow_State} or false
+	 */
+	function getAllWorkflowStates() { /* {{{ */
+		$queryStr = "SELECT * FROM tblWorkflowStates ORDER BY name";
+		$ressArr = $this->db->getResultArray($queryStr);
+
+		if (is_bool($ressArr) && $ressArr == false)
+			return false;
+
+		$wkfstates = array();
+		for ($i = 0; $i < count($ressArr); $i++) {
+			$wkfstate = new LetoDMS_Core_Workflow_State($ressArr[$i]["id"], $ressArr[$i]["name"], $ressArr[$i]["maxtime"], $ressArr[$i]["precondfunc"], $ressArr[$i]["documentstatus"]);
+			$wkfstate->setDMS($this);
+			$wkfstates[$i] = $wkfstate;
+		}
+
+		return $wkfstates;
+	} /* }}} */
+
+	/**
+	 * Add new workflow state
+	 *
+	 * @param string $name name of workflow state
+	 * @param integer $docstatus document status when this state is reached
+	 * @return object instance of new workflow state
+	 */
+	function addWorkflowState($name, $docstatus) { /* {{{ */
+		$db = $this->db;
+		if (is_object($this->getWorkflowStateByName($name))) {
+			return false;
+		}
+		$queryStr = "INSERT INTO tblWorkflowStates (name, documentstatus) VALUES (".$db->qstr($name).", ".(int) $docstatus.")";
+		$res = $db->getResult($queryStr);
+		if (!$res)
+			return false;
+
+		return $this->getWorkflowState($db->getInsertID());
+	} /* }}} */
+
+	/**
+	 * Return a workflow action by its id
+	 *
+	 * This function retrieves a workflow action from the database by its id.
+	 *
+	 * @param integer $id internal id of workflow action
+	 * @return object instance of {@link LetoDMS_Core_Workflow_Action} or false
+	 */
+	function getWorkflowAction($id) { /* {{{ */
+		if (!is_numeric($id))
+			return false;
+
+		$queryStr = "SELECT * FROM tblWorkflowActions WHERE id = " . (int) $id;
+		$resArr = $this->db->getResultArray($queryStr);
+
+		if (is_bool($resArr) && $resArr == false) return false;
+		if (count($resArr) != 1) return false;
+
+		$resArr = $resArr[0];
+
+		$action = new LetoDMS_Core_Workflow_Action($resArr["id"], $resArr["name"]);
+		$action->setDMS($this);
+		return $action;
+	} /* }}} */
+
+	/**
+	 * Return a workflow action by its name
+	 *
+	 * This function retrieves a workflow action from the database by its name.
+	 *
+	 * @param string $name name of workflow action
+	 * @return object instance of {@link LetoDMS_Core_Workflow_Action} or false
+	 */
+	function getWorkflowActionByName($name) { /* {{{ */
+		if (!$name) return false;
+
+		$queryStr = "SELECT * FROM tblWorkflowActions WHERE name = " . $this->db->qstr($name);
+		$resArr = $this->db->getResultArray($queryStr);
+
+		if (is_bool($resArr) && $resArr == false) return false;
+		if (count($resArr) != 1) return false;
+
+		$resArr = $resArr[0];
+
+		$action = new LetoDMS_Core_Workflow_Action($resArr["id"], $resArr["name"]);
+		$action->setDMS($this);
+		return $action;
+	} /* }}} */
+
+	/**
+	 * Return list of workflow action
+	 *
+	 * @return array list of instances of {@link LetoDMS_Core_Workflow_Action} or false
+	 */
+	function getAllWorkflowActions() { /* {{{ */
+		$queryStr = "SELECT * FROM tblWorkflowActions";
+		$resArr = $this->db->getResultArray($queryStr);
+
+		if (is_bool($resArr) && $resArr == false)
+			return false;
+
+		$wkfactions = array();
+		for ($i = 0; $i < count($resArr); $i++) {
+			$action = new LetoDMS_Core_Workflow_Action($resArr[$i]["id"], $resArr[$i]["name"]);
+			$action->setDMS($this);
+			$wkfactions[$i] = $action;
+		}
+
+		return $wkfactions;
+	} /* }}} */
+
+	/**
+	 * Add new workflow action
+	 *
+	 * @param string $name name of workflow action
+	 * @return object instance new workflow action
+	 */
+	function addWorkflowAction($name) { /* {{{ */
+		$db = $this->db;
+		if (is_object($this->getWorkflowActionByName($name))) {
+			return false;
+		}
+		$queryStr = "INSERT INTO tblWorkflowActions (name) VALUES (".$db->qstr($name).")";
+		$res = $db->getResult($queryStr);
+		if (!$res)
+			return false;
+
+		return $this->getWorkflowAction($db->getInsertID());
+	} /* }}} */
+
+	/**
+	 * Return a workflow transition by its id
+	 *
+	 * This function retrieves a workflow transition from the database by its id.
+	 *
+	 * @param integer $id internal id of workflow transition
+	 * @return object instance of {@link LetoDMS_Core_Workflow_Transition} or false
+	 */
+	function getWorkflowTransition($id) { /* {{{ */
+		if (!is_numeric($id))
+			return false;
+
+		$queryStr = "SELECT * FROM tblWorkflowTransitions WHERE id = " . (int) $id;
+		$resArr = $this->db->getResultArray($queryStr);
+
+		if (is_bool($resArr) && $resArr == false) return false;
+		if (count($resArr) != 1) return false;
+
+		$resArr = $resArr[0];
+
+		$transition = new LetoDMS_Core_Workflow_Transition($resArr["id"], $this->getWorkflow($resArr["workflow"]), $this->getWorkflowState($resArr["state"]), $this->getWorkflowAction($resArr["action"]), $this->getWorkflowState($resArr["nextstate"]), $resArr["maxtime"]);
+		$transition->setDMS($this);
+		return $transition;
+	} /* }}} */
+
+	/**
+	 * Returns document content which is not linked to a document
+	 *
+	 * This method is for finding straying document content without
+	 * a parent document. In normal operation this should not happen
+	 * but little checks for database consistency and possible errors
+	 * in the application may have left over document content though
+	 * the document is gone already.
+	 */
+	function getUnlinkedDocumentContent() { /* {{{ */
+		$queryStr = "SELECT * FROM tblDocumentContent WHERE document NOT IN (SELECT id FROM tblDocuments)";
+		$resArr = $this->db->getResultArray($queryStr);
+		if (!$resArr)
+			return false;
+
+		$versions = array();
+		foreach($resArr as $row) {
+			$document = new LetoDMS_Core_Document($row['document'], '', '', '', '', '', '', '', '', '', '', '');
+			$document->setDMS($this);
+			$version = new LetoDMS_Core_DocumentContent($row['id'], $document, $row['version'], $row['comment'], $row['date'], $row['createdBy'], $row['dir'], $row['orgFileName'], $row['fileType'], $row['mimeType'], $row['fileSize'], $row['checksum']);
+			$versions[] = $version;
+		}
+		return $versions;
+		
+	} /* }}} */
+
+	/**
+	 * Returns document content which has no file size set
+	 *
+	 * This method is for finding document content without a file size
+	 * set in the database. The file size of a document content was introduced
+	 * in version 4.0.0 of letodms for implementation of user quotas.
+	 */
+	function getNoFileSizeDocumentContent() { /* {{{ */
+		$queryStr = "SELECT * FROM tblDocumentContent WHERE fileSize = 0 OR fileSize is null";
+		$resArr = $this->db->getResultArray($queryStr);
+		if (!$resArr)
+			return false;
+
+		$versions = array();
+		foreach($resArr as $row) {
+			$document = new LetoDMS_Core_Document($row['document'], '', '', '', '', '', '', '', '', '', '', '');
+			$document->setDMS($this);
+			$version = new LetoDMS_Core_DocumentContent($row['id'], $document, $row['version'], $row['comment'], $row['date'], $row['createdBy'], $row['dir'], $row['orgFileName'], $row['fileType'], $row['mimeType'], $row['fileSize'], $row['checksum'], $row['fileSize'], $row['checksum']);
+			$versions[] = $version;
+		}
+		return $versions;
+		
+	} /* }}} */
+
+	/**
+	 * Returns document content which has no checksum set
+	 *
+	 * This method is for finding document content without a checksum
+	 * set in the database. The checksum of a document content was introduced
+	 * in version 4.0.0 of letodms for finding duplicates.
+	 */
+	function getNoChecksumDocumentContent() { /* {{{ */
+		$queryStr = "SELECT * FROM tblDocumentContent WHERE checksum = '' OR checksum is null";
+		$resArr = $this->db->getResultArray($queryStr);
+		if (!$resArr)
+			return false;
+
+		$versions = array();
+		foreach($resArr as $row) {
+			$document = new LetoDMS_Core_Document($row['document'], '', '', '', '', '', '', '', '', '', '', '');
+			$document->setDMS($this);
+			$version = new LetoDMS_Core_DocumentContent($row['id'], $document, $row['version'], $row['comment'], $row['date'], $row['createdBy'], $row['dir'], $row['orgFileName'], $row['fileType'], $row['mimeType'], $row['fileSize'], $row['checksum']);
+			$versions[] = $version;
+		}
+		return $versions;
+		
+	} /* }}} */
+
+	/**
+	 * Set a callback function
+	 *
+	 * @param string $name internal name of callback
+	 * @param mixed $func function name as expected by {call_user_method}
+	 * @param mixed $params parameter passed as the first argument to the
+	 *        callback
+	 */
+	function setCallback($name, $func, $params=null) { /* {{{ */
+		if($name && $func)
+			$this->callbacks[$name] = array($func, $params);
 	} /* }}} */
 
 }

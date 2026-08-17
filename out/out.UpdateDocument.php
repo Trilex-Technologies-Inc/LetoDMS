@@ -26,204 +26,30 @@ include("../inc/inc.ClassUI.php");
 include("../inc/inc.Authentication.php");
 
 if (!isset($_GET["documentid"]) || !is_numeric($_GET["documentid"]) || intval($_GET["documentid"])<1) {
-	UI::exitError(getMLText("document_title", array("documentname" => getMLText("invalid_doc_id"))),getMLText("invalid_doc_id"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => getMLText("invalid_doc_id"))),getMLText("invalid_doc_id"));
 }
-$documentid = $_GET["documentid"];
-$document = $dms->getDocument($documentid);
+$document = $dms->getDocument($_GET["documentid"]);
 
 if (!is_object($document)) {
-	UI::exitError(getMLText("document_title", array("documentname" => getMLText("invalid_doc_id"))),getMLText("invalid_doc_id"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => getMLText("invalid_doc_id"))),getMLText("invalid_doc_id"));
+}
+
+if ($document->getAccessMode($user) < M_READWRITE) {
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => htmlspecialchars($document->getName()))),getMLText("access_denied"));
+}
+
+$remain = checkQuota();
+if ($remain < 0) {
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => htmlspecialchars($document->getName()))),getMLText("quota_exceeded", array('bytes'=>(new LetoDMS_Core_File())->format_filesize(abs($remain)))));
 }
 
 $folder = $document->getFolder();
-$docPathHTML = getFolderPathHTML($folder, true). " / <a href=\"../out/out.ViewDocument.php?documentid=".$documentid."\">".$document->getName()."</a>";
 
-if ($document->getAccessMode($user) < M_READWRITE) {
-	UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("access_denied"));
+$tmp = explode('.', basename($_SERVER['SCRIPT_FILENAME']));
+$view = (new UI($GLOBALS['theme'] ?? 'bootstrap'))->factory($theme, $tmp[1], array('dms'=>$dms, 'user'=>$user, 'folder'=>$folder, 'document'=>$document, 'strictformcheck'=>$settings->_strictFormCheck, 'enablelargefileupload'=>$settings->_enableLargeFileUpload, 'dropfolderdir'=>$settings->_dropFolderDir, 'workflowmode'=>$settings->_workflowMode));
+if($view) {
+	$view->show();
+	exit;
 }
 
-UI::htmlStartPage(getMLText("document_title", array("documentname" => $document->getName())));
-UI::globalNavigation($folder);
-UI::pageNavigation($docPathHTML, "view_document");
-
-?>
-
-<script language="JavaScript">
-function checkForm()
-{
-	msg = "";
-	if (document.form1.userfile.value == "") msg += "<?php printMLText("js_no_file");?>\n";
-<?php
-	if (isset($settings->_strictFormCheck) && $settings->_strictFormCheck) {
-	?>
-	if (document.form1.comment.value == "") msg += "<?php printMLText("js_no_comment");?>\n";
-<?php
-	}
-?>
-	if (msg != "")
-	{
-		alert(msg);
-		return false;
-	}
-	else
-		return true;
-}
-</script>
-
-<?php
-UI::contentHeading(getMLText("update_document") . ": " . $document->getName());
-UI::contentContainerStart();
-
-if ($document->isLocked()) {
-
-	$lockingUser = $document->getLockingUser();
-	
-	print "<table><tr><td class=\"warning\">";
-	
-	printMLText("update_locked_msg", array("username" => $lockingUser->getFullName(), "email" => $lockingUser->getEmail()));
-	
-	if ($lockingUser->getID() == $user->getID())
-		printMLText("unlock_cause_locking_user");
-	else if ($document->getAccessMode($user) == M_ALL)
-		printMLText("unlock_cause_access_mode_all");
-	else
-	{
-		printMLText("no_update_cause_locked");
-		print "</td></tr></table>";
-		UI::contentContainerEnd();
-		UI::htmlEndPage();
-		exit;
-	}
-
-	print "</td></tr></table><br>";
-}
-
-// Retrieve a list of all users and groups that have review / approve
-// privileges.
-$docAccess = $document->getApproversList();
-?>
-
-<table>
-<tr>
-	<td class="warning"><?php echo getMLText("max_upload_size")." : ".ini_get( "upload_max_filesize"); ?></td>
-</tr>
-<tr>
-  <td><?php printf(getMLText('link_alt_updatedocument'), "out.UpdateDocument2.php?documentid=".$documentid); ?></td>
-</tr>
-</table><br>
-
-
-<form action="../op/op.UpdateDocument.php" enctype="multipart/form-data" method="post" name="form1" onsubmit="return checkForm();">
-	<input type="Hidden" name="documentid" value="<?php print $documentid; ?>">
-	<table>
-	
-		<tr>
-			<td><?php printMLText("local_file");?>:</td>
-			<td><input type="File" name="userfile" size="60"></td>
-		</tr>
-		<tr>
-			<td><?php printMLText("comment");?>:</td>
-			<td class="standardText">
-				<textarea name="comment" rows="4" cols="80"></textarea>
-			</td>
-		</tr>
-		<tr>
-			<td><?php printMLText("expires");?>:</td>
-			<td class="standardText">
-				<input type="Radio" name="expires" value="false"<?php if (!$document->expires()) print " checked";?>><?php printMLText("does_not_expire");?><br>
-				<input type="radio" name="expires" value="true"<?php if ($document->expires()) print " checked";?>><?php UI::printDateChooser(-1, "exp");?>
-			</td>
-		</tr>
-		<tr>
-			<td colspan=2>
-			
-				<?php UI::contentSubHeading(getMLText("assign_reviewers")); ?>
-
-				<div class="cbSelectTitle"><?php printMLText("individuals");?>:</div>
-				<div class="cbSelectContainer cbSelectMargin">
-				<ul class="cbSelectList">
-<?php
-				$res=$user->getMandatoryReviewers();
-
-				foreach ($docAccess["users"] as $usr) {
-
-					if ($usr->getID()==$user->getID()) continue; 
-
-					$mandatory=false;
-					foreach ($res as $r) if ($r['reviewerUserID']==$usr->getID()) $mandatory=true;
-
-					if ($mandatory) print "<li class=\"cbSelectItem\"><input type='checkbox' checked='checked' disabled='disabled'>". $usr->getFullName();
-					else print "<li class=\"cbSelectItem\"><input id='revInd".$usr->getID()."' type='checkbox' name='indReviewers[]' value='". $usr->getID() ."'>". $usr->getFullName();
-				}
-?>
-				</ul>
-				</div>
-				<div class="cbSelectTitle"><?php printMLText("groups");?>:</div>
-				<div class="cbSelectContainer">
-				<ul class="cbSelectList">
-<?php
-				foreach ($docAccess["groups"] as $grp) {
-				
-					$mandatory=false;
-					foreach ($res as $r) if ($r['reviewerGroupID']==$grp->getID()) $mandatory=true;	
-
-					if ($mandatory) print "<li class=\"cbSelectItem\"><input type='checkbox' checked='checked' disabled='disabled'>".$grp->getName();
-					else print "<li class=\"cbSelectItem\"><input id='revGrp".$grp->getID()."' type='checkbox' name='grpReviewers[]' value='". $grp->getID() ."'>".$grp->getName();
-				}
-?>
-				</ul>
-				</div>
-					
-				<?php UI::contentSubHeading(getMLText("assign_approvers")); ?>	
-				
-				<div class="cbSelectTitle"><?php printMLText("individuals");?>:</div>
-				<div class="cbSelectContainer cbSelectMargin">
-				<ul class="cbSelectList">
-<?php
-				$res=$user->getMandatoryApprovers();
-
-				foreach ($docAccess["users"] as $usr) {
-				
-					if ($usr->getID()==$user->getID()) continue; 
-
-					$mandatory=false;
-					foreach ($res as $r) if ($r['approverUserID']==$usr->getID()) $mandatory=true;
-					
-					if ($mandatory) print "<li class=\"cbSelectItem\"><input type='checkbox' checked='checked' disabled='disabled'>". $usr->getFullName();
-					else print "<li class=\"cbSelectItem\"><input id='appInd".$usr->getID()."' type='checkbox' name='indApprovers[]' value='". $usr->getID() ."'>". $usr->getFullName();
-				}
-?>
-				</ul>
-				</div>
-				<div class="cbSelectTitle"><?php printMLText("groups");?>:</div>
-				<div class="cbSelectContainer">
-				<ul class="cbSelectList">
-<?php
-				foreach ($docAccess["groups"] as $grp) {
-				
-					$mandatory=false;
-					foreach ($res as $r) if ($r['approverGroupID']==$grp->getID()) $mandatory=true;	
-
-					if ($mandatory) print "<li class=\"cbSelectItem\"><input type='checkbox' checked='checked' disabled='disabled'>".$grp->getName();
-					else print "<li class=\"cbSelectItem\"><input id='appGrp".$grp->getID()."' type='checkbox' name='grpApprovers[]' value='". $grp->getID() ."'>".$grp->getName();
-
-				}
-?>
-				</ul>
-				</div>
-			</td>
-			</tr>
-		<tr>
-			<td colspan="2"><?php printMLText("add_doc_reviewer_approver_warning")?></td>
-		</tr>
-		<tr>
-			<td colspan="2"><input type="Submit" value="<?php printMLText("update_document")?>"></td>
-		</tr>
-	</table>
-</form>
-
-<?php
-
-UI::contentContainerEnd();
-UI::htmlEndPage();
 ?>

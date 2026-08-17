@@ -34,21 +34,22 @@ function getLanguages()
 			array_push($languages, $entry);
 	}
 	closedir($handle);
-	
+
+	asort($languages);
 	return $languages;
 }
 
-include $settings->_rootDir . "languages/" . $settings->_language . "/lang.inc";
-
-
-function getMLText($key, $replace = array())
+function getMLText($key, $replace = array(), $defaulttext = "")
 {
 	GLOBAL $settings, $text;
 	
-	if (!isset($text[$key]))
-		return "Error getting Text: " . $key . " (" . $settings->_language . ")";
-	
-	$tmpText = $text[$key];
+	if (!isset($text[$key])) {
+		if (!$defaulttext)
+			return "Error getting Text: " . $key . " (" . $settings->_language . ")";
+		else
+			$tmpText = $defaulttext;
+	} else
+		$tmpText = $text[$key];
 	
 	if (count($replace) == 0)
 		return $tmpText;
@@ -60,9 +61,9 @@ function getMLText($key, $replace = array())
 	return $tmpText;
 }
 
-function printMLText($key, $replace = array())
+function printMLText($key, $replace = array(), $defaulttext = "")
 {
-	print getMLText($key, $replace);
+	print getMLText($key, $replace, $defaulttext);
 }
 
 function printReviewStatusText($status, $date=0) {
@@ -166,34 +167,7 @@ function getApprovalStatusText($status, $date=0) {
 }
 
 function printOverallStatusText($status) {
-	if (is_null($status)) {
-		print getMLText("assumed_released");
-	}
-	else {
-		switch($status) {
-			case S_DRAFT_REV:
-				print getMLText("draft_pending_review");
-				break;
-			case S_DRAFT_APP:
-				print getMLText("draft_pending_approval");
-				break;
-			case S_RELEASED:
-				print getMLText("released");
-				break;
-			case S_REJECTED:
-				print getMLText("rejected");
-				break;
-			case S_OBSOLETE:
-				print getMLText("obsolete");
-				break;
-			case S_EXPIRED:
-				print getMLText("expired");
-				break;
-			default:
-				print getMLText("status_unknown");
-				break;
-		}
-	}
+	print getOverallStatusText($status);
 }
 
 function getOverallStatusText($status) {
@@ -202,6 +176,9 @@ function getOverallStatusText($status) {
 	}
 	else {
 		switch($status) {
+			case S_IN_WORKFLOW:
+				return getMLText("in_workflow");
+				break;
 			case S_DRAFT_REV:
 				return getMLText("draft_pending_review");
 				break;

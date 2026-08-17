@@ -26,7 +26,7 @@ include("../inc/inc.Authentication.php");
 
 
 if (!$user->isAdmin()) {
-	UI::exitError(getMLText("admin_tools"),getMLText("access_denied"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("access_denied"));
 }
 
 function createVersionigFiles($folder)
@@ -39,7 +39,7 @@ function createVersionigFiles($folder)
 			return false;
 
 	$subFolders = $folder->getSubFolders();
-	
+
 	foreach ($subFolders as $folder)
 		if (!createVersionigFiles($folder))
 			return false;
@@ -48,17 +48,17 @@ function createVersionigFiles($folder)
 }
 
 if (!isset($_GET["targetidform1"]) || !is_numeric($_GET["targetidform1"]) || intval($_GET["targetidform1"])<1) {
-	UI::exitError(getMLText("admin_tools"),getMLText("invalid_folder_id"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("invalid_folder_id"));
 }
 $folderid = $_GET["targetidform1"];
 $folder = $dms->getFolder($folderid);
 
 if (!is_object($folder)) {
-	UI::exitError(getMLText("admin_tools"),getMLText("invalid_folder_id"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("invalid_folder_id"));
 }
 
 if (!createVersionigFiles($folder)) {
-	UI::exitError(getMLText("admin_tools"),getMLText("error_occured"));
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("error_occured"));
 }
 
 add_log_line();
