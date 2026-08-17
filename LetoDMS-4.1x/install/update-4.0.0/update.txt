@@ -1,0 +1,10 @@
+Upgrading to new workflow engine
+================================
+
+If you decide to turn on the new workflow mode, then all your current
+approvals and reviews will become invisible. They will not be deleted
+but there is no way to access them anymore unless you switch back to
+traditional mode. You can easily modell the old workflow with the new
+workflow engine, but have to set up the transitions, states and actions
+yourself. Please make sure there are no documents left with a pending
+review or approval.
