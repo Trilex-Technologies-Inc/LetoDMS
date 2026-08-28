@@ -38,7 +38,7 @@ function getBoolValue($post_name)
 }
 
 if (!$user->isAdmin()) {
-	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("access_denied"));
+	UI::exitError(getMLText("admin_tools"),getMLText("access_denied"));
 }
 
 if (isset($_POST["action"])) $action=$_POST["action"];
@@ -155,7 +155,7 @@ if ($action == "saveSettings")
   // save
   // -------------------------------------------------------------------------
   if (!$settings->save())
-    (new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("settings_SaveError"));
+    UI::exitError(getMLText("admin_tools"),getMLText("settings_SaveError"));
 
 	add_log_line(".php&action=savesettings");
 }

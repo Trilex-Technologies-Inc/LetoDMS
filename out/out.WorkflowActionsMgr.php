@@ -26,7 +26,7 @@ include("../inc/inc.ClassUI.php");
 include("../inc/inc.Authentication.php");
 
 if (!$user->isAdmin()) {
-	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("access_denied"));
+	UI::exitError(getMLText("admin_tools"),getMLText("access_denied"));
 }
 
 if(isset($_GET['workflowactionid']) && $_GET['workflowactionid']) {
@@ -37,11 +37,11 @@ if(isset($_GET['workflowactionid']) && $_GET['workflowactionid']) {
 
 $workflowactions = $dms->getAllWorkflowActions();
 if (is_bool($workflowactions)) {
-	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("internal_error"));
+	UI::exitError(getMLText("admin_tools"),getMLText("internal_error"));
 }
 
 $tmp = explode('.', basename($_SERVER['SCRIPT_FILENAME']));
-$view = (new UI($GLOBALS['theme'] ?? 'bootstrap'))->factory($theme, $tmp[1], array('dms'=>$dms, 'user'=>$user, 'allworkflowactions'=>$workflowactions, 'selworkflowaction'=>$selworkflowaction));
+$view = UI::factory($theme, $tmp[1], array('dms'=>$dms, 'user'=>$user, 'allworkflowactions'=>$workflowactions, 'selworkflowaction'=>$selworkflowaction));
 if($view) {
 	$view->show();
 	exit;

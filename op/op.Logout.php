@@ -37,7 +37,7 @@ $session->load($dms_session);
 // $session->setUser(0); does not work because of foreign user constraint
 
 if(!$session->delete($dms_session)) {
-	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("logout"),$db->getErrorMsg());
+	UI::exitError(getMLText("logout"),$db->getErrorMsg());
 }
 
 // Delete Cookie

@@ -27,13 +27,13 @@ include("../inc/inc.Authentication.php");
 
 $workflow = $dms->getWorkflow($_GET['workflow']);
 if (is_bool($workflow)) {
-	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("internal_error"));
+	UI::exitError(getMLText("admin_tools"),getMLText("internal_error"));
 }
 
 if(isset($_GET['documentid']) && $_GET['documentid']) {
 	$document = $dms->getDocument($_GET['documentid']);
 	if (is_bool($document)) {
-		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("internal_error"));
+		UI::exitError(getMLText("admin_tools"),getMLText("internal_error"));
 	}
 } else {
 	$document = null;
@@ -42,14 +42,14 @@ if(isset($_GET['documentid']) && $_GET['documentid']) {
 if(isset($_GET['transition']) && $_GET['transition']) {
 	$transition = $dms->getWorkflowTransition($_GET['transition']);
 	if (is_bool($transition)) {
-		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("internal_error"));
+		UI::exitError(getMLText("admin_tools"),getMLText("internal_error"));
 	}
 } else {
 	$transition = null;
 }
 
 $tmp = explode('.', basename($_SERVER['SCRIPT_FILENAME']));
-$view = (new UI($GLOBALS['theme'] ?? 'bootstrap'))->factory($theme, $tmp[1], array('dms'=>$dms, 'user'=>$user, 'workflow'=>$workflow, 'transition'=>$transition, 'document'=>$document));
+$view = UI::factory($theme, $tmp[1], array('dms'=>$dms, 'user'=>$user, 'workflow'=>$workflow, 'transition'=>$transition, 'document'=>$document));
 if($view) {
 	$view->show();
 	exit;

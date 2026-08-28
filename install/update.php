@@ -21,7 +21,7 @@
 require_once("../inc/inc.Utils.php");
 require_once('../inc/inc.ClassSettings.php');
 
-$configDir = (new Settings())->getConfigDir();
+$configDir = Settings::getConfigDir();
 $settings = new Settings();
 $settings->load($configDir."/settings.xml");
 
@@ -36,9 +36,9 @@ if (!file_exists($configDir."/ENABLE_INSTALL_TOOL")) {
 require_once("../inc/inc.Language.php");
 require_once("../inc/inc.ClassUI.php");
 
-(new UI($GLOBALS['theme'] ?? 'bootstrap'))->htmlStartPage('Database update');
-(new UI($GLOBALS['theme'] ?? 'bootstrap'))->contentHeading("letoDMS Installation for version ".$_GET['version']);
-(new UI($GLOBALS['theme'] ?? 'bootstrap'))->contentContainerStart();
+UI::htmlStartPage('Database update');
+UI::contentHeading("letoDMS Installation for version ".$_GET['version']);
+UI::contentContainerStart();
 
 switch($settings->_dbDriver) {
 	case 'mysql':
@@ -95,6 +95,6 @@ if($rec = $res->fetch(PDO::FETCH_ASSOC)) {
 }
 $db = null;
 
-(new UI($GLOBALS['theme'] ?? 'bootstrap'))->contentContainerEnd();
-(new UI($GLOBALS['theme'] ?? 'bootstrap'))->htmlEndPage();
+UI::contentContainerEnd();
+UI::htmlEndPage();
 ?>

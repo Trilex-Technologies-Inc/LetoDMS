@@ -25,27 +25,27 @@ include("../inc/inc.ClassUI.php");
 include("../inc/inc.Authentication.php");
 
 if (!$user->isAdmin()) {
-	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("access_denied"));
+	UI::exitError(getMLText("admin_tools"),getMLText("access_denied"));
 }
 
 if (!isset($_GET["userid"]) || !is_numeric($_GET["userid"]) || intval($_GET["userid"])<1) {
-	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("rm_user"),getMLText("invalid_user_id"));
+	UI::exitError(getMLText("rm_user"),getMLText("invalid_user_id"));
 }
 
 $rmuser = $dms->getUser(intval($_GET["userid"]));
 
 if ($rmuser->getID()==$user->getID()) {
-	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("rm_user"),getMLText("access_denied"));
+	UI::exitError(getMLText("rm_user"),getMLText("access_denied"));
 }
 
 if (!is_object($rmuser)) {
-	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("rm_user"),getMLText("invalid_user_id"));
+	UI::exitError(getMLText("rm_user"),getMLText("invalid_user_id"));
 }
 
 $allusers = $dms->getAllUsers($settings->_sortUsersInList);
 
 $tmp = explode('.', basename($_SERVER['SCRIPT_FILENAME']));
-$view = (new UI($GLOBALS['theme'] ?? 'bootstrap'))->factory($theme, $tmp[1], array('dms'=>$dms, 'user'=>$user, 'rmuser'=>$rmuser, 'allusers'=>$allusers));
+$view = UI::factory($theme, $tmp[1], array('dms'=>$dms, 'user'=>$user, 'rmuser'=>$rmuser, 'allusers'=>$allusers));
 if($view) {
 	$view->show();
 	exit;

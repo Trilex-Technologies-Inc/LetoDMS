@@ -26,21 +26,21 @@ include("../inc/inc.ClassUI.php");
 include("../inc/inc.Authentication.php");
 
 if (!$user->isAdmin()) {
-	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("access_denied"));
+	UI::exitError(getMLText("admin_tools"),getMLText("access_denied"));
 }
 
 /* Check if the form data comes for a trusted request */
 if(!checkFormKey('removeworkflowaction')) {
-	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("workflow_editor"), getMLText("invalid_request_token"));
+	UI::exitError(getMLText("workflow_editor"), getMLText("invalid_request_token"));
 }
 
 if (!isset($_POST["workflowactionid"]) || !is_numeric($_POST["workflowactionid"]) || intval($_POST["workflowactionid"])<1) {
-	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("workflow_editor"), getMLText("invalid_version"));
+	UI::exitError(getMLText("workflow_editor"), getMLText("invalid_version"));
 }
 
 $workflowaction = $dms->getWorkflowAction($_POST["workflowactionid"]);
 if (!is_object($workflowaction)) {
-	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("workflow_editor"), getMLText("invalid_workflow_action"));
+	UI::exitError(getMLText("workflow_editor"), getMLText("invalid_workflow_action"));
 }
 
 if($workflowaction->remove()) {

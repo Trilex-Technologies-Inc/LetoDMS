@@ -26,36 +26,36 @@ include("../inc/inc.ClassUI.php");
 include("../inc/inc.Authentication.php");
 
 if (!$user->isAdmin()) {
-	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("access_denied"));
+	UI::exitError(getMLText("admin_tools"),getMLText("access_denied"));
 }
 
 /* Check if the form data comes for a trusted request */
 if(!checkFormKey('removeworkflowfromdocument')) {
-	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("workflow_editor"), getMLText("invalid_request_token"));
+	UI::exitError(getMLText("workflow_editor"), getMLText("invalid_request_token"));
 }
 
 if (!isset($_POST["documentid"]) || !is_numeric($_POST["documentid"]) || intval($_POST["documentid"])<1) {
-	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("workflow_editor"), getMLText("invalid_doc_id"));
+	UI::exitError(getMLText("workflow_editor"), getMLText("invalid_doc_id"));
 }
 $documentid = $_POST["documentid"];
 $document = $dms->getDocument($documentid);
 if (!is_object($document)) {
-	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("workflow_editor"), getMLText("invalid_doc_id"));
+	UI::exitError(getMLText("workflow_editor"), getMLText("invalid_doc_id"));
 }
 
 if (!isset($_POST["version"]) || !is_numeric($_POST["version"]) || intval($_POST["version"])<1) {
-	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("invalid_version"));
+	UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("invalid_version"));
 }
 
 $version_num = $_POST["version"];
 $version = $document->getContentByVersion($version_num);
 if (!is_object($version)) {
-	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("invalid_version"));
+	UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("invalid_version"));
 }
 
 $workflow = $version->getWorkflow();
 if (!is_object($workflow)) {
-	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => htmlspecialchars($document->getName()))),getMLText("document_has_no_workflow"));
+	UI::exitError(getMLText("document_title", array("documentname" => htmlspecialchars($document->getName()))),getMLText("document_has_no_workflow"));
 }
 
 if($version->removeWorkflow($user)) {
@@ -64,7 +64,7 @@ if($version->removeWorkflow($user)) {
 
 		$subject = "###SITENAME###: ".$document->getName()." - ".getMLText("remove_workflow_email");
 		$message = getMLText("remove_workflow_email")."\r\n";
-		$message .=
+		$message .= 
 			getMLText("document").": ".$document->getName()."\r\n".
 			getMLText("workflow").": ".$workflow->getName()."\r\n".
 			getMLText("user").": ".$user->getFullName()." <". $user->getEmail() ."> ";

@@ -26,17 +26,17 @@ include("../inc/inc.ClassUI.php");
 include("../inc/inc.Authentication.php");
 
 if (!$user->isAdmin()) {
-	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("access_denied"));
+	UI::exitError(getMLText("admin_tools"),getMLText("access_denied"));
 }
 
 $allUsers = $dms->getAllUsers($settings->_sortUsersInList);
 if (is_bool($allUsers)) {
-	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("internal_error"));
+	UI::exitError(getMLText("admin_tools"),getMLText("internal_error"));
 }
 
 $allGroups = $dms->getAllGroups();
 if (is_bool($allGroups)) {
-	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("internal_error"));
+	UI::exitError(getMLText("admin_tools"),getMLText("internal_error"));
 }
 
 if(isset($_GET['groupid']) && $_GET['groupid']) {
@@ -46,7 +46,7 @@ if(isset($_GET['groupid']) && $_GET['groupid']) {
 }
 
 $tmp = explode('.', basename($_SERVER['SCRIPT_FILENAME']));
-$view = (new UI($GLOBALS['theme'] ?? 'bootstrap'))->factory($theme, $tmp[1], array('dms'=>$dms, 'user'=>$user, 'selgroup'=>$selgroup, 'allgroups'=>$allGroups, 'allusers'=>$allUsers, 'strictformcheck'=>$settings->_strictFormCheck));
+$view = UI::factory($theme, $tmp[1], array('dms'=>$dms, 'user'=>$user, 'selgroup'=>$selgroup, 'allgroups'=>$allGroups, 'allusers'=>$allUsers, 'strictformcheck'=>$settings->_strictFormCheck));
 if($view) {
 	$view->show();
 	exit;

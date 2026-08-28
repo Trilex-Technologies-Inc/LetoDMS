@@ -38,7 +38,7 @@ class LetoDMS_Core_Object { /* {{{ */
 	 */
 	public $_dms;
 
-	function __construct($id) { /* {{{ */
+	function LetoDMS_Core_Object($id) { /* {{{ */
 		$this->_id = $id;
 		$this->_dms = null;
 	} /* }}} */

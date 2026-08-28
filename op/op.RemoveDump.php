@@ -24,20 +24,20 @@ include("../inc/inc.ClassUI.php");
 include("../inc/inc.Authentication.php");
 
 if (!$user->isAdmin()) {
-	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("access_denied"));
+	UI::exitError(getMLText("admin_tools"),getMLText("access_denied"));
 }
 
 /* Check if the form data comes for a trusted request */
 if(!checkFormKey('removedump')) {
-	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("invalid_request_token"));
+	UI::exitError(getMLText("admin_tools"),getMLText("invalid_request_token"));
 }
 
 if (!isset($_POST["dumpname"]) || !file_exists($settings->_contentDir.$_POST["dumpname"]) ) {
-	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("unknown_id"));
+	UI::exitError(getMLText("admin_tools"),getMLText("unknown_id"));
 }
 
-if (!(new LetoDMS_Core_File())->removeFile($settings->_contentDir.$_POST["dumpname"])) {
-	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("error_occured"));
+if (!LetoDMS_Core_File::removeFile($settings->_contentDir.$_POST["dumpname"])) {
+	UI::exitError(getMLText("admin_tools"),getMLText("error_occured"));
 }
 
 add_log_line("?dumpname=".$_POST["dumpname"]);

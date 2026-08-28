@@ -25,12 +25,12 @@ include("../inc/inc.ClassUI.php");
 include("../inc/inc.Authentication.php");
 
 if (!$user->isAdmin()) {
-	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("access_denied"));
+	UI::exitError(getMLText("admin_tools"),getMLText("access_denied"));
 }
 
 /* Check if the form data comes for a trusted request */
 if(!checkFormKey('removefolderfiles')) {
-	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("invalid_request_token"));
+	UI::exitError(getMLText("admin_tools"),getMLText("invalid_request_token"));
 }
 
 function removeFolderFiles($folder) {
@@ -38,7 +38,7 @@ function removeFolderFiles($folder) {
 
 	$documents = $folder->getDocuments();
 	foreach ($documents as $document)
-		(new LetoDMS_Core_File())->removeDir($dms->contentDir . $document->getDir());
+		LetoDMS_Core_File::removeDir($dms->contentDir . $document->getDir());
 
 	$subFolders = $folder->getSubFolders();
 
@@ -50,17 +50,17 @@ function removeFolderFiles($folder) {
 
 
 if (!isset($_POST["folderid"]) || !is_numeric($_POST["folderid"]) || intval($_POST["folderid"])<1) {
-	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("invalid_folder_id"));
+	UI::exitError(getMLText("admin_tools"),getMLText("invalid_folder_id"));
 }
 $folderid = $_POST["folderid"];
 $folder = $dms->getFolder($folderid);
 
 if (!is_object($folder)) {
-	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("invalid_folder_id"));
+	UI::exitError(getMLText("admin_tools"),getMLText("invalid_folder_id"));
 }
 
 if (!removeFolderFiles($folder)) {
-	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("error_occured"));
+	UI::exitError(getMLText("admin_tools"),getMLText("error_occured"));
 }
 
 add_log_line();

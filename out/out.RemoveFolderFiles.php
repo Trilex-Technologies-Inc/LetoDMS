@@ -23,21 +23,21 @@ include("../inc/inc.ClassUI.php");
 include("../inc/inc.Authentication.php");
 
 if (!$user->isAdmin()) {
-	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("access_denied"));
+	UI::exitError(getMLText("admin_tools"),getMLText("access_denied"));
 }
 
 if (!isset($_GET["targetidform3"]) || !is_numeric($_GET["targetidform3"]) || intval($_GET["targetidform3"])<1) {
-	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("invalid_folder_id"));
+	UI::exitError(getMLText("admin_tools"),getMLText("invalid_folder_id"));
 }
 
 $folder = $dms->getFolder(intval($_GET["targetidform3"]));
 
 if (!is_object($folder)) {
-	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("invalid_folder_id"));
+	UI::exitError(getMLText("admin_tools"),getMLText("invalid_folder_id"));
 }
 
 $tmp = explode('.', basename($_SERVER['SCRIPT_FILENAME']));
-$view = (new UI($GLOBALS['theme'] ?? 'bootstrap'))->factory($theme, $tmp[1], array('dms'=>$dms, 'user'=>$user, 'folder'=>$folder));
+$view = UI::factory($theme, $tmp[1], array('dms'=>$dms, 'user'=>$user, 'folder'=>$folder));
 if($view) {
 	$view->show();
 	exit;

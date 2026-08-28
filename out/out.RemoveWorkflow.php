@@ -26,20 +26,20 @@ include("../inc/inc.ClassUI.php");
 include("../inc/inc.Authentication.php");
 
 if (!$user->isAdmin()) {
-	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("access_denied"));
+	UI::exitError(getMLText("admin_tools"),getMLText("access_denied"));
 }
 
 if (!isset($_GET["workflowid"]) || !is_numeric($_GET["workflowid"]) || intval($_GET["workflowid"])<1) {
-	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("workflow_title"),getMLText("invalid_workflow_id"));
+	UI::exitError(getMLText("workflow_title"),getMLText("invalid_workflow_id"));
 }
 
 $workflow = $dms->getWorkflow(intval($_GET["workflowid"]));
 if (!is_object($workflow)) {
-	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("workflow_title"),getMLText("invalid_workflow_id"));
+	UI::exitError(getMLText("workflow_title"),getMLText("invalid_workflow_id"));
 }
 
 $tmp = explode('.', basename($_SERVER['SCRIPT_FILENAME']));
-$view = (new UI($GLOBALS['theme'] ?? 'bootstrap'))->factory($theme, $tmp[1], array('dms'=>$dms, 'user'=>$user, 'workflow'=>$workflow));
+$view = UI::factory($theme, $tmp[1], array('dms'=>$dms, 'user'=>$user, 'workflow'=>$workflow));
 if($view) {
 	$view->show();
 	exit;

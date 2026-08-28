@@ -25,7 +25,7 @@ include("../inc/inc.ClassEmail.php");
 include("../inc/inc.Authentication.php");
 
 if (!$user->isAdmin()) {
-	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("access_denied"));
+	UI::exitError(getMLText("admin_tools"),getMLText("access_denied"));
 }
 
 if (isset($_POST["action"])) $action=$_POST["action"];
@@ -33,22 +33,22 @@ else $action=NULL;
 
 //Neue Kategorie anlegen -----------------------------------------------------------------------------
 if ($action == "addcategory") {
-
+	
 	/* Check if the form data comes for a trusted request */
 	if(!checkFormKey('addcategory')) {
-		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("invalid_request_token"));
+		UI::exitError(getMLText("admin_tools"),getMLText("invalid_request_token"));
 	}
 
 	$name = trim($_POST["name"]);
 	if($name == '') {
-		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("category_noname"));
+		UI::exitError(getMLText("admin_tools"),getMLText("category_noname"));
 	}
 	if (is_object($dms->getDocumentCategoryByName($name))) {
-		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("category_exists"));
+		UI::exitError(getMLText("admin_tools"),getMLText("category_exists"));
 	}
 	$newCategory = $dms->addDocumentCategory($name);
 	if (!$newCategory) {
-		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("error_occured"));
+		UI::exitError(getMLText("admin_tools"),getMLText("error_occured"));
 	}
 	$categoryid=$newCategory->getID();
 }
@@ -58,20 +58,20 @@ else if ($action == "removecategory") {
 
 	/* Check if the form data comes for a trusted request */
 	if(!checkFormKey('removecategory')) {
-		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("invalid_request_token"));
+		UI::exitError(getMLText("admin_tools"),getMLText("invalid_request_token"));
 	}
 
 	if (!isset($_POST["categoryid"]) || !is_numeric($_POST["categoryid"]) || intval($_POST["categoryid"])<1) {
-		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("unknown_document_category"));
+		UI::exitError(getMLText("admin_tools"),getMLText("unknown_document_category"));
 	}
 	$categoryid = $_POST["categoryid"];
 	$category = $dms->getDocumentCategory($categoryid);
 	if (!is_object($category)) {
-		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("unknown_document_category"));
+		UI::exitError(getMLText("admin_tools"),getMLText("unknown_document_category"));
 	}
 
 	if (!$category->remove()) {
-		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("error_occured"));
+		UI::exitError(getMLText("admin_tools"),getMLText("error_occured"));
 	}
 	$categoryid=-1;
 }
@@ -81,26 +81,26 @@ else if ($action == "editcategory") {
 
 	/* Check if the form data comes for a trusted request */
 	if(!checkFormKey('editcategory')) {
-		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("invalid_request_token"));
+		UI::exitError(getMLText("admin_tools"),getMLText("invalid_request_token"));
 	}
 
 	if (!isset($_POST["categoryid"]) || !is_numeric($_POST["categoryid"]) || intval($_POST["categoryid"])<1) {
-		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("unknown_document_category"));
+		UI::exitError(getMLText("admin_tools"),getMLText("unknown_document_category"));
 	}
 	$categoryid = $_POST["categoryid"];
 	$category = $dms->getDocumentCategory($categoryid);
 	if (!is_object($category)) {
-		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("unknown_document_category"));
+		UI::exitError(getMLText("admin_tools"),getMLText("unknown_document_category"));
 	}
 
 	$name = $_POST["name"];
 	if (!$category->setName($name)) {
-		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("error_occured"));
+		UI::exitError(getMLText("admin_tools"),getMLText("error_occured"));
 	}
 }
 
 else {
-	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("unknown_command"));
+	UI::exitError(getMLText("admin_tools"),getMLText("unknown_command"));
 }
 
 header("Location:../out/out.Categories.php?categoryid=".$categoryid);
