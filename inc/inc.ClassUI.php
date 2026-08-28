@@ -82,7 +82,7 @@ $theme="bootstrap";
 				$moduleManager = new LetoDMS_ModuleManager($db, $settings->_rootDir.'modules', $settings->_dbDriver);
 				foreach ($moduleManager->all() as $module) {
 					if ($module['installed'] && $module['enabled'] && !empty($module['navigation']) && !empty($module['url']))
-						$moduleNavigation[] = array('title'=>$module['title'], 'url'=>$module['url']);
+						$moduleNavigation[] = array('name'=>$module['name'], 'title'=>$module['title'], 'url'=>$module['url']);
 				}
 			}
 			$view->setParam('modulenavigation', $moduleNavigation);

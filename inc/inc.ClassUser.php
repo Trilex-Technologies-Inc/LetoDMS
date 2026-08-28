@@ -205,12 +205,13 @@ class LetoDMS_Core_User {
 	function setPwdExpiration($newPwdExpiration) { /* {{{ */
 		$db = $this->_dms->getDB();
 
-		$queryStr = "UPDATE tblUsers SET pwdExpiration =".$db->qstr($newPwdExpiration)." WHERE id = " . $this->_id;
+		$pwdExpirationSQL = ($newPwdExpiration === '' || $newPwdExpiration === null) ? "NULL" : $db->qstr($newPwdExpiration);
+		$queryStr = "UPDATE tblUsers SET pwdExpiration = ".$pwdExpirationSQL." WHERE id = " . $this->_id;
 		$res = $db->getResult($queryStr);
 		if (!$res)
 			return false;
 
-		$this->_pwdExpiration = $newPwdExpiration;
+		$this->_pwdExpiration = ($newPwdExpiration === '') ? null : $newPwdExpiration;
 		return true;
 	} /* }}} */
 
@@ -284,6 +285,29 @@ class LetoDMS_Core_User {
 	} /* }}} */
 
 	function isAdmin() { return ($this->_role == LetoDMS_Core_User::role_admin); }
+
+	/** Custom roles assigned to this account. */
+	function getRoles() {
+		$rows = $this->_dms->getDB()->getResultArray("SELECT r.* FROM tblRoles r INNER JOIN tblUserRoles ur ON ur.roleID=r.id WHERE ur.userID=".(int)$this->_id." ORDER BY r.name");
+		if (!is_array($rows)) return false;
+		$roles = array();
+		foreach ($rows as $row) {
+			$role = new LetoDMS_Core_Role($row['id'], $row['name'], $row['description']);
+			$role->setDMS($this->_dms);
+			$roles[] = $role;
+		}
+		return $roles;
+	}
+
+	/** Check a named system capability. Administrators always pass. */
+	function hasPermission($permission) {
+		if ($this->isAdmin()) return true;
+		if (!is_string($permission) || $permission === '') return false;
+		$db = $this->_dms->getDB();
+		$sql = "SELECT p.id FROM tblPermissions p INNER JOIN tblRolePermissions rp ON rp.permissionID=p.id INNER JOIN tblUserRoles ur ON ur.roleID=rp.roleID WHERE ur.userID=".(int)$this->_id." AND p.name=".$db->qstr($permission);
+		$rows = $db->getResultArray($sql);
+		return is_array($rows) && count($rows) > 0;
+	}
 
 	function setAdmin($isAdmin) { /* {{{ */
 		$db = $this->_dms->getDB();

@@ -13,7 +13,8 @@ $moduleManager = new LetoDMS_ModuleManager($db, $settings->_rootDir.'modules', $
 $module = $moduleManager->get($moduleName);
 if (!$module || !$module['installed'] || !$module['enabled'])
 	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError('Modules', 'This module is not installed or is disabled.');
+if (!$user->hasPermission('module.'.$moduleName.'.access'))
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError('Modules', getMLText('access_denied'));
 if (empty($module['out_controller']) || !is_file($module['path'].'/'.$module['out_controller']))
 	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError('Modules', 'This module does not provide an output controller.');
 require $module['path'].'/'.$module['out_controller'];
-

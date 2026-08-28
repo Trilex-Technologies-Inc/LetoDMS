@@ -11,6 +11,42 @@ CREATE TABLE `tblACLs` (
   `mode` INTEGER NOT NULL default '0'
 ) ;
 
+CREATE TABLE `tblRoles` (
+  `id` INTEGER PRIMARY KEY AUTOINCREMENT,
+  `name` varchar(80) NOT NULL UNIQUE,
+  `description` text NOT NULL
+);
+CREATE TABLE `tblPermissions` (
+  `id` INTEGER PRIMARY KEY AUTOINCREMENT,
+  `name` varchar(100) NOT NULL UNIQUE,
+  `description` varchar(255) NOT NULL
+);
+CREATE TABLE `tblRolePermissions` (
+  `roleID` INTEGER NOT NULL REFERENCES `tblRoles` (`id`) ON DELETE CASCADE,
+  `permissionID` INTEGER NOT NULL REFERENCES `tblPermissions` (`id`) ON DELETE CASCADE,
+  UNIQUE (`roleID`, `permissionID`)
+);
+CREATE TABLE `tblUserRoles` (
+  `userID` INTEGER NOT NULL REFERENCES `tblUsers` (`id`) ON DELETE CASCADE,
+  `roleID` INTEGER NOT NULL REFERENCES `tblRoles` (`id`) ON DELETE CASCADE,
+  UNIQUE (`userID`, `roleID`)
+);
+
+INSERT INTO `tblPermissions` (`name`, `description`) VALUES
+('role.manage', 'Create roles and assign permissions and users'),
+('user.manage', 'Create, edit, disable, and delete users'),
+('group.manage', 'Create groups and manage membership'),
+('document.create', 'Create documents where the object ACL permits writing'),
+('document.update', 'Update documents where the object ACL permits writing'),
+('document.delete', 'Delete documents where the object ACL permits full access'),
+('workflow.manage', 'Manage workflow definitions'),
+('workflow.review', 'Review documents assigned through a workflow'),
+('workflow.approve', 'Approve documents assigned through a workflow'),
+('navigation.content', 'Show the Content navigation item'),
+('navigation.my_documents', 'Show the My Documents navigation item'),
+('navigation.calendar', 'Show the Calendar navigation item'),
+('navigation.help', 'Show the Help navigation item');
+
 -- --------------------------------------------------------
 
 -- 

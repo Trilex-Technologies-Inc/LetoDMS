@@ -13,7 +13,8 @@ $moduleManager = new LetoDMS_ModuleManager($db, $settings->_rootDir.'modules', $
 $module = $moduleManager->get($moduleName);
 if (!$module || !$module['installed'] || !$module['enabled'])
 	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError('Modules', 'This module is disabled.');
+if (!$user->hasPermission('module.'.$moduleName.'.access'))
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError('Modules', getMLText('access_denied'));
 if (empty($module['op_controller']) || !is_file($module['path'].'/'.$module['op_controller']))
 	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError('Modules', 'This module does not provide an operation controller.');
 require $module['path'].'/'.$module['op_controller'];
-

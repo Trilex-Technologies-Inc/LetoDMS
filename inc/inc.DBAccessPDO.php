@@ -207,8 +207,12 @@ class LetoDMS_Core_DatabaseAccess {
 	 */
 	function getResultArray($queryStr) { /* {{{ */
 		$resArr = array();
-		
-		$res = $this->_conn->query($queryStr);
+
+		try {
+			$res = $this->_conn->query($queryStr);
+		} catch (PDOException $e) {
+			$res = false;
+		}
 		if ($res === false) {
 			if($this->_debug)
 				echo "error: ".$queryStr."<br />";
@@ -230,7 +234,11 @@ class LetoDMS_Core_DatabaseAccess {
 	 * @return boolean true if query could be executed otherwise false
 	 */
 	function getResult($queryStr, $silent=false) { /* {{{ */
-		$res = $this->_conn->exec($queryStr);
+		try {
+			$res = $this->_conn->exec($queryStr);
+		} catch (PDOException $e) {
+			$res = false;
+		}
 		if($res === false) {
 			if($this->_debug)
 				echo "error: ".$queryStr."<br />";

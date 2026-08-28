@@ -134,24 +134,28 @@ class LetoDMS_Bootstrap_Style extends LetoDMS_View_Common
 	function globalNavigation($folder = null)
 	{ /* {{{ */
 		$siteName = (strlen($this->params['sitename']) > 0 ? $this->params['sitename'] : "LetoDMS");
+		$currentUser = isset($this->params['user']) ? $this->params['user'] : null;
 		echo "<button class=\"sb-sidebar-toggle\" type=\"button\" aria-label=\"Collapse navigation\" aria-controls=\"sb-sidebar\" aria-expanded=\"true\"><span></span><span></span><span></span></button>\n";
 		echo "<aside class=\"sb-sidebar\" id=\"sb-sidebar\">\n";
 		echo " <a class=\"sb-sidebar-brand\" href=\"../out/out.ViewFolder.php?folderid=" . $this->params['rootfolderid'] . "\"><span class=\"sb-brand-mark\"><img src=\"../styles/logo.png\" alt=\"\"></span><span>" . htmlspecialchars($siteName) . "</span></a>\n";
 		echo " <div class=\"sb-sidebar-divider\"></div>\n";
 		echo " <div class=\"sb-sidebar-label\">Workspace</div>\n";
 		echo " <nav class=\"sb-sidebar-nav\" aria-label=\"Primary navigation\">\n";
-		echo "  <a href=\"../out/out.ViewFolder.php?folderid=" . $this->params['rootfolderid'] . "\"><span class=\"sb-nav-icon\">&#9638;</span><span>" . getMLText("content") . "</span></a>\n";
+		if (!$currentUser || $currentUser->hasPermission('navigation.content'))
+			echo "  <a href=\"../out/out.ViewFolder.php?folderid=" . $this->params['rootfolderid'] . "\"><span class=\"sb-nav-icon\">&#9638;</span><span>" . getMLText("content") . "</span></a>\n";
 		if (isset($this->params['user']) && $this->params['user']) {
-			echo "  <a href=\"../out/out.MyDocuments.php?inProcess=1\"><span class=\"sb-nav-icon\">&#128196;</span><span>" . getMLText("my_documents") . "</span></a>\n";
-			if (!empty($this->params['modulenavigation'])) foreach ($this->params['modulenavigation'] as $moduleLink)
-				echo "  <a href=\"".htmlspecialchars($moduleLink['url'])."\"><span class=\"sb-nav-icon\">&#9745;</span><span>".htmlspecialchars($moduleLink['title'])."</span></a>\n";
-			if ($this->params['enablecalendar']) echo "  <a href=\"../out/out.Calendar.php?mode=" . $this->params['calendardefaultview'] . "\"><span class=\"sb-nav-icon\">&#9635;</span><span>" . getMLText("calendar") . "</span></a>\n";
+			if ($currentUser->hasPermission('navigation.my_documents')) echo "  <a href=\"../out/out.MyDocuments.php?inProcess=1\"><span class=\"sb-nav-icon\">&#128196;</span><span>" . getMLText("my_documents") . "</span></a>\n";
+			if (!empty($this->params['modulenavigation'])) foreach ($this->params['modulenavigation'] as $moduleLink) {
+				$modulePermission = 'module.'.(isset($moduleLink['name']) ? $moduleLink['name'] : preg_replace('/[^a-z0-9_-]/', '', strtolower($moduleLink['title']))).'.access';
+				if ($currentUser->hasPermission($modulePermission)) echo "  <a href=\"".htmlspecialchars($moduleLink['url'])."\"><span class=\"sb-nav-icon\">&#9745;</span><span>".htmlspecialchars($moduleLink['title'])."</span></a>\n";
+			}
+			if ($this->params['enablecalendar'] && $currentUser->hasPermission('navigation.calendar')) echo "  <a href=\"../out/out.Calendar.php?mode=" . $this->params['calendardefaultview'] . "\"><span class=\"sb-nav-icon\">&#9635;</span><span>" . getMLText("calendar") . "</span></a>\n";
 			if ($this->params['user']->isAdmin()) {
 				echo " <div class=\"sb-sidebar-divider\"></div><div class=\"sb-sidebar-label\">Management</div>\n";
 				echo "  <a href=\"../out/out.AdminTools.php\"><span class=\"sb-nav-icon\">&#9881;</span><span>" . getMLText("admin_tools") . "</span></a>\n";
 				echo "  <a href=\"../out/out.Statistic.php\"><span class=\"sb-nav-icon\">&#9638;</span><span>" . getMLText("folders_and_documents_statistic") . "</span></a>\n";
 			}
-			echo "  <a href=\"../out/out.Help.php\"><span class=\"sb-nav-icon\">?</span><span>" . getMLText("help") . "</span></a>\n";
+			if ($currentUser->hasPermission('navigation.help')) echo "  <a href=\"../out/out.Help.php\"><span class=\"sb-nav-icon\">?</span><span>" . getMLText("help") . "</span></a>\n";
 		}
 		echo " </nav>\n";
 		echo "</aside>\n";

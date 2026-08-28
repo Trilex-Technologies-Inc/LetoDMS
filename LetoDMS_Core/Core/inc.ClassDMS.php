@@ -22,6 +22,7 @@ require_once("inc.ClassFolder.php");
 require_once("inc.ClassDocument.php");
 require_once("inc.ClassGroup.php");
 require_once("inc.ClassUser.php");
+require_once("inc.ClassRole.php");
 require_once("inc.ClassKeywords.php");
 require_once("inc.ClassNotification.php");
 require_once("inc.ClassAttribute.php");
@@ -72,6 +73,40 @@ require_once("inc.ClassAttribute.php");
  * @version    Release: @package_version@
  */
 class LetoDMS_Core_DMS {
+	function getAllRoles() {
+		$rows=$this->db->getResultArray("SELECT * FROM tblRoles ORDER BY name"); if(!is_array($rows)) return false;
+		$result=array(); foreach($rows as $row) { $role=new LetoDMS_Core_Role($row['id'],$row['name'],$row['description']); $role->setDMS($this); $result[]=$role; } return $result;
+	}
+	function getRole($id) {
+		if(!is_numeric($id)) return false; $rows=$this->db->getResultArray("SELECT * FROM tblRoles WHERE id=".(int)$id);
+		if(!is_array($rows)||count($rows)!=1) return false; $role=new LetoDMS_Core_Role($rows[0]['id'],$rows[0]['name'],$rows[0]['description']); $role->setDMS($this); return $role;
+	}
+	function addRole($name,$description='') {
+		$name=trim($name); if($name==='') return false; if(!$this->db->getResult("INSERT INTO tblRoles (name, description) VALUES (".$this->db->qstr($name).", ".$this->db->qstr($description).")")) return false; return $this->getRole($this->db->getInsertID());
+	}
+	function updateRole($id,$name,$description='') { if(!is_numeric($id)||trim($name)==='') return false; return (bool)$this->db->getResult("UPDATE tblRoles SET name=".$this->db->qstr(trim($name)).", description=".$this->db->qstr($description)." WHERE id=".(int)$id); }
+	function removeRole($id) {
+		if(!is_numeric($id)) return false; $this->db->startTransaction(); foreach(array('tblRolePermissions','tblUserRoles') as $table) if(!$this->db->getResult("DELETE FROM ".$table." WHERE roleID=".(int)$id)) { $this->db->rollbackTransaction(); return false; }
+		if(!$this->db->getResult("DELETE FROM tblRoles WHERE id=".(int)$id)) { $this->db->rollbackTransaction(); return false; } $this->db->commitTransaction(); return true;
+	}
+	function getAllPermissions() { $rows=$this->db->getResultArray("SELECT * FROM tblPermissions ORDER BY name"); return is_array($rows)?$rows:false; }
+	function getRolePermissions($roleid) { $rows=$this->db->getResultArray("SELECT p.* FROM tblPermissions p INNER JOIN tblRolePermissions rp ON rp.permissionID=p.id WHERE rp.roleID=".(int)$roleid." ORDER BY p.name"); return is_array($rows)?$rows:false; }
+	function setRolePermissions($roleid,$permissionids) {
+		if(!$this->getRole($roleid)) return false; $this->db->startTransaction(); if(!$this->db->getResult("DELETE FROM tblRolePermissions WHERE roleID=".(int)$roleid)) { $this->db->rollbackTransaction(); return false; }
+		foreach(array_unique(array_map('intval',(array)$permissionids)) as $permissionid) if($permissionid>0 && !$this->db->getResult("INSERT INTO tblRolePermissions (roleID, permissionID) SELECT ".(int)$roleid.", id FROM tblPermissions WHERE id=".$permissionid)) { $this->db->rollbackTransaction(); return false; }
+		$this->db->commitTransaction(); return true;
+	}
+	function setUserRoles($userid,$roleids) {
+		if(!$this->getUser($userid)) return false; $this->db->startTransaction(); if(!$this->db->getResult("DELETE FROM tblUserRoles WHERE userID=".(int)$userid)) { $this->db->rollbackTransaction(); return false; }
+		foreach(array_unique(array_map('intval',(array)$roleids)) as $roleid) if($roleid>0 && !$this->db->getResult("INSERT INTO tblUserRoles (userID, roleID) SELECT ".(int)$userid.", id FROM tblRoles WHERE id=".$roleid)) { $this->db->rollbackTransaction(); return false; }
+		$this->db->commitTransaction(); return true;
+	}
+	function setRoleUsers($roleid,$userids) {
+		if(!$this->getRole($roleid)) return false; $this->db->startTransaction(); if(!$this->db->getResult("DELETE FROM tblUserRoles WHERE roleID=".(int)$roleid)) { $this->db->rollbackTransaction(); return false; }
+		foreach(array_unique(array_map('intval',(array)$userids)) as $userid) if($userid>0 && !$this->db->getResult("INSERT INTO tblUserRoles (userID, roleID) SELECT id, ".(int)$roleid." FROM tblUsers WHERE id=".$userid)) { $this->db->rollbackTransaction(); return false; }
+		$this->db->commitTransaction(); return true;
+	}
+	function getRoleUserIDs($roleid) { $rows=$this->db->getResultArray("SELECT userID FROM tblUserRoles WHERE roleID=".(int)$roleid); if(!is_array($rows)) return false; $result=array(); foreach($rows as $row) $result[]=(int)$row['userID']; return $result; }
 	/**
 	 * @var object $db reference to database object. This must be an instance
 	 *      of {@link LetoDMS_Core_DatabaseAccess}.

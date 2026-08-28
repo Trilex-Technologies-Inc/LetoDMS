@@ -60,6 +60,7 @@ class LetoDMS_View_AdminTools extends LetoDMS_Bootstrap_Style {
 
 		$userItems = array(
 			array("../out/out.UsrMgr.php", getMLText("user_management"), "icon-user"),
+			array("../out/out.RoleMgr.php", "Roles and permissions", "icon-lock"),
 			array("../out/out.GroupMgr.php", getMLText("group_management"), "icon-th-large")
 		);
 		$definitionItems = array(

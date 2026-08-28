@@ -193,13 +193,19 @@ else if ($action == "edituser") {
 			$score = $ps->get_score();
 			if($score > $settings->_passwordStrength) {
 				$editedUser->setPwd(md5($pwd));
-				$editedUser->setPwdExpiration($pwdexpiration);
+				if (strlen($pwdexpiration) === 0)
+					$dms->getDB()->getResult("UPDATE tblUsers SET pwdExpiration = NULL WHERE id = ".(int)$editedUser->getID());
+				else
+					$editedUser->setPwdExpiration($pwdexpiration);
 			} else {
 				(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("set_password"),getMLText("password_strength_insuffient"));
 			}
 		} else {
 			$editedUser->setPwd(md5($pwd));
-			$editedUser->setPwdExpiration($pwdexpiration);
+			if (strlen($pwdexpiration) === 0)
+				$dms->getDB()->getResult("UPDATE tblUsers SET pwdExpiration = NULL WHERE id = ".(int)$editedUser->getID());
+			else
+				$editedUser->setPwdExpiration($pwdexpiration);
 		}
 	}
 	if ($editedUser->getFullName() != $name)

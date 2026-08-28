@@ -51,6 +51,7 @@ class LetoDMS_View_AdminTools extends LetoDMS_Blue_Style {
 		}
 ?>
 		<li><a href="../out/out.UsrMgr.php"><?php echo getMLText("user_management"); ?></a></li>
+		<li><a href="../out/out.RoleMgr.php">Roles and permissions</a></li>
 		<li><a href="../out/out.GroupMgr.php"><?php echo getMLText("group_management"); ?></a></li>
 		<li><a href="../out/out.DefaultKeywords.php"><?php echo getMLText("global_default_keywords"); ?></a></li>
 		<li><a href="../out/out.Categories.php"><?php echo getMLText("global_document_categories"); ?></a></li>
