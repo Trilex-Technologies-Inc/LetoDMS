@@ -25,16 +25,16 @@ include("../inc/inc.ClassUI.php");
 include("../inc/inc.Authentication.php");
 
 if ($user->isGuest()) {
-	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("edit_user_details"),getMLText("access_denied"));
+	UI::exitError(getMLText("edit_user_details"),getMLText("access_denied"));
 }
 
 if (!$user->isAdmin() && ($settings->_disableSelfEdit)) {
-	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("edit_user_details"),getMLText("access_denied"));
+	UI::exitError(getMLText("edit_user_details"),getMLText("access_denied"));
 }
 
 
 $tmp = explode('.', basename($_SERVER['SCRIPT_FILENAME']));
-$view = (new UI($GLOBALS['theme'] ?? 'bootstrap'))->factory($theme, $tmp[1], array('dms'=>$dms, 'user'=>$user, 'enableuserimage'=>$settings->_enableUserImage, 'passwordstrength'=>$settings->_passwordStrength, 'httproot'=>$settings->_httpRoot));
+$view = UI::factory($theme, $tmp[1], array('dms'=>$dms, 'user'=>$user, 'enableuserimage'=>$settings->_enableUserImage, 'passwordstrength'=>$settings->_passwordStrength, 'httproot'=>$settings->_httpRoot));
 if($view) {
 	$view->show();
 	exit;

@@ -28,15 +28,15 @@ include("../inc/inc.ClassUI.php");
 include("../inc/inc.Authentication.php");
 
 if (!$user->isAdmin()) {
-	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("access_denied"));
+	UI::exitError(getMLText("admin_tools"),getMLText("access_denied"));
 }
 
 if(!$settings->_enableFullSearch) {
-	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("fulltextsearch_disabled"));
+	UI::exitError(getMLText("admin_tools"),getMLText("fulltextsearch_disabled"));
 }
 
 $tmp = explode('.', basename($_SERVER['SCRIPT_FILENAME']));
-$view = (new UI($GLOBALS['theme'] ?? 'bootstrap'))->factory($theme, $tmp[1], array('dms'=>$dms, 'user'=>$user, 'enablefullsearch'=>$settings->_enableFullSearch));
+$view = UI::factory($theme, $tmp[1], array('dms'=>$dms, 'user'=>$user, 'enablefullsearch'=>$settings->_enableFullSearch));
 if($view) {
 	$view->show();
 	exit;

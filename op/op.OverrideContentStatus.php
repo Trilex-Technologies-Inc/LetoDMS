@@ -28,39 +28,39 @@ include("../inc/inc.ClassUI.php");
 include("../inc/inc.Authentication.php");
 
 if (!isset($_POST["documentid"]) || !is_numeric($_POST["documentid"]) || intval($_POST["documentid"])<1) {
-	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => getMLText("invalid_doc_id"))),getMLText("invalid_doc_id"));
+	UI::exitError(getMLText("document_title", array("documentname" => getMLText("invalid_doc_id"))),getMLText("invalid_doc_id"));
 }
 $documentid = $_POST["documentid"];
 $document = $dms->getDocument($documentid);
 if (!is_object($document)) {
-	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => getMLText("invalid_doc_id"))),getMLText("invalid_doc_id"));
+	UI::exitError(getMLText("document_title", array("documentname" => getMLText("invalid_doc_id"))),getMLText("invalid_doc_id"));
 }
 
 if ($document->getAccessMode($user) < M_ALL) {
-	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("access_denied"));
+	UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("access_denied"));
 }
 
 if (!isset($_POST["version"]) || !is_numeric($_POST["version"]) || intval($_POST["version"])<1) {
-	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("invalid_version"));
+	UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("invalid_version"));
 }
 
 $version = $_POST["version"];
 $content = $document->getContentByVersion($version);
 
 if (!is_object($content)) {
-	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("invalid_version"));
+	UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("invalid_version"));
 }
 
 if (!isset($_POST["overrideStatus"]) || !is_numeric($_POST["overrideStatus"]) ||
 		(intval($_POST["overrideStatus"])<-3 && intval($_POST["overrideStatus"])>2)) {
-	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("invalid_status"));
+	UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("invalid_status"));
 }
 
 $overallStatus = $content->getStatus();
 
 // status change control
 if ($overallStatus["status"] == S_REJECTED || $overallStatus["status"] == S_EXPIRED || $overallStatus["status"] == S_DRAFT_REV || $overallStatus["status"] == S_DRAFT_APP || $overallStatus["status"] == S_IN_WORKFLOW) {
-	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("cannot_change_final_states"));
+	UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("cannot_change_final_states"));
 }
 
 $reviewStatus = $content->getReviewStatus();
@@ -71,7 +71,7 @@ $comment = $_POST["comment"];
 if ($overrideStatus != $overallStatus["status"]) {
 
 	if (!$content->setStatus($overrideStatus, $comment, $user)) {
-		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("error_occured"));
+		UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("error_occured"));
 	} else {
 		$nl=$document->getNotifyList();
 		// Send notification to subscribers.
@@ -79,7 +79,7 @@ if ($overrideStatus != $overallStatus["status"]) {
 			$folder = $document->getFolder();
 			$subject = "###SITENAME###: ".$document->getName()." - ".getMLText("document_status_changed_email");
 			$message = getMLText("document_status_changed_email")."\r\n";
-			$message .=
+			$message .= 
 				getMLText("document").": ".$document->getName()."\r\n".
 				getMLText("status").": ".getOverallStatusText($overrideStatus)."\r\n".
 				getMLText("folder").": ".$folder->getFolderPathPlain()."\r\n".
@@ -88,13 +88,13 @@ if ($overrideStatus != $overallStatus["status"]) {
 
 //			$subject=mydmsDecodeString($subject);
 //			$message=mydmsDecodeString($message);
-
+			
 			$notifier->toList($user, $nl["users"], $subject, $message);
 			foreach ($nl["groups"] as $grp) {
 				$notifier->toGroup($user, $grp, $subject, $message);
 			}
 		}
-
+		
 		// TODO: if user os not owner send notification to owner
 	}
 }

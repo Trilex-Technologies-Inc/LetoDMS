@@ -29,19 +29,19 @@ include("../inc/inc.Calendar.php");
 include("../inc/inc.Authentication.php");
 
 if ($user->isGuest()) {
-	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("edit_event"),getMLText("access_denied"));
+	UI::exitError(getMLText("edit_event"),getMLText("access_denied"));
 }
 
 if (!isset($_POST["from"]) && !(isset($_POST["frommonth"]) && isset($_POST["fromday"]) && isset($_POST["fromyear"])) ) {
-	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("add_event"),getMLText("error_occured"));
+	UI::exitError(getMLText("add_event"),getMLText("error_occured"));
 }
 
 if (!isset($_POST["to"]) && !(isset($_POST["tomonth"]) && isset($_POST["today"]) && isset($_POST["toyear"])) ) {
-	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("add_event"),getMLText("error_occured"));
+	UI::exitError(getMLText("add_event"),getMLText("error_occured"));
 }
 
 if (!isset($_POST["name"]) || !isset($_POST["comment"]) ) {
-	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("add_event"),getMLText("error_occured"));
+	UI::exitError(getMLText("add_event"),getMLText("error_occured"));
 }
 
 $name     = $_POST["name"];
@@ -64,9 +64,9 @@ if ($to<=$from){
 }
 
 $res = addEvent($from, $to, $name, $comment);
-
+                                
 if (is_bool($res) && !$res) {
-	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("add_event"),getMLText("error_occured"));
+	UI::exitError(getMLText("add_event"),getMLText("error_occured"));
 }
 
 add_log_line("?name=".$name."&from=".$from."&to=".$to);

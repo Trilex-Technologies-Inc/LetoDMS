@@ -20,10 +20,10 @@
 
 class LetoDMS_Version {
 
-	var $_number = "5.0α";
+	var $_number = "4.0.0";
 	var $_string = "LetoDMS";
 
-	function __construct() {
+	function LetoDMS_Version() {
 		return;
 	}
 

@@ -39,7 +39,7 @@ class LetoDMS_Core_DocumentCategory {
 	 */
 	protected $_dms;
 
-	function __construct($id, $name) { /* {{{ */
+	function LetoDMS_Core_DocumentCategory($id, $name) { /* {{{ */
 		$this->_id = $id;
 		$this->_name = $name;
 		$this->_dms = null;

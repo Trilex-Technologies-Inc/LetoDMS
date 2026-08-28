@@ -30,7 +30,7 @@ if (isset($_REQUEST["referuri"]) && strlen($_REQUEST["referuri"])>0) {
 	$referrer = '';
 }
 $tmp = explode('.', basename($_SERVER['SCRIPT_FILENAME']));
-$view = (new UI($GLOBALS['theme'] ?? 'bootstrap'))->factory($theme, $tmp[1], array('referrer'=>$referrer));
+$view = UI::factory($theme, $tmp[1], array('referrer'=>$referrer));
 if($view) {
 	$view->show();
 	exit;

@@ -27,7 +27,7 @@ class UI_Default {
 		$this->theme = $theme;
 	}
 
-	static function getStyles() { /* {{{ */
+	function getStyles() { /* {{{ */
 		global $settings;
 
 		$themes = array();
@@ -44,7 +44,7 @@ class UI_Default {
 		return $themes;
 	} /* }}} */
 
-	static function htmlStartPage($title="", $bodyClass="") { /* {{{ */
+	function htmlStartPage($title="", $bodyClass="") { /* {{{ */
 	global $theme, $settings;
 
 	if(file_exists("../themes/".$theme."/HTMLHead.html")) {
@@ -76,7 +76,7 @@ class UI_Default {
 	}
 } /* }}} */
 
-	static function htmlEndPage() { /* {{{ */
+	function htmlEndPage() { /* {{{ */
 		global $theme;
 
 		UI::footNote();
@@ -87,7 +87,7 @@ class UI_Default {
 		}
 	} /* }}} */
 
-	static function footNote() { /* {{{ */
+	function footNote() { /* {{{ */
 		global $settings;
 		
 		if ($settings->_printDisclaimer){
@@ -107,7 +107,7 @@ class UI_Default {
 	function contentEnd() { /* {{{ */
 	} /* }}} */
 
-	static function globalBanner() { /* {{{ */
+	function globalBanner() { /* {{{ */
 		global $settings;
 
 		echo "<div class=\"globalBox\" id=\"noNav\">\n";
@@ -121,7 +121,7 @@ class UI_Default {
 		return;
 	} /* }}} */
 
-	static function globalNavigation($folder=null) { /* {{{ */
+	function globalNavigation($folder=null) { /* {{{ */
 	
 		global $settings, $user;
 
@@ -161,7 +161,7 @@ class UI_Default {
 		return;
 	} /* }}} */
 
-	static function pageNavigation($pageTitle, $pageType=null, $extra=null) { /* {{{ */
+	function pageNavigation($pageTitle, $pageType=null, $extra=null) { /* {{{ */
 		global $settings, $user;
 
 		echo "<div class=\"headingContainer\">\n";
@@ -199,7 +199,7 @@ class UI_Default {
 		return;
 	} /* }}} */
 
-	static function folderNavigationBar($folder) { /* {{{ */
+	function folderNavigationBar($folder) { /* {{{ */
 	
 		global $user, $settings, $theme;
 
@@ -233,7 +233,7 @@ class UI_Default {
 		return;
 	} /* }}} */
 
-	static function documentNavigationBar()	{ /* {{{ */
+	function documentNavigationBar()	{ /* {{{ */
 	
 		global $user, $settings, $document;
 
@@ -270,7 +270,7 @@ class UI_Default {
 		return;
 	} /* }}} */
 
-	static function accountNavigationBar() { /* {{{ */
+	function accountNavigationBar() { /* {{{ */
 	
 		global $settings,$user;
 		
@@ -290,7 +290,7 @@ class UI_Default {
 		return;
 	} /* }}} */
 
-	static function myDocumentsNavigationBar() { /* {{{ */
+	function myDocumentsNavigationBar() { /* {{{ */
 
 		echo "<ul class=\"localNav\">\n";
 		echo "<li id=\"first\"><a href=\"../out/out.MyDocuments.php?inProcess=1\">".getMLText("documents_in_process")."</a></li>\n";
@@ -301,7 +301,7 @@ class UI_Default {
 		return;
 	} /* }}} */
 
-	static function adminToolsNavigationBar() { /* {{{ */
+	function adminToolsNavigationBar() { /* {{{ */
 	
 		global $settings;
 
@@ -316,7 +316,7 @@ class UI_Default {
 		return;
 	} /* }}} */
 	
-	static function calendarNavigationBar($d){ /* {{{ */
+	function calendarNavigationBar($d){ /* {{{ */
 
 		global $settings,$user;
 
@@ -332,7 +332,7 @@ class UI_Default {
 	
 	} /* }}} */
 
-	static function pageList($pageNumber, $totalPages, $baseURI, $params) { /* {{{ */
+	function pageList($pageNumber, $totalPages, $baseURI, $params) { /* {{{ */
 
 		if (!is_numeric($pageNumber) || !is_numeric($totalPages) || $totalPages<2) {
 			return;
@@ -375,7 +375,7 @@ class UI_Default {
 		return;
 	} /* }}} */
 
-	static function contentContainer($content) { /* {{{ */
+	function contentContainer($content) { /* {{{ */
 		echo "<div class=\"contentContainer\">\n";
 		echo "<div class=\"content\">\n";
 		echo "<div class=\"content-l\"><div class=\"content-r\"><div class=\"content-br\"><div class=\"content-bl\">\n";
@@ -384,7 +384,7 @@ class UI_Default {
 		return;
 	} /* }}} */
 
-	static function contentContainerStart() { /* {{{ */
+	function contentContainerStart() { /* {{{ */
 
 		echo "<div class=\"contentContainer\">\n";
 		echo "<div class=\"content\">\n";
@@ -392,13 +392,13 @@ class UI_Default {
 		return;
 	} /* }}} */
 
-	static function contentContainerEnd() { /* {{{ */
+	function contentContainerEnd() { /* {{{ */
 
 		echo "</div></div></div></div>\n</div>\n</div>\n";
 		return;
 	} /* }}} */
 
-	static function contentHeading($heading, $noescape=false) { /* {{{ */
+	function contentHeading($heading, $noescape=false) { /* {{{ */
 
 		if($noescape)
 			echo "<div class=\"contentHeading\">".$heading."</div>\n";
@@ -407,13 +407,13 @@ class UI_Default {
 		return;
 	} /* }}} */
 
-	static function contentSubHeading($heading, $first=false) { /* {{{ */
+	function contentSubHeading($heading, $first=false) { /* {{{ */
 
 		echo "<div class=\"contentSubHeading\"".($first ? " id=\"first\"" : "").">".htmlspecialchars($heading)."</div>\n";
 		return;
 	} /* }}} */
 
-	static function getMimeIcon($fileType) { /* {{{ */
+	function getMimeIcon($fileType) { /* {{{ */
 		// for extension use LOWER CASE only
 		$icons = array();
 		$icons["txt"]  = "txt.png";
@@ -493,10 +493,10 @@ class UI_Default {
 		}
 	} /* }}} */
 
-	static function printDateChooser($defDate, $varName) { /* {{{ */
+	function printDateChooser($defDate = -1, $varName) { /* {{{ */
 	
 		if ($defDate == -1)
-			$defDate = time();
+			$defDate = mktime();
 		$day   = date("d", $defDate);
 		$month = date("m", $defDate);
 		$year  = date("Y", $defDate);
@@ -632,7 +632,7 @@ class UI_Default {
 		}
 	} /* }}} */
 
-	static function getImgPath($img) { /* {{{ */
+	function getImgPath($img) { /* {{{ */
 		global $theme;
 
 		if ( is_file("../styles/$theme/images/$img") ) {
@@ -644,11 +644,11 @@ class UI_Default {
 		return "../out/images/$img";
 	} /* }}} */
 
-	static function printImgPath($img) { /* {{{ */
+	function printImgPath($img) { /* {{{ */
 		print UI::getImgPath($img);
 	} /* }}} */
 
-	static function exitError($pagetitle,$error) { /* {{{ */
+	function exitError($pagetitle,$error) { /* {{{ */
 	
 		UI::htmlStartPage($pagetitle);
 		UI::globalNavigation();
@@ -665,7 +665,7 @@ class UI_Default {
 	} /* }}} */
 
 	// navigation flag is used for items links (navigation or selection)
-	static function printFoldersTree($accessMode, $exclude, $folderID, $currentFolderID=-1, $navigation=false) {	/* {{{ */
+	function printFoldersTree($accessMode, $exclude, $folderID, $currentFolderID=-1, $navigation=false) {	/* {{{ */
 		global $dms, $user, $form, $settings;
 		
 		if ($settings->_expandFolderTree==2){
@@ -755,7 +755,7 @@ class UI_Default {
 		if ($folderID == $settings->_rootFolderID) print "</ul>\n";
 	} /* }}} */
 
-	static function printTreeNavigation($folderid,$showtree){ /* {{{ */
+	function printTreeNavigation($folderid,$showtree){ /* {{{ */
 		global $settings;
 		
 ?>

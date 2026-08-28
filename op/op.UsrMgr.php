@@ -29,7 +29,7 @@ include("../inc/inc.Authentication.php");
 include("../inc/inc.ClassPasswordStrength.php");
 
 if (!$user->isAdmin()) {
-	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("access_denied"));
+	UI::exitError(getMLText("admin_tools"),getMLText("access_denied"));
 }
 
 if (isset($_POST["action"])) $action=$_POST["action"];
@@ -37,10 +37,10 @@ else $action=NULL;
 
 // add new user ---------------------------------------------------------
 if ($action == "adduser") {
-
+	
 	/* Check if the form data comes for a trusted request */
 	if(!checkFormKey('adduser')) {
-		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("invalid_request_token"));
+		UI::exitError(getMLText("admin_tools"),getMLText("invalid_request_token"));
 	}
 
 	$login   = $_POST["login"];
@@ -57,7 +57,7 @@ if ($action == "adduser") {
 	$isDisabled = (isset($_POST["isdisabled"]) && $_POST["isdisabled"]==1 ? 1 : 0);
 
 	if (is_object($dms->getUserByLogin($login))) {
-		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("user_exists"));
+		UI::exitError(getMLText("admin_tools"),getMLText("user_exists"));
 	}
 
 	$newUser = $dms->addUser($login, md5($pwd), $name, $email, $settings->_language, $settings->_theme, $comment, $role, $isHidden, $isDisabled, $pwdexpiration);
@@ -71,7 +71,7 @@ if ($action == "adduser") {
 			$fileType = substr($userfilename, $lastDotIndex);
 			if ($fileType != ".jpg" && $filetype != ".jpeg")
 			{
-				(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("only_jpg_user_images"));
+				UI::exitError(getMLText("admin_tools"),getMLText("only_jpg_user_images"));
 			}
 			else
 			{
@@ -80,8 +80,8 @@ if ($action == "adduser") {
 			}
 		}
 	}
-	else (new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("access_denied"));
-
+	else UI::exitError(getMLText("admin_tools"),getMLText("access_denied"));
+	
 	if(isset($_POST["workflow"])) {
 		$workflow = $dms->getWorkflow($_POST["workflow"]);
 		if($workflow)
@@ -89,27 +89,27 @@ if ($action == "adduser") {
 	}
 
 	if (isset($_POST["usrReviewers"])){
-		foreach ($_POST["usrReviewers"] as $revID)
+		foreach ($_POST["usrReviewers"] as $revID) 
 			$newUser->setMandatoryReviewer($revID,false);
 	}
-
+	
 	if (isset($_POST["grpReviewers"])){
-		foreach ($_POST["grpReviewers"] as $revID)
+		foreach ($_POST["grpReviewers"] as $revID) 
 			$newUser->setMandatoryReviewer($revID,true);
 	}
-
+		
 	if (isset($_POST["usrApprovers"])){
-		foreach ($_POST["usrApprovers"] as $appID)
+		foreach ($_POST["usrApprovers"] as $appID) 
 			$newUser->setMandatoryApprover($appID,false);
 	}
-
+			
 	if (isset($_POST["grpApprovers"])){
-		foreach ($_POST["grpApprovers"] as $appID)
+		foreach ($_POST["grpApprovers"] as $appID) 
 			$newUser->setMandatoryApprover($appID,true);
 	}
-
+	
 	$userid=$newUser->getID();
-
+	
 	add_log_line(".php&action=adduser&login=".$login);
 }
 
@@ -118,7 +118,7 @@ else if ($action == "removeuser") {
 
 	/* Check if the form data comes for a trusted request */
 	if(!checkFormKey('removeuser')) {
-		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("invalid_request_token"));
+		UI::exitError(getMLText("admin_tools"),getMLText("invalid_request_token"));
 	}
 
 	if (isset($_POST["userid"])) {
@@ -126,28 +126,28 @@ else if ($action == "removeuser") {
 	}
 
 	if (!isset($userid) || !is_numeric($userid) || intval($userid)<1) {
-		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("invalid_user_id"));
+		UI::exitError(getMLText("admin_tools"),getMLText("invalid_user_id"));
 	}
 
 	/* This used to be a check if an admin is deleted. Now it checks if one
 	 * wants to delete herself.
 	 */
 	if ($userid==$user->getID()) {
-		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("cannot_delete_yourself"));
+		UI::exitError(getMLText("admin_tools"),getMLText("cannot_delete_yourself"));
 	}
 
 	$userToRemove = $dms->getUser($userid);
 	if (!is_object($userToRemove)) {
-		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("invalid_user_id"));
+		UI::exitError(getMLText("admin_tools"),getMLText("invalid_user_id"));
 	}
 
 	$userToAssign = $dms->getUser($_POST["assignTo"]);
 	if (!$userToRemove->remove($user, $userToAssign)) {
-		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("error_occured"));
+		UI::exitError(getMLText("admin_tools"),getMLText("error_occured"));
 	}
-
+		
 	add_log_line(".php&action=removeuser&userid=".$userid);
-
+	
 	$userid=-1;
 }
 
@@ -156,20 +156,20 @@ else if ($action == "edituser") {
 
 	/* Check if the form data comes for a trusted request */
 	if(!checkFormKey('edituser')) {
-		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("invalid_request_token"));
+		UI::exitError(getMLText("admin_tools"),getMLText("invalid_request_token"));
 	}
 
 	if (!isset($_POST["userid"]) || !is_numeric($_POST["userid"]) || intval($_POST["userid"])<1) {
-		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("invalid_user_id"));
+		UI::exitError(getMLText("admin_tools"),getMLText("invalid_user_id"));
 	}
-
+	
 	$userid=$_POST["userid"];
 	$editedUser = $dms->getUser($userid);
-
+	
 	if (!is_object($editedUser)) {
-		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("invalid_user_id"));
+		UI::exitError(getMLText("admin_tools"),getMLText("invalid_user_id"));
 	}
-
+	
 	$login   = $_POST["login"];
 	$pwd     = $_POST["pwd"];
 	if(isset($_POST["pwdexpiration"]))
@@ -182,7 +182,7 @@ else if ($action == "edituser") {
 	$role    = preg_replace('/[^0-2]+/', '', $_POST["role"]);
 	$isHidden = (isset($_POST["ishidden"]) && $_POST["ishidden"]==1 ? 1 : 0);
 	$isDisabled = (isset($_POST["isdisabled"]) && $_POST["isdisabled"]==1 ? 1 : 0);
-
+	
 	if ($editedUser->getLogin() != $login)
 		$editedUser->setLogin($login);
 	if (isset($pwd) && ($pwd != "")) {
@@ -195,7 +195,7 @@ else if ($action == "edituser") {
 				$editedUser->setPwd(md5($pwd));
 				$editedUser->setPwdExpiration($pwdexpiration);
 			} else {
-				(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("set_password"),getMLText("password_strength_insuffient"));
+				UI::exitError(getMLText("set_password"),getMLText("password_strength_insuffient"));
 			}
 		} else {
 			$editedUser->setPwd(md5($pwd));
@@ -235,34 +235,34 @@ else if ($action == "edituser") {
 		$lastDotIndex = strrpos(basename($userfilename), ".");
 		$fileType = substr($userfilename, $lastDotIndex);
 		if ($fileType != ".jpg" && $filetype != ".jpeg") {
-			(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("only_jpg_user_images"));
+			UI::exitError(getMLText("admin_tools"),getMLText("only_jpg_user_images"));
 		}
 		else {
 			resizeImage($_FILES["userfile"]["tmp_name"]);
 			$editedUser->setImage($_FILES["userfile"]["tmp_name"], $userfiletype);
 		}
 	}
-
+	
 	$editedUser->delMandatoryReviewers();
-
-	if (isset($_POST["usrReviewers"])) foreach ($_POST["usrReviewers"] as $revID)
+	
+	if (isset($_POST["usrReviewers"])) foreach ($_POST["usrReviewers"] as $revID) 
 		$editedUser->setMandatoryReviewer($revID,false);
-
-	if (isset($_POST["grpReviewers"])) foreach ($_POST["grpReviewers"] as $revID)
+			
+	if (isset($_POST["grpReviewers"])) foreach ($_POST["grpReviewers"] as $revID) 
 		$editedUser->setMandatoryReviewer($revID,true);
 
 	$editedUser->delMandatoryApprovers();
-
-	if (isset($_POST["usrApprovers"])) foreach ($_POST["usrApprovers"] as $appID)
+	
+	if (isset($_POST["usrApprovers"])) foreach ($_POST["usrApprovers"] as $appID) 
 		$editedUser->setMandatoryApprover($appID,false);
-
-	if (isset($_POST["grpApprovers"])) foreach ($_POST["grpApprovers"] as $appID)
+			
+	if (isset($_POST["grpApprovers"])) foreach ($_POST["grpApprovers"] as $appID) 
 		$editedUser->setMandatoryApprover($appID,true);
-
+	
 	add_log_line(".php&action=edituser&userid=".$userid);
 
 }
-else (new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("unknown_command"));
+else UI::exitError(getMLText("admin_tools"),getMLText("unknown_command"));
 
 
 function resizeImage($imageFile) {
@@ -270,7 +270,7 @@ function resizeImage($imageFile) {
 	// Not perfect. Creates a new image even if the old one is acceptable,
 	// and the output quality is low. Now uses the function imagecreatetruecolor(),
 	// though, so at least the pictures are in colour.
-
+	
 	// Originalbild einlesen
 	$origImg = imagecreatefromjpeg($imageFile);
 	$width = imagesx($origImg);
@@ -281,12 +281,12 @@ function resizeImage($imageFile) {
 	$newImg = imagecreatetruecolor($newWidth, $newHeight);
 	// Verkleinern
 	imagecopyresized($newImg, $origImg, 0, 0, 0, 0, $newWidth, $newHeight, $width, $height);
-	// In File speichern
+	// In File speichern 
 	imagejpeg($newImg, $imageFile);
 	// Aufräumen
 	imagedestroy($origImg);
 	imagedestroy($newImg);
-
+	
 	return true;
 }
 

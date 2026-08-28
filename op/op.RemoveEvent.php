@@ -30,23 +30,23 @@ include("../inc/inc.Authentication.php");
 
 /* Check if the form data comes for a trusted request */
 if(!checkFormKey('removeevent')) {
-	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("edit_event"),getMLText("invalid_request_token"));
+	UI::exitError(getMLText("edit_event"),getMLText("invalid_request_token"));
 }
 
 if (!isset($_POST["eventid"]) || !is_numeric($_POST["eventid"]) || intval($_POST["eventid"])<1) {
-	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("edit_event"),getMLText("error_occured"));
+	UI::exitError(getMLText("edit_event"),getMLText("error_occured"));
 }
 
 $event=getEvent($_POST["eventid"]);
 
 if (($user->getID()!=$event["userID"])&&(!$user->isAdmin())){
-	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("edit_event"),getMLText("access_denied"));
+	UI::exitError(getMLText("edit_event"),getMLText("access_denied"));
 }
 
 $res = delEvent($_POST["eventid"]);
-
+                                
 if (is_bool($res) && !$res) {
-	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("edit_event"),getMLText("error_occured"));
+	UI::exitError(getMLText("edit_event"),getMLText("error_occured"));
 }
 
 add_log_line("?id=".$_POST["eventid"]);

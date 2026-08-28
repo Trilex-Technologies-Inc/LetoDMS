@@ -53,7 +53,7 @@ if($ismanager) {
 		$curuser->leaveGroup($group);
 	}
 } else {
-	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("access_denied"));
+	UI::exitError(getMLText("admin_tools"),getMLText("access_denied"));
 }
 
 header("Location:../out/out.GroupView.php");

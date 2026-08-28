@@ -102,7 +102,7 @@ if(!is_writeable($settings->_configFilePath)) {
         <td>
          <SELECT name="theme">
             <?php
-              $themes = (new UI($this->theme))->getStyles();
+              $themes = UI::getStyles();
               foreach($themes as $theme)
               {
                 echo '<option value="' . $theme . '" ';

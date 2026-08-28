@@ -30,35 +30,35 @@ include("../inc/inc.Authentication.php");
 if (isset($_GET["version"])) {
 
 	// document download
-
+	
 	if (!isset($_GET["documentid"]) || !is_numeric($_GET["documentid"]) || intval($_GET["documentid"])<1) {
-		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => getMLText("invalid_doc_id"))),getMLText("invalid_doc_id"));
+		UI::exitError(getMLText("document_title", array("documentname" => getMLText("invalid_doc_id"))),getMLText("invalid_doc_id"));
 	}
 
 	$documentid = $_GET["documentid"];
 	$document = $dms->getDocument($documentid);
 
 	if (!is_object($document)) {
-		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => getMLText("invalid_doc_id"))),getMLText("invalid_doc_id"));
+		UI::exitError(getMLText("document_title", array("documentname" => getMLText("invalid_doc_id"))),getMLText("invalid_doc_id"));
 
 	}
 	$folder = $document->getFolder();
 	$docPathHTML = getFolderPathHTML($folder, true). " / <a href=\"../out/out.ViewDocument.php?documentid=".$documentid."\">".$document->getName()."</a>";
 
 	if ($document->getAccessMode($user) < M_READ) {
-		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("access_denied"));
+		UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("access_denied"));
 	}
 
 	if (!is_numeric($_GET["version"]) || intval($_GET["version"])<1) {
-		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("invalid_version"));
+		UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("invalid_version"));
 	}
 	$version = $_GET["version"];
 	$content = $document->getContentByVersion($version);
 
 	if (!is_object($content)) {
-		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("invalid_version"));
+		UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("invalid_version"));
 	}
-
+	
 	//header("Content-Type: application/force-download; name=\"" . mydmsDecodeString($content->getOriginalFileName()) . "\"");
 	header("Content-Transfer-Encoding: binary");
 	header("Content-Length: " . filesize($dms->contentDir . $content->getPath() ));
@@ -74,33 +74,33 @@ if (isset($_GET["version"])) {
 } elseif (isset($_GET["file"])) {
 
 	// file download
-
+	
 	if (!isset($_GET["documentid"]) || !is_numeric($_GET["documentid"]) || intval($_GET["documentid"])<1) {
-		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => getMLText("invalid_doc_id"))),getMLText("invalid_doc_id"));
+		UI::exitError(getMLText("document_title", array("documentname" => getMLText("invalid_doc_id"))),getMLText("invalid_doc_id"));
 	}
 
 	$documentid = $_GET["documentid"];
 	$document = $dms->getDocument($documentid);
 
 	if (!is_object($document)) {
-		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => getMLText("invalid_doc_id"))),getMLText("invalid_doc_id"));
+		UI::exitError(getMLText("document_title", array("documentname" => getMLText("invalid_doc_id"))),getMLText("invalid_doc_id"));
 
 	}
 	$folder = $document->getFolder();
 	$docPathHTML = getFolderPathHTML($folder, true). " / <a href=\"../out/out.ViewDocument.php?documentid=".$documentid."\">".$document->getName()."</a>";
 
 	if ($document->getAccessMode($user) < M_READ) {
-		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("access_denied"));
+		UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("access_denied"));
 	}
 
 	if (!is_numeric($_GET["file"]) || intval($_GET["file"])<1) {
-		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("invalid_file_id"));
+		UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("invalid_file_id"));
 	}
 	$fileid = $_GET["file"];
 	$file = $document->getDocumentFile($fileid);
 
 	if (!is_object($file)) {
-		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("invalid_file_id"));
+		UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("invalid_file_id"));
 	}
 
 	header("Content-Type: application/force-download; name=\"" . $file->getOriginalFileName() . "\"");
@@ -118,13 +118,13 @@ if (isset($_GET["version"])) {
 } elseif (isset($_GET["arkname"])) {
 
 	// backup download
-
+	
 	if (!$user->isAdmin()) {
-		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("access_denied"));
+		UI::exitError(getMLText("admin_tools"),getMLText("access_denied"));
 	}
 
 	if (!isset($_GET["arkname"]) || !file_exists($settings->_contentDir.$_GET["arkname"]) ) {
-		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("unknown_id"));
+		UI::exitError(getMLText("admin_tools"),getMLText("unknown_id"));
 	}
 
 	header('Content-Description: File Transfer');
@@ -139,20 +139,20 @@ if (isset($_GET["version"])) {
 	//header("Cache-Control: no-cache, must-revalidate");
 //	header("Cache-Control: must-revalidate");
 	header("Cache-Control: public");
-	//header("Pragma: no-cache");
-
+	//header("Pragma: no-cache");	
+	
 	readfile($settings->_contentDir .$_GET["arkname"] );
-
+	
 } elseif (isset($_GET["logname"])) {
 
 	// log download
-
+	
 	if (!$user->isAdmin()) {
-		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("access_denied"));
+		UI::exitError(getMLText("admin_tools"),getMLText("access_denied"));
 	}
 
 	if (!isset($_GET["logname"]) || !file_exists($settings->_contentDir.$_GET["arkname"]) ) {
-		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("unknown_id"));
+		UI::exitError(getMLText("admin_tools"),getMLText("unknown_id"));
 	}
 
 	header("Content-Type: text/plain; name=\"" . $_GET["logname"] . "\"");
@@ -160,24 +160,24 @@ if (isset($_GET["version"])) {
 	header("Content-Length: " . filesize($settings->_contentDir . $_GET["logname"] ));
 	header("Content-Disposition: attachment; filename=\"" .$_GET["logname"] . "\"");
 	header("Cache-Control: must-revalidate");
-
+	
 	readfile($settings->_contentDir .$_GET["logname"] );
-
+	
 } elseif (isset($_GET["vfile"])) {
 
 	// versioning info download
-
+	
 	$documentid = $_GET["documentid"];
 	$document = $dms->getDocument($documentid);
 
 	if (!is_object($document)) {
-		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("document_title", array("documentname" => getMLText("invalid_doc_id"))),getMLText("invalid_doc_id"));
+		UI::exitError(getMLText("document_title", array("documentname" => getMLText("invalid_doc_id"))),getMLText("invalid_doc_id"));
 
-	}
-
+	}	
+	
 	// update infos
 	createVersionigFile($document);
-
+	
 	header("Content-Type: text/plain; name=\"" . $settings->_versioningFileName . "\"");
 	//header("Content-Type: application/force-download; name=\"" . $settings->_versioningFileName . "\"");
 	header("Content-Transfer-Encoding: binary");
@@ -187,20 +187,20 @@ if (isset($_GET["version"])) {
 	//header("Content-Type: " . $content->getMimeType());
 	//header("Cache-Control: no-cache, must-revalidate");
 	header("Cache-Control: must-revalidate");
-	//header("Pragma: no-cache");
-
+	//header("Pragma: no-cache");	
+	
 	readfile($dms->contentDir . $document->getDir() .$settings->_versioningFileName);
-
+	
 } elseif (isset($_GET["dumpname"])) {
 
 	// dump file download
-
+	
 	if (!$user->isAdmin()) {
-		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("access_denied"));
+		UI::exitError(getMLText("admin_tools"),getMLText("access_denied"));
 	}
 
 	if (!isset($_GET["dumpname"]) || !file_exists($settings->_contentDir.$_GET["dumpname"]) ) {
-		(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"),getMLText("unknown_id"));
+		UI::exitError(getMLText("admin_tools"),getMLText("unknown_id"));
 	}
 
 	header("Content-Type: application/zip; name=\"" . $_GET["dumpname"] . "\"");
@@ -212,8 +212,8 @@ if (isset($_GET["version"])) {
 	//header("Content-Type: " . $content->getMimeType());
 	//header("Cache-Control: no-cache, must-revalidate");
 	header("Cache-Control: must-revalidate");
-	//header("Pragma: no-cache");
-
+	//header("Pragma: no-cache");	
+	
 	readfile($settings->_contentDir .$_GET["dumpname"] );
 }
 
