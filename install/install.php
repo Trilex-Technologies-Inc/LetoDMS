@@ -162,7 +162,8 @@ do {
 
 if(!$settings->_rootDir)
 	$settings->_rootDir = $rootDir;
-//$settings->_coreDir = $settings->_rootDir;
+if(!$settings->_coreDir)
+	$settings->_coreDir = $settings->_rootDir . 'LetoDMS_Core/';
 if(!$settings->_contentDir) {
 	$settings->_contentDir = $settings->_rootDir . 'data/';
 	$settings->_stagingDir = $settings->_rootDir . 'data/staging/';
