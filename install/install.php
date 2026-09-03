@@ -162,8 +162,11 @@ do {
 
 if(!$settings->_rootDir)
 	$settings->_rootDir = $rootDir;
-if(!$settings->_coreDir)
-	$settings->_coreDir = $settings->_rootDir . 'LetoDMS_Core/';
+if(!$settings->_coreDir) {
+	$defaultCoreDir = $settings->_rootDir . 'LetoDMS_Core/';
+	if(file_exists($defaultCoreDir.'Core.php'))
+		$settings->_coreDir = $defaultCoreDir;
+}
 if(!$settings->_contentDir) {
 	$settings->_contentDir = $settings->_rootDir . 'data/';
 	$settings->_stagingDir = $settings->_rootDir . 'data/staging/';
@@ -357,7 +360,8 @@ if ($action=="setSettings") {
 					if($rec = $res->fetch(PDO::FETCH_ASSOC)) {
 						echo "Your current database schema has version ".$rec['major'].'.'.$rec['minor'].'.'.$rec['subminor']."<br /><br />";
 						$connTmp = null;
-						print "<p>Your database was created successfully.</p>";
+						if (isset($_POST["createDatabase"]))
+							print "<p>Your database was created successfully.</p>";
 					}
 					echo getMLText("settings_install_success");
 					echo "<br/><br/>";
