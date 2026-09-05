@@ -120,7 +120,7 @@ function fileExistsInIncludePath($file) { /* {{{ */
  * Load default settings + set
  */
 define("LETODMS_INSTALL", "on");
-define("LETODMS_VERSION", "4.0.0");
+define("LETODMS_VERSION", "5.1.b");
 
 require_once('../inc/inc.ClassSettings.php');
 

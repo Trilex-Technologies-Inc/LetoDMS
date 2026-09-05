@@ -167,25 +167,47 @@ function allowDrop(ev) {
 //	console.log(ev);
 }
 
+/* Native inline handlers pass the raw DOM event, whose dataTransfer is on the
+   event itself. If a jQuery-wrapped event ever arrives, unwrap it. */
+function _dndEvent(ev) {
+	return (ev && ev.originalEvent && ev.originalEvent.dataTransfer) ? ev.originalEvent : ev;
+}
+
 function onDragStartDocument(ev) {
-	attr_rel = $(ev.target).attr('rel');
+	ev = _dndEvent(ev);
+	/* currentTarget is the draggable <a rel="document_ID">; target may be the
+	   inner <img>, which carries no rel attribute. */
+	var attr_rel = $(ev.currentTarget).attr('rel');
+	console.log('onDragStartDocument rel=' + attr_rel);
+	if (!attr_rel) return;
 	ev.dataTransfer.setData("id", attr_rel.split("_")[1]);
 	ev.dataTransfer.setData("type","document");
+	/* Some browsers require effectAllowed for a drop to be accepted. */
+	ev.dataTransfer.effectAllowed = "move";
 }
 
 function onDragStartFolder(ev) {
-	attr_rel = $(ev.target).attr('rel');
+	ev = _dndEvent(ev);
+	var attr_rel = $(ev.currentTarget).attr('rel');
+	console.log('onDragStartFolder rel=' + attr_rel);
+	if (!attr_rel) return;
 	ev.dataTransfer.setData("id", attr_rel.split("_")[1]);
 	ev.dataTransfer.setData("type","folder");
+	ev.dataTransfer.effectAllowed = "move";
 }
 
 function onDrop(ev) {
+	ev = _dndEvent(ev);
 	ev.preventDefault();
-	attr_rel = $(ev.currentTarget).attr('rel');
-	target_type = attr_rel.split("_")[0];
-	target_id = attr_rel.split("_")[1];
-	source_type = ev.dataTransfer.getData("type");
-	source_id = ev.dataTransfer.getData("id");
+	/* Folder rows inside the clipboard would otherwise bubble up to the
+	   clipboard's onAddClipboard handler and trigger both actions. */
+	ev.stopPropagation();
+	var attr_rel = $(ev.currentTarget).attr('rel');
+	if (!attr_rel) return;
+	var target_type = attr_rel.split("_")[0];
+	var target_id = attr_rel.split("_")[1];
+	var source_type = ev.dataTransfer.getData("type");
+	var source_id = ev.dataTransfer.getData("id");
 	if(source_type == 'document') {
 		url = "../out/out.MoveDocument.php?documentid="+source_id+"&targetid="+target_id;
 		document.location = url;
@@ -198,9 +220,11 @@ function onDrop(ev) {
 }
 
 function onAddClipboard(ev) {
+	ev = _dndEvent(ev);
 	ev.preventDefault();
-	source_type = ev.dataTransfer.getData("type");
-	source_id = ev.dataTransfer.getData("id");
+	var source_type = ev.dataTransfer.getData("type");
+	var source_id = ev.dataTransfer.getData("id");
+	console.log('onAddClipboard type=' + source_type + ' id=' + source_id);
 	if(source_type == 'document' || source_type == 'folder') {
 		url = "../op/op.AddToClipboard.php?id="+source_id+"&type="+source_type;
 		document.location = url;
