@@ -13,7 +13,7 @@ $roles = $dms->getAllRoles();
 $permissions = $dms->getAllPermissions();
 $users = $dms->getAllUsers($settings->_sortUsersInList);
 if ($roles === false || $permissions === false || $users === false)
-	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"), "RBAC tables are missing. Run install/update-4.1.0/update.sql first.");
+	(new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError(getMLText("admin_tools"), "RBAC tables are missing. This release requires a fresh database installation.");
 $selected = isset($_GET['roleid']) ? $dms->getRole((int)$_GET['roleid']) : null;
 $view = (new UI($GLOBALS['theme'] ?? 'bootstrap'))->factory($theme, 'RoleMgr', array('dms'=>$dms, 'user'=>$user, 'roles'=>$roles, 'permissions'=>$permissions, 'users'=>$users, 'selected'=>$selected));
 if ($view) { $view->show(); exit; }

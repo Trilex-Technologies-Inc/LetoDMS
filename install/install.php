@@ -162,7 +162,11 @@ do {
 
 if(!$settings->_rootDir)
 	$settings->_rootDir = $rootDir;
-//$settings->_coreDir = $settings->_rootDir;
+if(!$settings->_coreDir) {
+	$defaultCoreDir = $settings->_rootDir . 'LetoDMS_Core/';
+	if(file_exists($defaultCoreDir.'Core.php'))
+		$settings->_coreDir = $defaultCoreDir;
+}
 if(!$settings->_contentDir) {
 	$settings->_contentDir = $settings->_rootDir . 'data/';
 	$settings->_stagingDir = $settings->_rootDir . 'data/staging/';
@@ -349,51 +353,24 @@ if ($action=="setSettings") {
 			// Save settings
 			$settings->save();
 
-			$needsupdate = false;
 			$connTmp =openDBConnection($settings);
 			if ($connTmp) {
 				$res = $connTmp->query('select * from tblVersion');
 				if($res) {
 					if($rec = $res->fetch(PDO::FETCH_ASSOC)) {
-						$updatedirs = array();
-						$d = dir(".");
-						while (false !== ($entry = $d->read())) {
-							if(preg_match('/update-([0-9.]*)/', $entry, $matches)) {
-								$updatedirs[] = $matches[1];
-							}
-						}
-						$d->close();
-
 						echo "Your current database schema has version ".$rec['major'].'.'.$rec['minor'].'.'.$rec['subminor']."<br /><br />";
 						$connTmp = null;
-
-						if($updatedirs) {
-							foreach($updatedirs as $updatedir) {
-								if($updatedir > $rec['major'].'.'.$rec['minor'].'.'.$rec['subminor']) {
-									$needsupdate = true;
-									print "<h3>Database update to version ".$updatedir." needed</h3>";
-									if(file_exists('update-'.$updatedir.'/update.txt')) {
-										print "<p>Please read the comments on updating this version. <a href=\"update-".$updatedir."/update.txt\" target=\"_blank\">Read now</a></p>";
-									}
-									if(file_exists('update-'.$updatedir.'/update.php')) {
-										print "<p>Afterwards run the <a href=\"update.php?version=".$updatedir."\">update script</a>.</p>";
-									}
-								}
-							}
-						} else {
-							print "<p>Your current database is up to date.</p>";
-						}
+						if (isset($_POST["createDatabase"]))
+							print "<p>Your database was created successfully.</p>";
 					}
-					if(!$needsupdate) {
-						echo getMLText("settings_install_success");
-						echo "<br/><br/>";
-						echo getMLText("settings_delete_install_folder");
-						echo "<br/><br/>";
-						echo '<a href="install.php?disableinstall=1">' . getMLText("settings_disable_install") . '</a>';
-						echo "<br/><br/>";
+					echo getMLText("settings_install_success");
+					echo "<br/><br/>";
+					echo getMLText("settings_delete_install_folder");
+					echo "<br/><br/>";
+					echo '<a href="install.php?disableinstall=1">' . getMLText("settings_disable_install") . '</a>';
+					echo "<br/><br/>";
 
-						echo '<a href="../out/out.Settings.php">' . getMLText("settings_more_settings") .'</a>';
-					}
+					echo '<a href="../out/out.Settings.php">' . getMLText("settings_more_settings") .'</a>';
 				} else {
 					print "<p>You does not seem to have a valid database. The table tblVersion is missing.</p>";
 				}
