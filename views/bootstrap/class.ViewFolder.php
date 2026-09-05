@@ -93,6 +93,7 @@ class LetoDMS_View_ViewFolder extends LetoDMS_Bootstrap_Style {
 		echo "<aside class=\"span3 folder-sidebar\">\n";
 		if ($enableFolderTree) $this->printTreeNavigation($folderid, $showtree);
 		if (1 || $enableClipboard) $this->printClipboard($this->params['session']->getClipboard());
+		if ($folder->getAccessMode($user) >= M_READWRITE) $this->printDropUpload($folder);
 		echo "</aside>\n";
 		echo "<main class=\"span9 folder-main\">\n";
 
@@ -260,6 +261,67 @@ class LetoDMS_View_ViewFolder extends LetoDMS_Bootstrap_Style {
 		$this->contentEnd();
 
 		$this->htmlEndPage();
+	} /* }}} */
+
+	/**
+	 * Drop-anywhere upload zone. Files dragged from the local computer onto this
+	 * area are uploaded into the current folder via the existing Dropzone /
+	 * op.AddMultiDocument.php machinery. Distinct from the clipboard zone, which
+	 * only accepts LetoDMS items (existing documents/folders), not OS files.
+	 */
+	function printDropUpload($folder) { /* {{{ */
+		$folderid = $folder->getId();
+		$folderUrl = "../out/out.ViewFolder.php?folderid=".$folderid."&showtree=".showtree();
+?>
+	<link rel="stylesheet" href="../styles/vendor/dropzone/dropzone.min.css" />
+	<script src="../styles/vendor/dropzone/dropzone.min.js"></script>
+	<div class="well folder-drop-upload" style="padding:12px;margin-top:15px">
+		<h4 style="margin-top:0"><i class="icon-upload"></i> <?php printMLText("add_document"); ?></h4>
+		<form action="../op/op.AddMultiDocument.php" class="dropzone" id="folderDropzone" style="min-height:80px;padding:8px">
+			<div class="dz-message" style="margin:0"><small class="muted"><?php printMLText("drop_files_here", array(), "Drag files here to upload"); ?></small></div>
+		</form>
+		<div id="folderDropStatus" class="add-multi-status" aria-live="polite" style="margin-top:8px"></div>
+	</div>
+	<script type="text/javascript">
+	(function() {
+		Dropzone.autoDiscover = false;
+		var folderUrl = <?php echo json_encode($folderUrl); ?>;
+		var status = document.getElementById("folderDropStatus");
+		var dz = new Dropzone("#folderDropzone", {
+			url: "../op/op.AddMultiDocument.php",
+			paramName: "file",
+			autoProcessQueue: true,
+			uploadMultiple: false,
+			parallelUploads: 2,
+			createImageThumbnails: false,
+			addRemoveLinks: true
+		});
+		dz.on("sending", function(file, xhr, formData) {
+			formData.append("folderid", <?php echo json_encode((string)$folderid); ?>);
+			formData.append("fileId", file.upload && file.upload.uuid ? file.upload.uuid.replace(/-/g, "") : "dropzone" + Date.now());
+			formData.append("partitionIndex", "0");
+			formData.append("partitionCount", "1");
+			formData.append("name", "");
+			formData.append("comment", "");
+			formData.append("version_comment", "");
+			formData.append("keywords", "");
+			formData.append("reqversion", "1");
+			formData.append("sequence", "1");
+			formData.append("expires", "false");
+			if (status) { status.className = "add-multi-status alert alert-info"; status.textContent = "Uploading " + file.name + "\u2026"; }
+		});
+		dz.on("success", function(file) {
+			if (status) { status.className = "add-multi-status alert alert-success"; status.textContent = "Uploaded: " + file.name; }
+		});
+		dz.on("error", function(file, message) {
+			if (status) { status.className = "add-multi-status alert alert-error"; status.textContent = "Upload failed: " + file.name + " (" + message + ")"; }
+		});
+		dz.on("queuecomplete", function() {
+			if (!dz.getRejectedFiles().length) window.location.href = folderUrl;
+		});
+	})();
+	</script>
+<?php
 	} /* }}} */
 }
 

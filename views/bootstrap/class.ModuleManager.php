@@ -9,6 +9,16 @@ class LetoDMS_View_ModuleManager extends LetoDMS_Bootstrap_Style {
 <a class="btn btn-info pull-right" href="../out/out.ModuleGuide.php"><i class="icon-book icon-white"></i> Module Development Guide</a>
 <p class="muted" style="margin-top:7px">Install modules to create their required data, then enable or disable them without losing data.</p>
 </div>
+<section class="well" style="padding:12px 15px;margin-bottom:20px">
+<h4 style="margin-top:0">Upload module package</h4>
+<form action="../op/op.ModuleManager.php" method="post" enctype="multipart/form-data" class="form-inline" style="margin-bottom:0">
+<?php echo createHiddenFieldWithKey('modulemanager'); ?>
+<input type="hidden" name="action" value="upload">
+<input type="file" name="modulepackage" accept=".zip">
+<button class="btn btn-primary" type="submit">Upload</button>
+<span class="help-inline muted">ZIP archive containing the module directory with its manifest.php.</span>
+</form>
+</section>
 <table class="table table-striped table-bordered">
 <thead><tr><th>Module</th><th>Version</th><th>Status</th><th style="width:300px">Actions</th></tr></thead><tbody>
 <?php foreach ($this->params['modules'] as $name => $module) { ?>
@@ -30,6 +40,9 @@ class LetoDMS_View_ModuleManager extends LetoDMS_Bootstrap_Style {
 <section id="module-development-guide" class="well" style="margin-top:30px">
 <h2>Module Development Guide</h2>
 <p>A module is a self-contained package under <code>modules/</code>. It owns its PHP classes, controllers, views, and database SQL. Core provides generic dispatchers, authentication, enabled-state checks, navigation, and lifecycle actions.</p>
+
+<h3>Installing a module from a ZIP</h3>
+<p>Instead of copying files to the server, upload a ZIP archive using the <strong>Upload module package</strong> form above. Build the ZIP so <code>manifest.php</code> is at its root or inside a single top-level directory. The archive is checked for a valid manifest and safe paths, then extracted to <code>modules/&lt;name&gt;/</code> and listed as <strong>Not installed</strong>. Uploading never overwrites an existing module and does not install or enable it &mdash; use <strong>Install</strong> afterwards. Requires the PHP zip extension.</p>
 
 <h3>1. Create the package structure</h3>
 <p>Use a lowercase identifier containing letters, numbers, underscores, or hyphens. The directory name must match the manifest name.</p>

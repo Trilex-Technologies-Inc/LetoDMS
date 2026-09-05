@@ -195,6 +195,7 @@ $text["download"] = "Download";
 $text["draft_pending_approval"] = "Draft - pending approval";
 $text["draft_pending_review"] = "Draft - pending review";
 $text["dropfolder_file"] = "File from drop folder";
+$text["drop_files_here"] = "Drag files here to upload";
 $text["dump_creation"] = "DB dump creation"; 
 $text["dump_creation_warning"] = "With this operation you can create a dump file of your database content. After the creation the dump file will be saved in the data folder of your server.";
 $text["dump_list"] = "Existings dump files";
