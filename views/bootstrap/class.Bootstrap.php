@@ -41,11 +41,13 @@ class LetoDMS_Bootstrap_Style extends LetoDMS_View_Common
 		echo "<html lang=\"en\">\n<head>\n";
 		echo "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" />\n";
 		echo '<meta name="viewport" content="width=device-width, initial-scale=1.0">' . "\n";
+		echo '<script src="../styles/bootstrap/theme.js?v=' . filemtime(__DIR__.'/../../styles/bootstrap/theme.js') . '"></script>' . "\n";
 		echo '<link href="../styles/' . $this->theme . '/bootstrap/css/bootstrap.css" rel="stylesheet">' . "\n";
 		echo '<link href="../styles/' . $this->theme . '/bootstrap/css/bootstrap-responsive.css" rel="stylesheet">' . "\n";
 		echo '<link href="../styles/' . $this->theme . '/datepicker/css/datepicker.css" rel="stylesheet">' . "\n";
 		echo '<link href="../styles/' . $this->theme . '/chosen/css/chosen.css" rel="stylesheet">' . "\n";
 		echo '<link href="../styles/' . $this->theme . '/application.css?v=' . ($applicationCssVersion ? $applicationCssVersion : '1') . '" rel="stylesheet">' . "\n";
+		echo '<link href="../styles/bootstrap/dark-mode.css?v=' . filemtime(__DIR__.'/../../styles/bootstrap/dark-mode.css') . '" rel="stylesheet">' . "\n";
 		if ($this->extraheader)
 			echo $this->extraheader;
 		echo '<script type="text/javascript" src="../styles/' . $this->theme . '/jquery/jquery-1.8.2.min.js"></script>' . "\n";
@@ -171,6 +173,7 @@ class LetoDMS_Bootstrap_Style extends LetoDMS_View_Common
 				echo "     <ul class=\"dropdown-menu sb-admin-dropdown\" role=\"menu\">\n";
 				echo "      <li><a href=\"../out/out.AdminTools.php\"><span class=\"sb-menu-icon\">&#9776;</span>" . getMLText("admin_tools") . "</a></li>\n";
 				echo "      <li><a href=\"../out/out.Settings.php\"><span class=\"sb-menu-icon\">&#9881;</span>" . getMLText("settings") . "</a></li>\n";
+				if (!empty($this->params['enablefullsearch'])) echo '<li><a href="../out/out.Fulltext.php"><span class="sb-menu-icon">&#8981;</span>Full-text indexing</a></li>';
 				echo "      <li><a href=\"../out/out.UsrMgr.php\"><span class=\"sb-menu-icon\">&#9786;</span>" . getMLText("user_management") . "</a></li>\n";
 				echo "      <li><a href=\"../out/out.GroupMgr.php\"><span class=\"sb-menu-icon\">&#9783;</span>" . getMLText("group_management") . "</a></li>\n";
 				echo "      <li class=\"divider\"></li>\n";
@@ -187,7 +190,7 @@ class LetoDMS_Bootstrap_Style extends LetoDMS_View_Common
 				echo "    </li>\n";
 			}
 			echo "    <li class=\"dropdown\">\n";
-			echo "     <a href=\"#\" class=\"dropdown-toggle\" data-toggle=\"dropdown\">" . getMLText("signed_in_as") . " " . htmlspecialchars($this->params['user']->getFullName()) . "<b class=\"caret\"></b></a>\n";
+			echo "     <a href=\"#\" class=\"dropdown-toggle\" data-toggle=\"dropdown\"><span class=\"sb-user-label\">" . getMLText("signed_in_as") . " " . htmlspecialchars($this->params['user']->getFullName()) . "</span><b class=\"caret\"></b></a>\n";
 			echo "     <ul class=\"dropdown-menu\" role=\"menu\">\n";
 			if (!$this->params['user']->isGuest()) {
 				echo "    <li><a href=\"../out/out.MyDocuments.php?inProcess=1\">" . getMLText("my_documents") . "</a></li>\n";
@@ -214,9 +217,13 @@ class LetoDMS_Bootstrap_Style extends LetoDMS_View_Common
 			echo "    <li><a href=\"../op/op.Logout.php\">" . getMLText("sign_out") . "</a></li>\n";
 			echo "     </ul>\n";
 			echo "    </li>\n";
+			echo '<li class="sb-theme-item"><button type="button" class="theme-toggle" data-theme-toggle aria-label="Switch color mode" aria-pressed="false" title="Switch color mode"><span data-theme-icon aria-hidden="true">&#9789;</span><span class="theme-toggle-text" data-theme-label>Dark mode</span></button></li>';
 			echo "   </ul>\n";
 
-			echo "     <form action=\"../op/op.Search.php\" class=\"form-inline navbar-search pull-left\" autocomplete=\"off\"><span class=\"sb-search-icon\">&#128269;</span>";
+			$aiSearch = !empty($this->params['aisearchavailable']);
+			$fulltextSearch = !empty($this->params['enablefullsearch']);
+			echo '<form action="'.($aiSearch || $fulltextSearch ? '../op/op.QuickSearch.php' : '../op/op.Search.php').'" method="'.($aiSearch || $fulltextSearch ? 'post' : 'get').'" class="form-inline navbar-search pull-left" autocomplete="off"><span class="sb-search-icon">&#128269;</span>';
+			if ($aiSearch) echo createHiddenFieldWithKey('ai-assistant');
 			if ($folder != null && is_object($folder) && !strcasecmp(get_class($folder), "LetoDMS_Core_Folder")) {
 				echo "      <input type=\"hidden\" name=\"folderid\" value=\"" . $folder->getID() . "\" />";
 			}
@@ -224,7 +231,13 @@ class LetoDMS_Bootstrap_Style extends LetoDMS_View_Common
 			echo "      <input type=\"hidden\" name=\"searchin[]\" value=\"1\" />";
 			echo "      <input type=\"hidden\" name=\"searchin[]\" value=\"2\" />";
 			echo "      <input type=\"hidden\" name=\"searchin[]\" value=\"3\" />";
-			echo "      <input name=\"query\" class=\"search-query\" id=\"searchfield\" data-provide=\"typeahead\" type=\"text\" style=\"width: 150px;\" placeholder=\"" . getMLText("search") . "\"/>";
+			echo '<input name="query" class="search-query" id="searchfield" data-provide="typeahead" type="text" style="width:150px" aria-label="'.htmlspecialchars(getMLText('search'), ENT_QUOTES, 'UTF-8').'" placeholder="'.htmlspecialchars(getMLText('search'), ENT_QUOTES, 'UTF-8').'" value="'.htmlspecialchars(isset($this->params['searchquery']) ? $this->params['searchquery'] : '', ENT_QUOTES, 'UTF-8').'">';
+			if ($aiSearch || $fulltextSearch) {
+				echo '<select name="action" aria-label="Search mode" style="width:130px;margin:0 0 0 8px"><option value="keyword">Documents</option>';
+				if ($fulltextSearch) echo '<option value="fulltext"'.(!empty($this->params['fulltextsearch'])?' selected':'').'>Full text</option>';
+				if ($aiSearch) echo '<option value="search"'.(!empty($this->params['quick_search'])?' selected':'').'>AI search</option>';
+				echo '</select><button type="submit" class="btn" style="margin-left:6px">Search</button>';
+			}
 
 			//		echo "      <input type=\"submit\" value=\"".getMLText("search")."\" id=\"searchButton\" class=\"btn\"/>";
 			echo "</form>\n";
@@ -437,9 +450,7 @@ class LetoDMS_Bootstrap_Style extends LetoDMS_View_Common
 			echo "    <li class=\"dropdown\">\n";
 			echo "     <a href=\"#\" class=\"dropdown-toggle\" data-toggle=\"dropdown\">" . getMLText("fullsearch") . "<b class=\"caret\"></b></a>\n";
 			echo "     <ul class=\"dropdown-menu\" role=\"menu\">\n";
-			echo "      <li><a href=\"../out/out.Indexer.php\">" . getMLText("update_fulltext_index") . "</a></li>\n";
-			echo "      <li><a href=\"../out/out.CreateIndex.php\">" . getMLText("create_fulltext_index") . "</a></li>\n";
-			echo "      <li><a href=\"../out/out.IndexInfo.php\">" . getMLText("fulltext_info") . "</a></li>\n";
+			echo '<li><a href="../out/out.Fulltext.php">Indexing dashboard and rebuild</a></li><li><a href="../op/op.SearchFulltext.php">Search document contents</a></li>';
 			echo "     </ul>\n";
 			echo "    </li>\n";
 			echo "   </ul>\n";

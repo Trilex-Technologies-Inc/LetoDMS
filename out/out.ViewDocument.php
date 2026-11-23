@@ -34,7 +34,8 @@ require_once("../LetoDMS_Preview/Preview.php");
 
 
 $tmp = explode('.', basename($_SERVER['SCRIPT_FILENAME']));
-$view = (new UI($GLOBALS['theme'] ?? 'bootstrap'))->factory($theme, $tmp[1]);
+if (isset($_GET['ai_result'])) header('Cache-Control: no-store');
+$view = (new UI($GLOBALS['theme'] ?? 'bootstrap'))->factory($theme, $tmp[1], array('dms' => $dms, 'user' => $user));
 if(!$view) {
 }
 

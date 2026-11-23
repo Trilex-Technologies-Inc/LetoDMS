@@ -38,6 +38,10 @@ class Settings { /* {{{ */
 	var $_rootFolderID = 1;
 	// If you want anybody to login as guest, set the following line to true
 	var $_enableGuestLogin = false;
+	// Modern WebDAV is opt-in and uses native credentials over HTTPS.
+	var $_enableWebDAV = false;
+	var $_webDAVReadOnly = false;
+	var $_webDAVMaxUploadSize = 52428800;
 	// Allow users to reset their password
 	var $_enablePasswordForgotten = false;
 	// Minimum password strength (0 - x, 0 means no check)
@@ -85,6 +89,8 @@ class Settings { /* {{{ */
 	var $_stopWordsFile = null;
 	// enable/disable lucene fulltext search
 	var $_enableFullSearch = false;
+	var $_fulltextOCR = false;
+	var $_fulltextOCRLanguages = 'eng';
 	// contentOffsetDirTo
 	var $_contentOffsetDir = "1048576";
 	// Maximum number of sub-directories per parent directory
@@ -306,6 +312,8 @@ class Settings { /* {{{ */
 		$this->_enableFolderTree = Settings::boolVal($tab["enableFolderTree"]);
 		$this->_enableLanguageSelector = Settings::boolVal($tab["enableLanguageSelector"]);
 		$this->_enableFullSearch = Settings::boolVal($tab["enableFullSearch"]);
+		$this->_fulltextOCR = Settings::boolVal($tab['fulltextOCR']);
+		$this->_fulltextOCRLanguages = isset($tab['fulltextOCRLanguages']) ? strval($tab['fulltextOCRLanguages']) : 'eng';
 		$this->_stopWordsFile = strval($tab["stopWordsFile"]);
 		$this->_sortUsersInList = strval($tab["sortUsersInList"]);
 		$this->_expandFolderTree = intval($tab["expandFolderTree"]);
@@ -336,6 +344,9 @@ class Settings { /* {{{ */
 		$node = $xml->xpath('/configuration/system/authentication');
 		$tab = $node[0]->attributes();
 		$this->_enableGuestLogin = Settings::boolVal($tab["enableGuestLogin"]);
+		$this->_enableWebDAV = Settings::boolVal($tab["enableWebDAV"]);
+		$this->_webDAVReadOnly = Settings::boolVal($tab["webDAVReadOnly"]);
+		$this->_webDAVMaxUploadSize = isset($tab["webDAVMaxUploadSize"]) ? max(1, intval($tab["webDAVMaxUploadSize"])) : 52428800;
 		$this->_enablePasswordForgotten = Settings::boolVal($tab["enablePasswordForgotten"]);
 		$this->_passwordStrength = intval($tab["passwordStrength"]);
 		$this->_passwordStrengthAlgorithm = strval($tab["passwordStrengthAlgorithm"]);
@@ -552,6 +563,8 @@ class Settings { /* {{{ */
     $this->setXMLAttributValue($node, "enableFolderTree", $this->_enableFolderTree);
     $this->setXMLAttributValue($node, "enableLanguageSelector", $this->_enableLanguageSelector);
     $this->setXMLAttributValue($node, "enableFullSearch", $this->_enableFullSearch);
+    $this->setXMLAttributValue($node, 'fulltextOCR', $this->_fulltextOCR);
+    $this->setXMLAttributValue($node, 'fulltextOCRLanguages', $this->_fulltextOCRLanguages);
     $this->setXMLAttributValue($node, "expandFolderTree", $this->_expandFolderTree);
     $this->setXMLAttributValue($node, "stopWordsFile", $this->_stopWordsFile);
     $this->setXMLAttributValue($node, "sortUsersInList", $this->_sortUsersInList);
@@ -580,6 +593,9 @@ class Settings { /* {{{ */
     // XML Path: /configuration/system/authentication
     $node = $this->getXMLNode($xml, '/configuration/system', 'authentication');
     $this->setXMLAttributValue($node, "enableGuestLogin", $this->_enableGuestLogin);
+    $this->setXMLAttributValue($node, "enableWebDAV", $this->_enableWebDAV);
+    $this->setXMLAttributValue($node, "webDAVReadOnly", $this->_webDAVReadOnly);
+    $this->setXMLAttributValue($node, "webDAVMaxUploadSize", $this->_webDAVMaxUploadSize);
     $this->setXMLAttributValue($node, "enablePasswordForgotten", $this->_enablePasswordForgotten);
     $this->setXMLAttributValue($node, "passwordStrength", $this->_passwordStrength);
     $this->setXMLAttributValue($node, "passwordStrengthAlgorithm", $this->_passwordStrengthAlgorithm);
@@ -928,15 +944,7 @@ class Settings { /* {{{ */
 			);
 		}
 
-		// $this->_luceneDir
-		if ($this->_enableFullSearch && !file_exists($this->_luceneDir)) {
-			$result["luceneDir"] = array(
-				"status" => "notfound",
-				"type" => "error",
-				"currentvalue" => $this->_luceneDir,
-				"suggestionvalue" => $this->_contentDir . 'lucene/'
-			);
-		}
+		// Full-text search uses database tables; no legacy Lucene directory is required.
 
 		$bCheckDB = true;
 		// $this->_ADOdbPath
@@ -1106,8 +1114,8 @@ class Settings { /* {{{ */
 			);
 		}
 
-		// Check for HTTP/WebDAV/Server.php
-		if (!Settings::findInIncPath('HTTP/WebDAV/Server.php')) {
+		// WebDAV is optional; the legacy PEAR server is no longer used.
+		if ($this->_enableWebDAV && !is_file(dirname(__DIR__).'/webdav/vendor/autoload.php')) {
 			$result["pear_webdav"] = array(
 				"status" => "notfound",
 				"type" => "warning",

@@ -58,7 +58,9 @@ $theme="bootstrap";
 
 	/** Apply normal application settings to a core or module-provided view. */
 	static function configureView($view) { /* {{{ */
-		global $settings, $session, $db;
+		global $settings, $session, $db, $user;
+		$viewUser = isset($view->params['user']) ? $view->params['user'] : (isset($user) ? $user : null);
+		if (isset($view->params['document'], $_GET['ai_result']) && !headers_sent()) header('Cache-Control: no-store');
 			$view->setParam('session', $session);
 			$view->setParam('sitename', $settings->_siteName);
 			$view->setParam('rootfolderid', $settings->_rootFolderID);
@@ -77,15 +79,30 @@ $theme="bootstrap";
 			$view->setParam('workflowmode', $settings->_workflowMode);
 			$view->setParam('partitionsize', $settings->_partitionSize);
 			$moduleNavigation = array();
+			$aiSearchAvailable = false;
+			$aiDocumentProviders = array();
 			if (isset($db)) {
 				require_once('inc.ClassModuleManager.php');
 				$moduleManager = new LetoDMS_ModuleManager($db, $settings->_rootDir.'modules', $settings->_dbDriver);
 				foreach ($moduleManager->all() as $module) {
-					if ($module['installed'] && $module['enabled'] && !empty($module['navigation']) && !empty($module['url']))
+					if ($module['name'] === 'ai-assistant' && $module['installed'] && $module['enabled'] && $viewUser && $viewUser->hasPermission('module.ai-assistant.access')) {
+						try {
+							require_once $module['path'].'/inc/Store.php';
+							require_once $module['path'].'/inc/ProviderSettings.php';
+							require_once $module['path'].'/inc/Assistant.php';
+							$aiOptions = (new LetoDMS_AIStore($db, $settings->_dbDriver))->options();
+							$aiProfiles = new LetoDMS_AIAssistant($db, new LetoDMS_AIProviderSettings($db, $settings->_encryptionKey));
+							$aiDocumentProviders = $aiProfiles->providers();
+							$aiSearchAvailable = isset($aiProfiles->providers()[$aiOptions['embedding_provider']]);
+						} catch (Throwable $e) { $aiSearchAvailable = false; }
+					}
+					if ($module['installed'] && $module['enabled'] && !empty($module['navigation']) && !empty($module['url']) && ($module['name'] !== 'ai-assistant' || ($viewUser && $viewUser->isAdmin())))
 						$moduleNavigation[] = array('name'=>$module['name'], 'title'=>$module['title'], 'url'=>$module['url']);
 				}
 			}
 			$view->setParam('modulenavigation', $moduleNavigation);
+			$view->setParam('aisearchavailable', $aiSearchAvailable);
+			$view->setParam('aidocumentproviders', $aiDocumentProviders);
 			return $view;
 	} /* }}} */
 

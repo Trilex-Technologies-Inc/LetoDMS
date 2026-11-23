@@ -47,7 +47,8 @@ if (isset($_GET["navBar"])) {
 		header("Location: ../out/out.SearchForm.php?folderid=".$folderid);
 	} else {
 		if(isset($_GET["fullsearch"]) && $_GET["fullsearch"]) {
-			header("Location: ../op/op.SearchFulltext.php?folderid=".$folderid."&query=".$_GET["query"]);
+			header('Location: ../op/op.SearchFulltext.php?'.http_build_query(array('folderid'=>$folderid,'query'=>$_GET['query'])));
+			exit;
 		}
 	}
 }

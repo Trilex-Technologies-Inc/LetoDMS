@@ -54,6 +54,8 @@ class LetoDMS_View_Info extends LetoDMS_Bootstrap_Style {
 		$this->summaryCard('Extensions', count($extensions) . ' loaded', '&#43;', 'orange');
 		echo '</div>';
 
+		$this->updatesPanel();
+
 		echo '<div class="info-grid">';
 		echo '<section class="well info-panel"><div class="info-panel-heading"><span class="info-panel-icon">&#128187;</span><div><h2>Runtime environment</h2><p>Current PHP and web-server configuration</p></div></div>';
 		echo '<dl class="info-details">';
@@ -87,6 +89,38 @@ class LetoDMS_View_Info extends LetoDMS_Bootstrap_Style {
 		$this->contentEnd();
 		$this->htmlEndPage();
 	} /* }}} */
+
+	private function updatesPanel() {
+		if (!isset($this->params['updates'])) return;
+		$updates=$this->params['updates'];
+		$esc=function($v){return htmlspecialchars((string)$v,ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8');};
+		$messages=array(
+			'not_checked'=>'Updates have not been checked yet.',
+			'update_available'=>'A newer LetoDMS release is available.',
+			'ahead'=>'Your installation is newer than the latest matching published GitHub release.',
+			'current'=>'Your version matches the latest matching published GitHub release.',
+			'no_releases'=>$updates['include_prereleases']?'No comparable published release was found.':'No matching stable release was found. You can include beta/prerelease versions.',
+			'unknown_version'=>'The installed version could not be compared automatically. Review the GitHub releases.',
+		);
+		echo '<section class="well info-panel info-updates-panel"><div class="info-panel-heading"><span class="info-panel-icon" aria-hidden="true">&#8635;</span><div><h2>Application updates</h2><p>Published releases from GitHub</p></div></div>';
+		echo '<p role="status">'.$esc($messages[$updates['state']]??'Update status is unavailable.').'</p>';
+		if (!empty($this->params['updateerror'])) echo '<div class="alert alert-error">'.$esc($this->params['updateerror']).'</div>';
+		if ($updates['stale']) echo '<div class="alert alert-info">This is an older cached result. Check again for the latest release information.</div>';
+		echo '<dl class="info-details">';
+		$this->detailRow('Installed version',$updates['installed']);
+		if ($updates['latest']) {
+			$this->detailRow('Latest matching release',$updates['latest']['tag']);
+			$this->detailRow('Release channel',!empty($updates['latest']['prerelease'])?'Beta / prerelease':'Stable');
+			$date=strtotime($updates['latest']['published_at']??'');
+			if ($date) $this->detailRow('Published',date('Y-m-d',$date));
+		}
+		$this->detailRow('Last successful check',$updates['checked_at']?date('Y-m-d H:i:s',$updates['checked_at']):'Not checked');
+		echo '</dl><form method="post" action="out.Info.php" style="margin-top:18px">'.createHiddenFieldWithKey('update-check').'<input type="hidden" name="action" value="check_updates"><label class="checkbox"><input type="checkbox" name="include_prereleases" value="1"'.($updates['include_prereleases']?' checked':'').'> Include beta / prerelease versions</label><button type="submit" class="btn">Check for updates</button> ';
+		if ($updates['latest']) echo '<a class="btn" href="'.$esc($updates['latest']['url']).'" target="_blank" rel="noopener noreferrer">'.($updates['state']==='update_available'?'View update / download':'View published release').'</a> ';
+		echo '<a href="https://github.com/Trilex-Technologies-Inc/LetoDMS/releases" target="_blank" rel="noopener noreferrer">All GitHub releases</a></form>';
+		if ($updates['latest'] && !empty($updates['latest']['notes'])) echo '<details><summary>Release notes</summary><pre style="white-space:pre-wrap;overflow-wrap:anywhere">'.$esc($updates['latest']['notes']).'</pre></details>';
+		echo '<p class="help-block">Checks public GitHub release metadata only; documents and provider keys are not sent. Successful checks are cached for one hour. Installation remains manual; no application files or database tables are changed by checking.</p></section>';
+	}
 
 	private function summaryCard($label, $value, $icon, $color) { /* {{{ */
 		echo '<div class="info-summary-card info-summary-' . $color . '"><div><span>' . htmlspecialchars($label) . '</span><strong>' . htmlspecialchars((string)$value) . '</strong></div><i aria-hidden="true">' . $icon . '</i></div>';

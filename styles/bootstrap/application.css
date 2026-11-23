@@ -943,6 +943,7 @@ body:not(.login) > .row-fluid {
   transition: margin-left .22s ease;
 }
 .app-footer { clear: both; }
+body:not(.login) > .app-footer { box-sizing: border-box; width: auto; }
 .app-footer .app-footer-content {
   padding: 18px 20px;
   border-top: 1px solid #e3e6f0;
@@ -1140,7 +1141,7 @@ body:not(.login) .folder-contents-table {
   box-shadow: none;
 }
 .folder-contents-table th:first-child { width: 44px; }
-.folder-contents-table th:last-child { width: 112px; text-align: right; }
+.folder-contents-table th:last-child { width: 128px; text-align: right; }
 .folder-contents-table td:last-child { text-align: right; }
 .folder-type-cell { width: 44px; text-align: center; }
 .folder-type-cell img { max-width: 40px; max-height: 40px; }
@@ -1150,9 +1151,25 @@ body:not(.login) .folder-contents-table {
 .folder-contents-table .label + .label { margin-left: 4px; }
 .folder-contents-table .badge { background: #858796; }
 .folder-contents-table .table-actions { justify-content: flex-end; gap: 0; white-space: nowrap; }
-.folder-contents-table .btn-group > .btn { border-radius: 0; }
-.folder-contents-table .btn-group > .btn:first-child { border-radius: 6px 0 0 6px; }
-.folder-contents-table .btn-group > .btn:last-child { border-radius: 0 6px 6px 0; }
+/* Override the general button minimum height equally for anchors and submits. */
+body:not(.login) .folder-contents-table .table-actions > .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 30px;
+  box-sizing: border-box;
+  width: 30px;
+  height: 30px;
+  min-height: 30px;
+  padding: 0;
+  margin: 0;
+  float: none;
+  line-height: 28px;
+  border-radius: 0;
+}
+body:not(.login) .folder-contents-table .table-actions > .btn + .btn { margin-left: -1px; }
+body:not(.login) .folder-contents-table .table-actions > .btn:first-child { border-radius: 6px 0 0 6px; }
+body:not(.login) .folder-contents-table .table-actions > .btn:last-child { border-radius: 0 6px 6px 0; }
 .folder-empty { padding: 20px !important; text-align: center; }
 
 .object-page-heading {

@@ -656,7 +656,7 @@ class LetoDMS_Core_Folder extends LetoDMS_Core_Object {
 		}
 
 		//Entfernen der Datenbankeinträge
-		$db->rollbackTransaction();
+		$db->startTransaction();
 		$queryStr = "DELETE FROM tblFolders WHERE id =  " . $this->_id;
 		if (!$db->getResult($queryStr)) {
 			$db->rollbackTransaction();

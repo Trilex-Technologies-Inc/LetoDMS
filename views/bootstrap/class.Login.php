@@ -67,6 +67,7 @@ function guestLogin()
 }
 </script>
 
+<button type="button" class="theme-toggle login-theme-toggle" data-theme-toggle aria-label="Switch color mode" aria-pressed="false"><span data-theme-icon aria-hidden="true">&#9789;</span><span class="theme-toggle-text" data-theme-label>Dark mode</span></button>
 <main class="login-shell">
 	<section class="login-intro" aria-label="<?php printMLText("sign_in");?>">
 		<div class="login-brand">

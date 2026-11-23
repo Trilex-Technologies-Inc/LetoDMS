@@ -1,184 +1,167 @@
-<h1>General Notes</h1>
-
-<p>
-A DMS (Document Management System) is designed to share documents,
-controlling the workflow, access permissions and organization in general.
-</p>
-
-<p>
-Using the first level menu the user can access the various information stored in the system:
-<ul>
-<li>Content: allows you to browse documents in a file manager style.
-<li>My documents: has several entries to access documents of interest:
-<ul>
-<li>Documents in process: lists of documents awaiting review or approval by the user,
-documents owned by the user who await approval or revision, documents locked by the user.
-<li>All documents: list of all documents owned by the user.
-<li>Review summary: list all the documents that were reviewed or awaiting review by the user.
-<li>Approval summary: list all the documents that were approved or awaiting approval by the user.
-</ul>
-</ul>
-</p>
-
-<p>
-This DMS  also provides a calendar that serves as virtual bulletin board to share notes,
-appointments, deadlines and commitments.
-</p>
-
-
-<h1>Permissions</h1>
-
-<p>
-Authorized users can set if and how other users will access to various folders
-and documents submitted.
-</p>
-
-<h2>Permission levels</h2>
-<p>
-The possible access-levels are:
-<ul>
-<li>Total permits: the user can perform any operation.
-<li>Reading and writing: the user can update records and add content to the folders.
-<li>Read only: the user can view the contents of folders and download documents.
-<li>No Access: the user cannot view the contents of the folders or individual documents.
-</ul>
-</p>
-
-<p>
-By default administrators have total permissions on each document and folder
-on the system. Similarly, the document owner has total permits on his documents.
-</p>
-
-<p>
-Only administrator users can change the owner of a document.
-</p>
-
-<h2>Permissions management</h2>
-<p>
-For each folder or document permissions are managed through two different devices
-<ul>
-<li>The default permissions are valid in the absence of further specific
-<li>The list of permissions allows you to specify exceptions to the default permissions
-</ul>
-</p>
-
-<h2>Access inheritance</h2>
-<p>
-The permissions of folders and documents can be set as hereditary.
-In this case the files and folders inherit the same permissions of the folder
-that contains them.
-</p>
-
-
-<h1>Documents workflow</h1>
-
-<p>
-The system automatically handles the workflow for each document and stores
-changes, versioning, comments made, etc.
-</p>
-
-<h2>Validation cycle</h2>
-<p>
-The normal workflow requires, when loading a new document or a
-new version, to indicate some users or groups of users as reviewers and/or approvers.
-Users that are listed as reviewers and approvers are
-required to explain their approval to the document. When this operation
-is completed, thus all listed users have made their
-review/approval, the state of the document will set to 'released'.
-</p>
-
-<p>
-The reviewer/approver can deny its approval to the document.
-In this case the document state is set to 'rejected'.
-</p>
-
-<p>
-A doc that are not set reviewers and approvals take immediately the state of 'released'.
-</p>
-
-<p>
-As approvers/reviewers one can indicate groups of users. In this case the
-review/approval should be made by any of the users belonging to the group.
-</p>
-
-<p>
-The document owner may at any time amend the list of reviewers/approvers.
-</p>
-
-<h2>Documents status</h2>
-<p>
-Possible states for a document are:
-<ul>
-<li>Draft pending approval: one or more of the approvals referred to have not yet expressed their approval.
-<li>Draft pending review: one or more of the listed reviewer have not yet expressed their review.
-<li>Released: the document has successfully completed its validation cycle.
-<li>Rejected: the document has discontinued its validation cycle.
-<li>Expired: you have exceeded the target date for completion of the validation of the document.
-<li>Obsolete: the status of a released document can be changed to obsolete. This
-is intended as an alternative to the cancellation of the document. Obsolete state
-is reversible.
-</ul>
-</p>
-
-<h2>Expiration</h2>
-<p>
-For each document in production can be set a due date.
-Once passed the day set are no longer possible revisions or approvals
-and the document goes into an 'expired' state.
-</p>
-
-<p>
-The deadline is considered only for the latest version of the document
-and has effect only on document processing.
-</p>
-
-
-<h1>Other features</h1>
-
-<h2>Lock function</h2>
-<p>
-Lock function is designed to indicate to other users that a certain document
-is in process. Users having total permission on the document can
-however reverse the lock and proceed to a modification of the document.
-</p>
-
-<h2>Notifications</h2>
-<p>
-Each user can request notification on documents and folders.
-Adding a file or folder in your list of notifications you will receive
-reporting of transactions by other users.
-</p>
-
-<p>
-Only the Manager of a group can decide whether or not to enter the group list
-reporting on documents and folders. Once inserted, the notifications come
-all members of the group.
-</p>
-
-<h2>Keywords and search</h2>
-<p>
-Each document allows the inclusion of a description and some keywords.
-These informations are used for research function.
-</p>
-<p>
-In personal account menu each user can store a set of keywords grouped by categories,
-in order to speed filling during the loading of documents.
-</p>
-
-<p>
-Pressing the search button without entering any word you access the advanced research page.
-</p>
-
-
-<h2>Calendar</h2>
-
-<p>
-There are three views: by week, month, year. Events are displayed in order of their
-insertion in the calendar.
-</p>
-
-<p>
-Once inserted, the events are public and visible to everyone. Only the administrator
-and who has entered the event can modify it later.
-</p>
-
+<div class="help-guide" id="help-guide" lang="en">
+  <header class="help-intro">
+    <h2>How can we help?</h2>
+    <p>Practical instructions for managing documents, finding information, and configuring your installation. Available actions depend on your permissions and the features your administrator has enabled.</p>
+  </header>
+  <div class="help-search" id="help-search" role="search" aria-label="Search the help guide" hidden>
+    <label for="help-query">Search Help</label>
+    <div class="help-search-controls">
+      <input id="help-query" type="search" placeholder="Try upload, AI pending, permissions, or WebDAV" autocomplete="off" aria-describedby="help-results" aria-controls="help-topics">
+      <button type="button" id="help-clear" class="btn" hidden>Clear search</button>
+    </div>
+    <p id="help-results" role="status" aria-live="polite" aria-atomic="true"></p>
+  </div>
+  <nav class="help-navigation" aria-label="Help topics">
+    <a data-help-link href="#help-start">Getting started</a>
+    <a data-help-link href="#help-upload">Uploading</a>
+    <a data-help-link href="#help-versions">Versions &amp; locks</a>
+    <a data-help-link href="#help-searching">Searching</a>
+    <a data-help-link href="#help-ai">Document AI</a>
+    <a data-help-link href="#help-processing">Processing &amp; OCR</a>
+    <a data-help-link href="#help-access">Permissions</a>
+    <a data-help-link href="#help-workflows">Reviews &amp; approval</a>
+    <a data-help-link href="#help-account">Account &amp; appearance</a>
+    <a data-help-link href="#help-providers">AI setup</a>
+    <a data-help-link href="#help-webdav">WebDAV</a>
+    <a data-help-link href="#help-troubleshooting">Troubleshooting</a>
+  </nav>
+  <div class="help-empty" id="help-empty" hidden>
+    <h3>No matching instructions</h3>
+    <p>Try fewer words, such as “upload,” “worker,” “billing,” or “access.” Clear the search to browse every topic.</p>
+  </div>
+  <div id="help-topics">
+    <section class="help-topic" id="help-start" data-help-topic data-keywords="navigation folders content my documents calendar home beginner">
+      <h2>Getting started</h2>
+      <ol>
+        <li>Open <strong>Content</strong> in the sidebar to browse folders. Select a folder name to open it; use the breadcrumb above the page to go back to a parent folder.</li>
+        <li>Select a document name to open its information page. It shows the owner, current version, status, and the actions you can perform.</li>
+        <li>Open <strong>My Documents</strong> to find your documents and items awaiting your review or approval.</li>
+        <li>Use the top search bar to find documents. The <strong>Help</strong> entry opens this guide; its search box filters instructions rather than your documents.</li>
+      </ol>
+      <p>The calendar provides shared notes, appointments, and deadlines when your installation enables it. Missing navigation items or actions may reflect your assigned role.</p>
+    </section>
+    <section class="help-topic" id="help-upload" data-help-topic data-keywords="add document multiple drag drop files PDF Word DOC DOCX categories keywords attributes metadata">
+      <h2>Upload and organize documents</h2>
+      <ol>
+        <li>Open the destination folder and choose <strong>Add document</strong>, or use the folder's drag-and-drop upload area when available.</li>
+        <li>Select the file and enter a clear document name. Add a comment, keywords, categories, and any required attributes.</li>
+        <li>Choose reviewers, approvers, or a workflow if your installation requires them, then submit the form.</li>
+        <li>Open the saved document to check its version and status. A document awaiting review may not be released immediately.</li>
+      </ol>
+      <p>Use the multiple-document upload screen for a batch of files. Folder permissions, your storage quota, PHP upload limits, and the web server's request limit can affect uploads.</p>
+      <p class="help-note">To replace an existing file while keeping its history, use <strong>Update document</strong> on that document. Uploading another document creates a separate item.</p>
+    </section>
+    <section class="help-topic" id="help-versions" data-help-topic data-keywords="update download history version comparison compare locked unlock editing sync index action">
+      <h2>Versions, downloads, and document locks</h2>
+      <p>Open a document and choose <strong>Download</strong> beside the version you need. Use <strong>Update document</strong> to upload a revision. Previous versions remain in the history unless an authorized user removes them.</p>
+      <p>Use <strong>Lock</strong> before editing when you need to reserve the document. Release the lock when finished. If another user holds it, ask that user or your administrator to unlock it before you upload a revision.</p>
+      <p>Where Document AI is enabled, open <strong>Compare versions</strong>, choose two versions of the same document, and submit the comparison. This compares extracted text; formatting and tracked changes are not compared.</p>
+      <p>The circular-arrow action beside a file in a folder is <strong>Index for search</strong>. Hover over or focus the button to read its label. It builds the semantic search index for that document; it does not refresh or replace the uploaded file.</p>
+    </section>
+    <section class="help-topic" id="help-searching" data-help-topic data-keywords="semantic embeddings vector top bar search indexed results names metadata fulltext full text local phrase indexing contents">
+      <h2>Find documents with search</h2>
+      <p>The top search bar offers <strong>Documents</strong>, <strong>Full text</strong> when enabled, and <strong>AI search</strong> when configured.</p>
+      <ul>
+        <li><strong>Documents:</strong> search document names and metadata. Use the full-text search screen when full-text indexing is enabled for the installation.</li>
+        <li><strong>Full text:</strong> find whole words inside locally indexed PDF, Word, and supported text files. All search words must appear; put a phrase in quotation marks to match its word order. Results include highlighted excerpts. This search does not need AI credentials or incur provider charges.</li>
+        <li><strong>AI search:</strong> search the meaning of indexed document passages. Try a question or a descriptive phrase, such as “contracts with renewal terms.”</li>
+      </ul>
+      <p>To set up local full-text search, enable it under <strong>Admin Tools → Settings → Site → Edition</strong>, open the <strong>Full-text indexing</strong> dashboard, and choose <strong>Queue existing documents / rebuild</strong>. Continue to the next batch if shown. Uploads and revisions are queued automatically while this setting is enabled.</p>
+      <p>Schedule <code>/usr/bin/php /path/to/LetoDMS/utils/fulltext-worker.php --config=/path/to/LetoDMS/conf/settings.xml --limit=5</code> every minute. The updated AI worker also handles local full-text jobs if it is already scheduled; use one schedule. The dashboard shows worker activity, pending/completed/failed jobs, and reindex actions. Search results use the latest readable version only. Full-text OCR has its own settings and does not require the AI module.</p>
+      <p>Local indexing accepts up to 50 MiB per input file and 2 MiB of extracted text. Over-limit or unsupported files fail visibly instead of publishing a partial index. New installations and old Lucene installations need a new database index; no legacy Lucene dependency is required. See <code>docs/FULLTEXT.md</code> for details.</p>
+      <p>AI search needs an embeddings provider, an embeddings model, and successfully indexed documents. Enabling the option does not immediately index all existing documents. Use <strong>Index for search</strong> for an existing document or enable automatic processing for future uploads.</p>
+      <p>Only accessible indexed results are returned. After changing the embeddings model or provider, documents need indexing with the new configuration. An empty AI result does not mean a document is absent; try Documents search as well.</p>
+    </section>
+    <section class="help-topic" id="help-ai" data-help-topic data-keywords="assistant ask question answer summary summarize summaries compare versions metadata suggestions duplicate detection apply dismiss">
+      <h2>Use Document AI</h2>
+      <p>Open a document and find the <strong>Document AI</strong> panel. The AI module must be enabled, a provider configured, and your role permitted to use it.</p>
+      <ul>
+        <li><strong>Ask AI:</strong> select a version and ask a question about its contents. Follow the source links and verify the answer against the document.</li>
+        <li><strong>Summaries:</strong> view saved results, choose <strong>Summarize</strong> for an immediate request, or <strong>Queue analysis</strong> for background processing.</li>
+        <li><strong>Compare versions:</strong> select the earlier and later versions to request a summary of textual changes.</li>
+        <li><strong>Metadata:</strong> review proposed titles and keywords. Apply or dismiss supported suggestions explicitly; other extracted information remains advisory.</li>
+        <li><strong>Duplicates:</strong> inspect matching files or similar documents. A candidate match does not delete or merge anything.</li>
+      </ul>
+      <p>Summaries and answers can be incomplete or incorrect. Review suggestions before applying them, and retain the normal human review and approval process. Hosted AI features send the required query and document text to the configured provider.</p>
+    </section>
+    <section class="help-topic" id="help-processing" data-help-topic data-keywords="automatic analysis pending queue worker cron schedule OCR scanned PDF image tesseract antiword pdftotext retries failed jobs usage">
+      <h2>Automatic analysis, OCR, and pending jobs</h2>
+      <p>Administrators configure this under <strong>AI Assistant → Provider settings → Processing settings</strong>. Select an analysis provider, enable automatic queuing, and configure embeddings if uploads should also become available in AI search.</p>
+      <p><strong>Queuing is separate from processing.</strong> New uploads and versions can remain pending until the scheduled worker runs. A server administrator should schedule the existing worker every minute:</p>
+      <pre><code>* * * * * /usr/bin/php /path/to/LetoDMS/modules/ai-assistant/worker.php --config=/path/to/LetoDMS/conf/settings.xml --limit=5</code></pre>
+      <p>Replace both paths for your installation. In a hosting control panel, put the PHP command in <strong>Command</strong>, not “Input to command.” Choose a custom schedule with all minutes, hours, days, months, and weekdays to run every minute. Hourly processing can leave uploads waiting nearly an hour.</p>
+      <p>Check <strong>Jobs &amp; usage</strong> for worker activity, status, attempts, and error details. Administrators can retry failed jobs or cancel eligible queued jobs. A missing or deleted document version cannot be processed; cancel that job rather than repeatedly retrying it.</p>
+      <ul>
+        <li>Text PDFs require <code>pdftotext</code>; older Word <code>.doc</code> files require <code>antiword</code>.</li>
+        <li><code>.docx</code> extraction requires PHP ZIP and DOM. Text processing requires PHP mbstring.</li>
+        <li>Scanned PDFs require optional OCRmyPDF; supported image OCR uses Tesseract. Enable OCR and install the language packs you need on the server.</li>
+        <li>The web and command-line PHP environments both need the required extensions and permission to read document storage.</li>
+      </ul>
+      <p>OCR and processing have file-size, text-size, image-size, and execution limits. An administrator can inspect job details when a document cannot be processed. Existing summaries do not prove the latest version is indexed with the current embeddings model.</p>
+    </section>
+    <section class="help-topic" id="help-access" data-help-topic data-keywords="permission denied forbidden access role group owner inherit read write full hidden">
+      <h2>Permissions and access</h2>
+      <p>Two controls can affect an action: your role permits the feature, and the folder or document ACL permits access to that item. Having a feature permission does not grant access to every document.</p>
+      <ul>
+        <li><strong>No access:</strong> the item is unavailable.</li>
+        <li><strong>Read:</strong> view or download accessible content.</li>
+        <li><strong>Read/write:</strong> make permitted updates.</li>
+        <li><strong>Full access:</strong> perform operations requiring full control, including permitted deletion.</li>
+      </ul>
+      <p>Items may inherit permissions from their parent folder. Document ownership and administrator status affect access; workflow rules can additionally restrict a particular version. Ask your administrator to review both your role and the item's ACL when an action is missing.</p>
+    </section>
+    <section class="help-topic" id="help-workflows" data-help-topic data-keywords="review approve approval reject released draft workflow status notifications reviewer approver">
+      <h2>Reviews, approvals, and status</h2>
+      <ol>
+        <li>Open <strong>My Documents</strong> and find items awaiting your review or approval.</li>
+        <li>Open the document and download the relevant version. Read it before making a decision.</li>
+        <li>Use the available review, approval, or workflow action. Add a comment explaining your decision and submit.</li>
+        <li>Check the resulting status and history on the document page.</li>
+      </ol>
+      <p>Traditional review/approval lists and configured workflows can behave differently. A new revision may need another review. AI summaries and change comparisons help you prepare; they do not approve or release documents for you. Notifications depend on the installation's email configuration.</p>
+    </section>
+    <section class="help-topic" id="help-account" data-help-topic data-keywords="dark mode light appearance theme color colour switch moon sun password profile account language browser saved">
+      <h2>Account, light mode, and dark mode</h2>
+      <p>In the modern Bootstrap interface, use the moon/sun button at the top of the page to switch between <strong>Dark mode</strong> and <strong>Light mode</strong>. On small screens the button shows only the icon; its accessible label describes the action.</p>
+      <p>Your choice is saved in this browser and applies to later pages and the sign-in screen. Until you make a choice, the interface follows your device's color preference. A different browser or device has its own preference. If browser storage is blocked, switching still works for the current page but may not persist.</p>
+      <p>Open the signed-in user menu and choose <strong>My account</strong> to update the profile fields your administrator permits. Change your password there when available. Your administrator may enforce password strength, expiration, or account restrictions. Legacy visual themes do not use the modern color-mode switch.</p>
+    </section>
+    <section class="help-topic" id="help-providers" data-help-topic data-keywords="administrator settings provider OpenAI Anthropic endpoint model ID embeddings key encryption OpenSSL billing quota 429 usage costs tokens credits">
+      <h2>Administrator: configure hosted AI</h2>
+      <ol>
+        <li>Install and enable <strong>AI Assistant</strong> under <strong>Admin Tools → Modules</strong>. Grant intended roles <code>module.ai-assistant.access</code>.</li>
+        <li>Open <strong>AI Assistant → Provider settings → Add provider</strong>. Choose the company to populate supported endpoint defaults. Enter a stable provider ID, a friendly display name, and the provider's API key.</li>
+        <li>Choose a compatible chat model. OpenAI model discovery is available through <strong>Load OpenAI models</strong>; you can also enter a model ID manually. A listed model may not support the configured API format or be enabled for generation in your account.</li>
+        <li>Save the provider, then choose it under <strong>Processing settings</strong>. Configure a separate embeddings model and endpoint for AI search. Chat and embeddings models serve different purposes.</li>
+        <li>Enable only the processing features you want, schedule the worker, and test with a small non-sensitive document.</li>
+      </ol>
+      <p>API key storage requires PHP OpenSSL and a saved LetoDMS encryption key under <strong>Admin Tools → Settings → System → Authentication</strong>. Back up that encryption key securely. Changing it requires re-entering provider API keys. A blank provider key field retains an existing saved key where supported.</p>
+      <p>Hosted providers can charge for document processing, embeddings, and questions. Review provider billing and project limits. An HTTP 429 message reporting insufficient quota or inactive billing requires attention in the provider account. Waiting alone does not resolve missing credits. Other 429 responses can be temporary rate limits.</p>
+      <p>Use <strong>Jobs &amp; usage</strong> and processing settings to inspect requests and configure local request limits. Optional cost figures are estimates, not the provider's invoice. Enabling a provider does not verify billing or guarantee that a model is compatible.</p>
+      <h3>Check for application updates</h3>
+      <p>Open <strong>Admin Tools → Version information</strong> and choose <strong>Check for updates</strong>. The panel compares the installed version with published GitHub releases. Beta installations include prereleases by default; use the checkbox to change that selection. Results are cached for one hour. If your development build is newer than the published release, it will say so instead of recommending a downgrade.</p>
+      <p>The checker only reads public release information. Use its GitHub links to review release notes and downloads; installation remains manual. Publishing a branch commit or tag alone does not make an update available—you need to publish a GitHub Release.</p>
+    </section>
+    <section class="help-topic" id="help-webdav" data-help-topic data-keywords="WebDAV desktop Windows macOS Office SabreDAV PEAR InnoDB MyISAM https connection sync mount 412 423">
+      <h2>Administrator: connect through WebDAV</h2>
+      <p>The modern WebDAV endpoint uses SabreDAV; the old PEAR <code>HTTP_WebDAV_Server</code> package is no longer used. Install the dependencies in <code>webdav/vendor/</code> and enable WebDAV under <strong>Admin Tools → Settings → System → Authentication</strong>.</p>
+      <p>Connect your WebDAV client to <code>https://YOUR-SERVER/YOUR-LETODMS-PATH/webdav/index.php/</code>, including the trailing slash, using native LetoDMS credentials. HTTPS and correct web-server routing are required. Administrators can connect; other users need <code>webdav.access</code> plus the relevant document permissions.</p>
+      <p>Uploading to an existing document creates a new version. Exclusive file locks expire after 30 minutes unless refreshed. HTTP 423 means the document is locked. HTTP 412 can mean the document changed since the client opened or locked it; reopen the current version before saving.</p>
+      <p>MySQL/MariaDB document tables must use InnoDB for DAV writes. An administrator can run <code>php webdav/setup.php --config=/path/to/settings.xml --check</code> to inspect storage readiness. Back up the installation and follow <code>webdav/README.md</code> before using the explicit migration command. SQLite uses its normal transactional storage.</p>
+      <p>Read-only mode, upload limits, document ACLs, and workflow access still apply. See <code>webdav/README.md</code> for server configuration, overwrite behavior, supported operations, and validation limits. Test desktop clients with disposable documents first.</p>
+    </section>
+    <section class="help-topic" id="help-troubleshooting" data-help-topic data-keywords="error missing unavailable no results pending failed cannot upload support troubleshooting help">
+      <h2>Troubleshooting checklist</h2>
+      <ul>
+        <li><strong>Upload fails:</strong> check file size, PHP/server upload limits, required metadata, folder write access, document locks, and your storage quota.</li>
+        <li><strong>No Document AI panel:</strong> check that the module is enabled, a provider is configured, and your role has AI access.</li>
+        <li><strong>AI search has no indexed results:</strong> check embeddings configuration, index the document, and inspect worker/job status. Try Documents search to find it by name.</li>
+        <li><strong>Analysis stays pending:</strong> check the last worker activity. Automatic queuing needs a scheduled worker; it does not process jobs by itself.</li>
+        <li><strong>PDF or Word text is missing:</strong> verify the server extraction tools. Image-only PDFs need OCR; unsupported or damaged files may fail extraction.</li>
+        <li><strong>Provider request fails:</strong> review the displayed error, API key, endpoint, model compatibility, billing, and request limits. Do not paste API keys into support messages.</li>
+        <li><strong>A saved setting seems unchanged:</strong> confirm it was saved, check configuration-file write permissions, and refresh the page after uploading changed application files.</li>
+      </ul>
+      <p>When requesting support, include the action, document ID and version where relevant, error text, and job status. Keep credentials and confidential document content out of screenshots and logs you share.</p>
+    </section>
+  </div>
+</div>
