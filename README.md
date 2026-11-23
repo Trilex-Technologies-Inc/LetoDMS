@@ -1,9 +1,10 @@
 # LetoDMS
 
-LetoDMS is a document management application with folders, document versioning,
+LetoDMS is an open-source, web-based document management application written in
+PHP, with folders, document versioning,
 access controls, review and approval workflows, search, and optional hosted AI.
 The modern Bootstrap interface includes a responsive sidebar, light/dark color
-modes, and a searchable Help guide.
+modes, a searchable Help guide, and multi-language support.
 
 ## What is available
 
@@ -17,8 +18,20 @@ modes, and a searchable Help guide.
 - Configure hosted providers centrally, monitor processing jobs, retry failures,
   and set local AI request limits. Optional cost estimates are not invoices.
 - Connect desktop clients through the optional SabreDAV WebDAV endpoint.
+- Install optional modules through the validated module upload and management
+  screens, and configure automated email notifications for document activity.
 - Switch light/dark mode with the moon/sun button. The modern interface follows
   the device preference until a browser-specific choice is saved.
+
+## System requirements
+
+- **PHP:** 8.3 or higher for the project's deployment target, with PDO and the
+  PDO_MySQL or PDO_SQLite extension for the selected database.
+- **Web server:** Apache, Nginx, or IIS configured to run PHP. WebDAV routing
+  instructions are provided separately for supported server configurations.
+- **Database:** MySQL, MariaDB, or SQLite3 through the bundled database layer.
+- **Optional capabilities:** enable the extensions and document extraction tools
+  required by the features you choose, as described below and by the installer.
 
 ## Installation
 
@@ -30,7 +43,8 @@ below and in the component guides.
 
 1. Upload the application to its web directory. Set up the database and a
    document storage directory, preferably outside the public web root.
-2. Open `install/install.php` and review the server checks. Configure paths,
+2. Open `install/index.php` for the welcome screen, then continue to
+   `install/install.php` and review the server checks. Configure paths,
    database access, and the administrator settings. Use **Create tables** for
    a new, empty database; do not recreate tables on an existing installation.
 3. Save the generated configuration in `conf/settings.xml` and grant PHP only
@@ -182,5 +196,15 @@ validation; passing local tests does not establish those integrations.
 - [Workflow reference](README.Workflow)
 - [Notification reference](README.Notification)
 - [TODO and validation backlog](TODO)
+- [Complete change log](CHANGELOG)
+
+## Earlier release highlights
+
+The 5.0b and 5.1b work introduced PHP 8.3 compatibility improvements, module
+upload validation and management, mobile navigation fixes, and CSS/JavaScript
+asset versioning. Installer changes improved core-directory defaults and
+database connection feedback. Repository cleanup removed obsolete development
+and IDE files. See the change log for the historical record and the TODO for
+remaining validation work on the current version.
 
 LetoDMS is distributed under the GNU GPL; see [LICENSE](LICENSE).
