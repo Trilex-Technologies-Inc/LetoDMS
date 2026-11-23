@@ -154,6 +154,8 @@ class LetoDMS_View_ViewFolder extends LetoDMS_Bootstrap_Style {
 		$this->contentContainerEnd();
 
 		$this->contentHeading(getMLText("folder_contents"));
+		if (!empty($this->params['aisearchavailable']) && isset($_GET['ai_indexed']))
+			echo '<div class="alert alert-success">Document indexed. It is now available in AI search.</div>';
 
 		$subFolders = $folder->getSubFolders($orderby);
 		$subFolders = LetoDMS_Core_DMS::filterAccess($subFolders, $user, M_READ);
@@ -244,9 +246,21 @@ class LetoDMS_View_ViewFolder extends LetoDMS_Bootstrap_Style {
 				print "<td><span class=\"badge\">".$version."</span></td>";
 				print "<td>";
 ?>
+<?php if (!empty($this->params['aisearchavailable']) && $latestContent->getAccessMode($user) >= M_READ) { ?>
+     <form id="ai-index-<?php echo (int)$docID; ?>" action="../op/op.Module.php?module=ai-assistant" method="post" style="display:none">
+     <?php echo createHiddenFieldWithKey('ai-assistant'); ?>
+     <input type="hidden" name="action" value="index">
+     <input type="hidden" name="documentid" value="<?php echo (int)$docID; ?>">
+     <input type="hidden" name="version" value="<?php echo (int)$version; ?>">
+     <input type="hidden" name="return_folder" value="<?php echo (int)$folder->getID(); ?>">
+     </form>
+<?php } ?>
      <div class="btn-group table-actions"><a class="btn btn-mini btn-danger" href="../out/out.RemoveDocument.php?documentid=<?php echo $docID; ?>" title="<?php printMLText("rm_document");?>"><i class="icon-remove icon-white"></i></a>
      <a class="btn btn-mini" href="../out/out.EditDocument.php?documentid=<?php echo $docID; ?>" title="<?php printMLText("edit_document_props");?>"><i class="icon-edit"></i></a>
-     <a class="btn btn-mini" href="../op/op.AddToClipboard.php?folderid=<?php echo $folder->getID(); ?>&type=document&id=<?php echo $docID; ?>" title="<?php printMLText("add_to_clipboard");?>"><i class="icon-bookmark"></i></a></div>
+     <a class="btn btn-mini" href="../op/op.AddToClipboard.php?folderid=<?php echo $folder->getID(); ?>&type=document&id=<?php echo $docID; ?>" title="<?php printMLText("add_to_clipboard");?>"><i class="icon-bookmark"></i></a>
+<?php if (!empty($this->params['aisearchavailable']) && $latestContent->getAccessMode($user) >= M_READ) { ?>
+     <button type="submit" form="ai-index-<?php echo (int)$docID; ?>" class="btn btn-mini" title="Index for search" aria-label="Index for search"><i class="icon-refresh" aria-hidden="true"></i></button>
+<?php } ?></div>
 <?php
 				print "</td>";
 				print "</tr>\n";

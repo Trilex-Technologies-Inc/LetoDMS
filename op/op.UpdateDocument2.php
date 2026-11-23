@@ -160,7 +160,13 @@ if( move_uploaded_file( $source_file_path, $target_file_path ) ) {
 			echo getMLText("error_occured");
 		} else {
 			// Send notification to subscribers.
+			if (is_file($settings->_rootDir.'modules/ai-assistant/inc/Upload.php')) {
+				require_once $settings->_rootDir.'modules/ai-assistant/inc/Upload.php';
+				letoDMSQueueAIUpload($db, $dms, $settings, $user, $document, $contentResult->getContent());
+			}
 			$document->getNotifyList();
+			require_once $settings->_rootDir.'inc/inc.FulltextUpload.php';
+			letoDMSQueueFulltextUpload($db, $dms, $settings, $document, $contentResult->getContent());
 			if ($notifier){
 				$folder = $document->getFolder();
 				$subject = "###SITENAME###: ".$document->getName()." - ".getMLText("document_updated_email");

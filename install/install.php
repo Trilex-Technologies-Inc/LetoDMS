@@ -56,7 +56,12 @@ function openDBConnection($settings) { /* {{{ */
 			$dsn = $settings->_dbDriver.":".$settings->_dbDatabase;
 			break;
 	}
-	$connTmp = new PDO($dsn, $settings->_dbUser, $settings->_dbPass);
+	try {
+		$connTmp = new PDO($dsn, $settings->_dbUser, $settings->_dbPass);
+	} catch (PDOException $e) {
+		printError('Could not connect to the database. Check the database name, host, username, password, and database permissions.');
+		return false;
+	}
 	return $connTmp;
 } /* }}} */
 
@@ -120,7 +125,7 @@ function fileExistsInIncludePath($file) { /* {{{ */
  * Load default settings + set
  */
 define("LETODMS_INSTALL", "on");
-define("LETODMS_VERSION", "5.1.b");
+define("LETODMS_VERSION", "5.2.b");
 
 require_once('../inc/inc.ClassSettings.php');
 
@@ -326,43 +331,42 @@ if ($action=="setSettings") {
 				// var_dump($query);
 					$query = trim($query);
 					if (!empty($query)) {
-						$connTmp->exec($query);
-
-						if ($connTmp->errorCode() != 0) {
-							$errorMsg .= $connTmp->errorInfo() . "<br/>";
+						try {
+							if ($connTmp->exec($query) === false) throw new PDOException('Schema initialization failed.');
+						} catch (PDOException $e) {
+							$errorMsg = 'Database initialization failed. Check database permissions and whether this database already contains LetoDMS tables. Initialization may be partial; do not retry creation against an existing installation.';
+							break;
 						}
 					}
 				}
 			}
 
 			// error ?
-			if (empty($errorMsg))
+			if ($connTmp && empty($errorMsg))
 				$createOK = true;
 
 			$connTmp = null;
 
 			// Show error
 			if (!$createOK) {
-				echo $errorMsg;
+				 echo $errorMsg;
 				$hasError = true;
 			}
 		} // create database
 
 		if (!$hasError) {
 
-			// Save settings
-			$settings->save();
-
 			$connTmp =openDBConnection($settings);
 			if ($connTmp) {
-				$res = $connTmp->query('select * from tblVersion');
-				if($res) {
-					if($rec = $res->fetch(PDO::FETCH_ASSOC)) {
+				require_once __DIR__.'/inc.DatabaseCheck.php';
+				$rec = letoDMSInstallDatabaseVersion($connTmp);
+				if($rec) {
+					// Do not persist an invalid or uninitialized database selection.
+					$settings->save();
 						echo "Your current database schema has version ".$rec['major'].'.'.$rec['minor'].'.'.$rec['subminor']."<br /><br />";
 						$connTmp = null;
 						if (isset($_POST["createDatabase"]))
 							print "<p>Your database was created successfully.</p>";
-					}
 					echo getMLText("settings_install_success");
 					echo "<br/><br/>";
 					echo getMLText("settings_delete_install_folder");
@@ -372,7 +376,7 @@ if ($action=="setSettings") {
 
 					echo '<a href="../out/out.Settings.php">' . getMLText("settings_more_settings") .'</a>';
 				} else {
-					print "<p>You does not seem to have a valid database. The table tblVersion is missing.</p>";
+					printError('The selected database has no readable LetoDMS schema version (tblVersion). For a new, empty database, return to setup and select the database creation checkbox. For an existing installation, verify the database name and restore or repair its schema; do not recreate its tables.');
 				}
 			}
 		}
@@ -381,7 +385,7 @@ if ($action=="setSettings") {
 	// Back link
 	echo '<br/>';
 	echo '<br/>';
-	echo '<a href="/install/install.php">' . getMLText("back") . '</a>';
+	echo '<a href="install.php">' . getMLText("back") . '</a>';
 
 } else {
 

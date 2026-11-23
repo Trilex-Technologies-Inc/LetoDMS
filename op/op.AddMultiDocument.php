@@ -206,6 +206,12 @@ if (move_uploaded_file($source_file_path, $target_file_path)) {
 			echo getMLText("error_occured");
 		} else {
 			$document = $res[0];
+			if (is_file($settings->_rootDir.'modules/ai-assistant/inc/Upload.php')) {
+				require_once $settings->_rootDir.'modules/ai-assistant/inc/Upload.php';
+				letoDMSQueueAIUpload($db, $dms, $settings, $user, $document);
+			}
+			require_once $settings->_rootDir.'inc/inc.FulltextUpload.php';
+			letoDMSQueueFulltextUpload($db, $dms, $settings, $document);
 			if (isset($GLOBALS['LETODMS_HOOKS']['postAddDocument'])) {
 				foreach ($GLOBALS['LETODMS_HOOKS']['postAddDocument'] as $hookObj) {
 					if (method_exists($hookObj, 'postAddDocument')) {

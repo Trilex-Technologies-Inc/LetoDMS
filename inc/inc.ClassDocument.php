@@ -1150,8 +1150,12 @@ class LetoDMS_Core_Document extends LetoDMS_Core_Object { /* {{{ */
 		unset($this->_content);
 		unset($this->_latestContent);
 		$content = new LetoDMS_Core_DocumentContent($contentID, $this, $version, $comment, $date, $user->getID(), $dir, $orgFileName, $fileType, $mimeType, $filesize, $checksum);
-		if($workflow)
-			$content->setWorkflow($workflow, $user);
+		// The initial status is created below; do not update a status row that does not exist yet.
+		if ($workflow && !$content->setWorkflow($workflow, $user, false)) {
+			$this->removeContent($content);
+			$db->rollbackTransaction();
+			return false;
+		}
 		$docResultSet = new LetoDMS_Core_AddContentResultSet($content);
 
 		if($attributes) {
@@ -2610,7 +2614,7 @@ class LetoDMS_Core_DocumentContent extends LetoDMS_Core_Object { /* {{{ */
 			}
 		}
 
-		if ( $indstatus || (isset($indstatus["status"]) && $indstatus["status"]!=-2)) {
+		if (!$indstatus || (isset($indstatus["status"]) && $indstatus["status"]!=-2)) {
 			// Add the user into the approvers database.
 			$queryStr = "INSERT INTO `tblDocumentApprovers` (`documentID`, `version`, `type`, `required`) ".
 				"VALUES ('". $this->_document->getID() ."', '". $this->_version ."', '0', '". $userID ."')";
@@ -2970,7 +2974,7 @@ class LetoDMS_Core_DocumentContent extends LetoDMS_Core_Object { /* {{{ */
 	 *
 	 * @param object $workflow
 	 */
-	function setWorkflow($workflow, $user) { /* {{{ */
+	function setWorkflow($workflow, $user, $updateStatus = true) { /* {{{ */
 		$db = $this->_document->_dms->getDB();
 
 		$this->getWorkflow();
@@ -2983,7 +2987,7 @@ class LetoDMS_Core_DocumentContent extends LetoDMS_Core_Object { /* {{{ */
 				return false;
 			}
 			$this->_workflow = $workflow;	
-			if(!$this->setStatus(S_IN_WORKFLOW, "Added workflow '".$workflow->getName()."'", $user)) {
+			if($updateStatus && !$this->setStatus(S_IN_WORKFLOW, "Added workflow '".$workflow->getName()."'", $user)) {
 				$db->rollbackTransaction();
 				return false;
 			}

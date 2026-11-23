@@ -143,6 +143,9 @@ if(!is_writeable($settings->_configFilePath)) {
         <td><?php printMLText("settings_enableFullSearch");?>:</td>
         <td><input name="enableFullSearch" type="checkbox" <?php if ($settings->_enableFullSearch) echo "checked" ?> /></td>
       </tr>
+      <tr><td>Full-text indexing:</td><td><a href="../out/out.Fulltext.php">Indexing dashboard and rebuild</a><p class="help-block">Local database search. No Lucene library, AI provider, or API charges. A scheduled worker indexes uploads and revisions.</p></td></tr>
+      <tr><td>Full-text OCR:</td><td><label><input type="checkbox" name="fulltextOCR" <?php if ($settings->_fulltextOCR) echo 'checked'; ?> /> Read scanned PDFs and supported images (requires OCRmyPDF/Tesseract)</label></td></tr>
+      <tr><td>Full-text OCR languages:</td><td><input type="text" name="fulltextOCRLanguages" value="<?php echo htmlspecialchars($settings->_fulltextOCRLanguages,ENT_QUOTES,'UTF-8'); ?>" /><p class="help-block">For example eng or eng+fra. Install the corresponding language packs, then rebuild affected documents after changing this setting.</p></td></tr>
       <tr title="<?php printMLText("settings_stopWordsFile_desc");?>">
         <td><?php printMLText("settings_stopWordsFile");?>:</td>
         <td><input type="text" name="stopWordsFile" value="<?php echo $settings->_stopWordsFile; ?>" size="100" /></td>
@@ -267,6 +270,19 @@ if(!is_writeable($settings->_configFilePath)) {
         -- SETTINGS - SYSTEM - AUTHENTICATION
       -->
       <tr ><td><b> <?php printMLText("settings_Authentication");?></b></td> </tr>
+      <tr>
+        <td>Enable WebDAV:</td>
+        <td><label><input name="enableWebDAV" type="checkbox" <?php if ($settings->_enableWebDAV) echo 'checked'; ?> /> Desktop access over HTTPS</label>
+          <p class="help-block">Requires SabreDAV dependencies in webdav/vendor. Administrators have access; other users need the webdav.access role permission. Connect to <?php echo htmlspecialchars(rtrim($settings->_httpRoot, '/').'/webdav/index.php/', ENT_QUOTES, 'UTF-8'); ?></p></td>
+      </tr>
+      <tr>
+        <td>WebDAV read-only:</td>
+        <td><input name="webDAVReadOnly" type="checkbox" <?php if ($settings->_webDAVReadOnly) echo 'checked'; ?> /></td>
+      </tr>
+      <tr>
+        <td>WebDAV upload limit (MiB):</td>
+        <td><input name="webDAVMaxUploadMB" type="number" min="1" max="2048" value="<?php echo (int)ceil($settings->_webDAVMaxUploadSize/1048576); ?>" /></td>
+      </tr>
       <tr title="<?php printMLText("settings_enableGuestLogin_desc");?>">
         <td><?php printMLText("settings_enableGuestLogin");?>:</td>
         <td><input name="enableGuestLogin" type="checkbox" <?php if ($settings->_enableGuestLogin) echo "checked" ?> /></td>

@@ -1,3 +1,41 @@
+LetoDMS TODO — updated November 22, 2026
+
+Recently implemented (local implementation; deployment testing still applies)
+---------------------------------------------------------------------------
+[x] Hosted AI provider administration and optional model discovery.
+[x] PDF/Word extraction, automatic analysis queue, and semantic search in the top bar.
+[x] Document AI panel: Q&A, summaries, version comparison, metadata review, duplicates.
+[x] Optional OCR, processing dashboard, retries, request limits, and usage estimates.
+[x] SabreDAV replacement, settings, permissions, versioned uploads, locks, and AI hook.
+[x] Modern Bootstrap light/dark mode with browser preference persistence.
+[x] Expanded English Help with searchable topics and troubleshooting.
+[x] Main README covering setup, upgrades, worker requirements, and component guides.
+[x] Replace Zend/Lucene with local database-backed full-text search and highlighted excerpts.
+[x] Independent upload/version indexing queue, background worker, dashboard, and rebuild batches.
+[x] Shared text extractor with separate full-text limits and optional OCR settings.
+[x] Administrator GitHub release checks on Version information, including beta comparison and caching.
+
+Current validation and follow-up
+-------------------------------
+[ ] Test current changes on the deployed PHP/web-server environment.
+[ ] Validate full-text schema and concurrent workers on production MySQL/MariaDB.
+[ ] Benchmark the portable full-text index on large collections; evaluate native search adapters if needed.
+[ ] Consider additional language tokenization, stemming, prefix search, and relevance ranking.
+[ ] Validate live hosted-provider requests, billing errors, and representative files.
+[ ] Verify OCR tools, language packs, CLI PHP extensions, and scheduled worker permissions.
+[ ] Validate WebDAV MySQL/MariaDB conversion on a backed-up staging installation.
+[ ] Test Windows/macOS/Office clients, authentication forwarding, routing, and locking.
+[ ] Review light/dark appearance across remaining legacy screens and embedded widgets.
+[ ] Translate the updated Help guide and appearance labels into other supported languages.
+[ ] Consider account-level color preferences for users who want cross-device synchronization.
+[ ] Continue replacing legacy PHP patterns and Bootstrap/jQuery dependencies.
+
+Historical backlog (retained for review; entries below are not all revalidated)
+----------------------------------------------------------------------------
+Some older requests overlap newer features. Duplicate detection, browser-based
+multi-upload, and DAV folder copying now have implementations, but the original
+broader requests below remain until their full intended scope is reviewed.
+
 Update comment and date of a review/approval, if the same status is set
 again. Currently setting the same status is turned of, because it didn't
 have any effect, which is quite confusing if the user can do an operation

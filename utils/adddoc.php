@@ -187,4 +187,6 @@ if (is_bool($res) && !$res) {
 	echo "Could not add document to folder\n";
 	exit(1);
 }
+require_once __DIR__.'/../inc/inc.FulltextUpload.php';
+letoDMSQueueFulltextUpload($db,$dms,$settings,$res[0]);
 ?>

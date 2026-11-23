@@ -98,9 +98,8 @@ class LetoDMS_View_AdminTools extends LetoDMS_Bootstrap_Style {
 <?php
 		if($enablefullsearch) {
 			$searchItems = array(
-				array("../out/out.Indexer.php", getMLText("update_fulltext_index"), "icon-refresh"),
-				array("../out/out.CreateIndex.php", getMLText("create_fulltext_index"), "icon-plus-sign"),
-				array("../out/out.IndexInfo.php", getMLText("fulltext_info"), "icon-info-sign")
+				array("../out/out.Fulltext.php", "Indexing dashboard and rebuild", "icon-refresh"),
+				array("../op/op.SearchFulltext.php", "Search document contents", "icon-search")
 			);
 			echo '<div class="row-fluid admin-grid-row">';
 			$this->adminCard(getMLText("fullsearch"), "icon-search", $searchItems);

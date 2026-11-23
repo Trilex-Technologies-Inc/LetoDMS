@@ -173,7 +173,13 @@ if ($_FILES['userfile']['error'] == 0) {
 	}
 	else {
 		// Send notification to subscribers.
+		if (is_file($settings->_rootDir.'modules/ai-assistant/inc/Upload.php')) {
+			require_once $settings->_rootDir.'modules/ai-assistant/inc/Upload.php';
+			letoDMSQueueAIUpload($db, $dms, $settings, $user, $document, $contentResult->getContent());
+		}
 		$document->getNotifyList();
+		require_once $settings->_rootDir.'inc/inc.FulltextUpload.php';
+		letoDMSQueueFulltextUpload($db, $dms, $settings, $document, $contentResult->getContent());
 		if ($notifier){
 			$folder = $document->getFolder();
 			$subject = "###SITENAME###: ".$document->getName()." - ".getMLText("document_updated_email");

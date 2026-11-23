@@ -250,6 +250,10 @@ class LetoDMS_View_ViewDocument extends LetoDMS_Bootstrap_Style {
 		$file_exists=file_exists($dms->contentDir . $latestContent->getPath());
 
 		$this->contentHeading(getMLText("current_version"));
+		if (!empty($this->params['aidocumentproviders'])) {
+			require_once __DIR__.'/../../modules/ai-assistant/views/DocumentPanel.php';
+			LetoDMS_AI_DocumentPanel::show($dms, $document, $user, $this->params['aidocumentproviders'], !empty($this->params['aisearchavailable']));
+		}
 		$this->contentContainerStart();
 		print "<table class=\"table\">";
 		print "<thead>\n<tr>\n";

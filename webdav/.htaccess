@@ -1,0 +1,14 @@
+Options -Indexes
+<FilesMatch "^(composer\.(json|lock)|README\.md)$">
+    Require all denied
+</FilesMatch>
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteRule ^(?:vendor|src|tests)(?:/|$) - [F,L]
+    RewriteRule ^(?:composer\.(?:json|lock)|README\.md)$ - [F,L]
+    RewriteCond %{HTTP:Authorization} .
+    RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+    RewriteRule ^index\.php(?:/|$) - [L]
+    RewriteRule ^letodms_webdav\.php$ - [L]
+    RewriteRule ^(.*)$ index.php [QSA,L]
+</IfModule>

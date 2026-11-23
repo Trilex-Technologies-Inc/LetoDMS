@@ -65,6 +65,11 @@ if ($action == "saveSettings")
   $settings->_enableEmail =getBoolValue("enableEmail");
   $settings->_enableUsersView = getBoolValue("enableUsersView");
   $settings->_enableFullSearch = getBoolValue("enableFullSearch");
+  $settings->_fulltextOCR = getBoolValue('fulltextOCR');
+  $fulltextLanguages = trim((string)($_POST['fulltextOCRLanguages'] ?? 'eng'));
+  if (!preg_match('/^[A-Za-z0-9_]+(?:\+[A-Za-z0-9_]+)*$/D', $fulltextLanguages) || strlen($fulltextLanguages)>100)
+    (new UI($GLOBALS['theme'] ?? 'bootstrap'))->exitError('Full-text search', 'Enter OCR languages such as eng or eng+fra.');
+  $settings->_fulltextOCRLanguages = $fulltextLanguages;
   $settings->_enableFolderTree = getBoolValue("enableFolderTree");
   $settings->_enableLanguageSelector = getBoolValue("enableLanguageSelector");
   $settings->_expandFolderTree = intval($_POST["expandFolderTree"]);
@@ -92,6 +97,13 @@ if ($action == "saveSettings")
 
   // SETTINGS - SYSTEM - AUTHENTICATION
   $settings->_enableGuestLogin = getBoolValue("enableGuestLogin");
+  $settings->_enableWebDAV = getBoolValue("enableWebDAV");
+  if ($settings->_enableWebDAV) {
+    // Make the permission available for role assignment before the first DAV connection.
+    $db->getResult("INSERT INTO tblPermissions (name,description) SELECT 'webdav.access','Access documents through WebDAV' WHERE NOT EXISTS (SELECT id FROM tblPermissions WHERE name='webdav.access')");
+  }
+  $settings->_webDAVReadOnly = getBoolValue("webDAVReadOnly");
+  $settings->_webDAVMaxUploadSize = max(1, min(2048, (int)($_POST['webDAVMaxUploadMB'] ?? 50))) * 1048576;
   $settings->_restricted = getBoolValue("restricted");
   $settings->_enableUserImage = getBoolValue("enableUserImage");
   $settings->_disableSelfEdit = getBoolValue("disableSelfEdit");

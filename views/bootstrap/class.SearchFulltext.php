@@ -1,130 +1,30 @@
 <?php
-/**
- * Implementation of Search result view
- *
- * @category   DMS
- * @package    LetoDMS
- * @license    GPL 2
- * @version    @version@
- * @author     Uwe Steinmann <uwe@steinmann.cx>
- * @copyright  Copyright (C) 2002-2005 Markus Westphal,
- *             2006-2008 Malcolm Cowe, 2010 Matteo Lucarelli,
- *             2010-2012 Uwe Steinmann
- * @version    Release: @package_version@
- */
-
-/**
- * Include parent class
- */
-require_once("class.Bootstrap.php");
-
-/**
- * Class which outputs the html page for Search result view
- *
- * @category   DMS
- * @package    LetoDMS
- * @author     Markus Westphal, Malcolm Cowe, Uwe Steinmann <uwe@steinmann.cx>
- * @copyright  Copyright (C) 2002-2005 Markus Westphal,
- *             2006-2008 Malcolm Cowe, 2010 Matteo Lucarelli,
- *             2010-2012 Uwe Steinmann
- * @version    Release: @package_version@
- */
-class LetoDMS_View_SearchFulltext extends LetoDMS_Bootstrap_Style {
-
-	function show() { /* {{{ */
-		$dms = $this->params['dms'];
-		$user = $this->params['user'];
-		$folder = $this->params['folder'];
-		$entries = $this->params['searchhits'];
-		$totalpages = $this->params['totalpages'];
-		$totaldocs = $this->params['totaldocs'];
-		$pageNumber = $this->params['pagenumber'];
-		$urlparams = $this->params['urlparams'];
-		$searchin = $this->params['searchin'];
-		$searchTime = $this->params['searchtime'];
-
-		$this->htmlStartPage(getMLText("search_results"));
-		$this->globalNavigation($folder);
-		$this->contentStart();
-		$this->pageNavigation(getMLText("search_results"), "");
-?>
-<div class="alert">
-<?php
-		$numResults = $totaldocs;
-		if ($numResults == 0) {
-			printMLText("search_no_results");
-		}
-		else {
-			printMLText("search_report_fulltext", array("doccount" => $totaldocs));
-		}
-		echo ". ";
-		printMLText("search_time", array("time" => $searchTime));
-?>
-</div>
-
-<?php
-		$this->pageList($pageNumber, $totalpages, "../op/op.SearchFulltext.php", $_GET);
-		$this->contentContainerStart();
-		if ($numResults == 0) {
-			$this->contentContainerEnd();
-			$this->htmlEndPage();
-			exit;
-		}
-
-
-		print "<table class=\"table\">";
-		print "<thead>\n<tr>\n";
-		print "<th></th>\n";
-		print "<th>".getMLText("name")."</th>\n";
-		print "<th>".getMLText("owner")."</th>\n";
-		print "<th>".getMLText("status")."</th>\n";
-		print "<th>".getMLText("version")."</th>\n";
-		print "<th>".getMLText("comment")."</th>\n";
-		//print "<th>".getMLText("reviewers")."</th>\n";
-		//print "<th>".getMLText("approvers")."</th>\n";
-		print "</tr>\n</thead>\n<tbody>\n";
-
-		$resultsFilteredByAccess = false;
-		foreach ($entries as $document) {
-			if ($document->getAccessMode($user) < M_READ) {
-				$resultsFilteredByAccess = true;
-			}
-			else {
-				$lc = $document->getLatestContent();
-				print "<tr>";
-				print "<td><a href=\"../op/op.Download.php?documentid=".$docID."&version=".$version."\"><img class=\"mimeicon\" src=\"".$this->getMimeIcon($lc->getFileType())."\" title=\"".htmlspecialchars($lc->getMimeType())."\"></a></td>";
-				$docName = htmlspecialchars($document->getName());
-				print "<td><a class=\"standardText\" href=\"../out/out.ViewDocument.php?documentid=".$document->getID()."\">/";
-				$folder = $document->getFolder();
-				$path = $folder->getPath();
-				for ($i = 1; $i  < count($path); $i++) {
-					print htmlspecialchars($path[$i]->getName())."/";
-				}
-				print $docName;
-				print "</a></td>";
-
-				$owner = $document->getOwner();
-				print "<td>".htmlspecialchars($owner->getFullName())."</td>";
-				$display_status=$lc->getStatus();
-				print "<td>".getOverallStatusText($display_status["status"]). "</td>";
-
-				print "<td class=\"center\">".$lc->getVersion()."</td>";
-
-				$comment = htmlspecialchars($document->getComment());
-				if (strlen($comment) > 50) $comment = substr($comment, 0, 47) . "...";
-				print "<td>".$comment."</td>";
-				print "</tr>\n";
-			}
-		}
-		if ($resultsFilteredByAccess) {
-			print "<tr><td colspan=\"7\">". getMLText("search_results_access_filtered") . "</td></tr>";
-		}
-		print "</tbody></table>\n";
-
-		$this->contentContainerEnd();
-		$this->pageList($pageNumber, $totalpages, "../op/op.Search.php", $_GET);
-		$this->htmlEndPage();
-	} /* }}} */
+require_once 'class.Bootstrap.php';
+class LetoDMS_View_SearchFulltext extends LetoDMS_Bootstrap_Style
+{
+    public function show()
+    {
+        $p=$this->params; $esc=function($v){return htmlspecialchars((string)$v,ENT_QUOTES,'UTF-8');};
+        $this->htmlStartPage('Full-text search'); $this->globalNavigation(); $this->contentStart();
+        $this->contentHeading('Full-text search'); $this->contentContainerStart();
+        echo '<p>Search words inside locally indexed documents. All words must match; use quotation marks for a phrase. No AI requests are made.</p>';
+        echo '<form method="get" action="../op/op.SearchFulltext.php"><label for="fulltext-query">Search document contents</label><input id="fulltext-query" type="search" name="query" maxlength="512" value="'.$esc($p['query']).'" /> <button class="btn" type="submit">Search</button>';
+        if ($p['folderid']) echo '<input type="hidden" name="folderid" value="'.(int)$p['folderid'].'">';
+        if ($p['ownerid']) echo '<input type="hidden" name="ownerid" value="'.(int)$p['ownerid'].'">';
+        foreach ($p['categoryids'] as $cat) echo '<input type="hidden" name="categoryids[]" value="'.(int)$cat.'">';
+        echo '</form>';
+        if ($p['error']) echo '<div class="alert alert-error">'.$esc($p['error']).'</div>';
+        elseif ($p['query']!=='' && !$p['result']['hits']) echo '<div class="alert alert-info">No matching accessible documents in this batch. Check indexing status, try another term, or continue if more results are available.</div>';
+        foreach ($p['result']['hits'] as $hit) {
+            $url='../out/out.ViewDocument.php?documentid='.(int)$hit['id'];
+            echo '<article class="well fulltext-hit"><h3><a href="'.$url.'">'.$esc($hit['name']).'</a></h3><p class="muted">Version '.(int)$hit['version'].($hit['snippet']['page']?' · Page '.(int)$hit['snippet']['page']:'').'</p>';
+            echo '<p>'.LetoDMS_Fulltext::highlight($hit['snippet']['text'],$p['result']['words']).'</p></article>';
+        }
+        if ($p['result']['next']!==null) {
+            $args=['query'=>$p['query'],'after'=>$p['result']['next'],'folderid'=>$p['folderid'],'ownerid'=>$p['ownerid'],'categoryids'=>$p['categoryids']];
+            echo '<a class="btn" href="../op/op.SearchFulltext.php?'.$esc(http_build_query($args)).'">More results</a>';
+        }
+        if ($p['user']->isAdmin()) echo '<p><a href="../out/out.Fulltext.php">Indexing dashboard</a></p>';
+        $this->contentContainerEnd(); $this->htmlEndPage();
+    }
 }
-?>
-

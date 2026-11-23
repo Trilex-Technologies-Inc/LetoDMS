@@ -78,7 +78,11 @@ $(document).ready( function() {
 	$("#searchfield").typeahead({
 		minLength: 3,
 		source: function(query, process) {
+			var mode = $(this.$element).closest('form').find('select[name="action"]').val();
+			if (mode === 'fulltext' || mode === 'search') { process([]); return; }
 			$.get('../restapi/index.php/search', { query: query, limit: 8, mode: 'typeahead' }, function(data) {
+					var currentMode = $('#searchfield').closest('form').find('select[name="action"]').val();
+					if (currentMode === 'fulltext' || currentMode === 'search') { process([]); return; }
 					process(data);
 			});
 		},

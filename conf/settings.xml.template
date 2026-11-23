@@ -36,6 +36,8 @@
       enableEmail = "true"	
       enableUsersView = "true"
       enableFullSearch = "true"
+      fulltextOCR = "false"
+      fulltextOCRLanguages = "eng"
       enableFolderTree = "true"
       expandFolderTree = "1"
       enableLanguageSelector = "true"
@@ -96,6 +98,9 @@
     -->    
     <authentication
       enableGuestLogin = "false"
+      enableWebDAV = "false"
+      webDAVReadOnly = "false"
+      webDAVMaxUploadSize = "52428800"
       enablePasswordForgotten = "false"
       restricted = "true"
       enableUserImage = "false"
